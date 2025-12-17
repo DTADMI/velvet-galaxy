@@ -3,7 +3,7 @@
 import {formatDistanceToNow} from "date-fns";
 import {Calendar, Heart, MessageCircle, RefreshCw, ThumbsUp, UserPlus, Users} from "lucide-react";
 import Link from "next/link";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Button} from "@/components/ui/button";
@@ -32,30 +32,7 @@ export function ActivityFeed({userId}: { userId: string }) {
     const [refreshing, setRefreshing] = useState(false);
     const supabase = createBrowserClient();
 
-    useEffect(() => {
-        loadActivities();
-
-        const channel = supabase
-            .channel("activities")
-            .on(
-                "postgres_changes",
-                {
-                    event: "INSERT",
-                    schema: "public",
-                    table: "activities",
-                },
-                () => {
-                    loadActivities();
-                },
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, []);
-
-    const loadActivities = async () => {
+    const loadActivities = useCallback(async () => {
         // Get user's friends and followed users
         const {data: friends} = await supabase
             .from("friendships")
@@ -91,7 +68,30 @@ export function ActivityFeed({userId}: { userId: string }) {
         }
         setLoading(false);
         setRefreshing(false);
-    };
+    }, [supabase, userId]);
+
+    useEffect(() => {
+        loadActivities();
+
+        const channel = supabase
+            .channel("activities")
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "activities",
+                },
+                () => {
+                    loadActivities();
+                },
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [loadActivities, supabase]);
 
     const handleRefresh = async () => {
         setRefreshing(true);
