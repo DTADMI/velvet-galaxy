@@ -80,7 +80,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
 
     useEffect(() => {
         loadConversations();
-    }, [activeTab, activeInbox]);
+    }, [activeTab, activeInbox, loadConversations]);
 
     const loadConversations = async () => {
         if (activeTab === "rooms") {
@@ -342,7 +342,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
             loadRooms();
             calculateInboxCounts();
         }
-    }, [activeTab]);
+    }, [activeTab, calculateInboxCounts, loadRooms]);
 
     const loadRooms = async () => {
         const {data} = await supabase

@@ -58,19 +58,19 @@ export function LinkNetLogo({size = "md", className, showText = false}: LinkNetL
                     <circle cx="30" cy="70" r="3" fill="#dc2626"/>
                     <circle cx="70" cy="70" r="3" fill="#dc2626"/>
                 </svg>
-                {/* L and N letters with chain link aesthetic */}
+                {/* VG letters with galaxy aesthetic */}
                 <span className={cn("font-bold text-white relative z-10 tracking-tight", iconSizeClasses[size])}>
-          L<span className="text-red-500">N</span>
+          V<span className="text-red-500">G</span>
         </span>
             </div>
             {showText && (
                 <span
                     className={cn(
-                        "font-bold bg-gradient-to-r from-red-900 via-purple-900 to-red-700 bg-clip-text text-transparent",
+                        "font-bold bg-gradient-to-r from-purple-900 via-blue-900 to-red-700 bg-clip-text text-transparent",
                         textSizeClasses[size],
                     )}
                 >
-          LinkNet
+          Velvet Galaxy
         </span>
             )}
         </div>

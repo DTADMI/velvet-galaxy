@@ -95,13 +95,13 @@ const MediaViewerPage = ({
 
         window.addEventListener("popstate", handlePopState);
         return () => window.removeEventListener("popstate", handlePopState);
-    }, [currentMediaId]);
+    }, [currentMediaId, loadLikesWithProfiles, loadMediaStats]);
 
     useEffect(() => {
         loadMediaStats();
         loadComments();
         loadLikesWithProfiles();
-    }, [currentMediaId]);
+    }, [currentMediaId, loadLikesWithProfiles, loadMediaStats]);
 
     const loadMediaStats = async () => {
         const {count: likes} = await supabase
@@ -212,7 +212,7 @@ const MediaViewerPage = ({
         }
     };
 
-    const topLikes = likesWithProfiles.slice(0, 7);
+    const _topLikes = likesWithProfiles.slice(0, 7);
     const displayedLikes = showAllLikes ? likesWithProfiles : likesWithProfiles.slice(0, 50);
 
     return (

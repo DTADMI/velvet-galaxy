@@ -1,7 +1,7 @@
 "use client";
 
 import {Eye, EyeOff, Loader2, MessageCircle, Send} from "lucide-react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Alert, AlertDescription} from "@/components/ui/alert";
 import {Badge} from "@/components/ui/badge";
@@ -23,11 +23,7 @@ export function AnonymousFAQ({profileId, isOwnProfile}: AnonymousFAQProps) {
     const [answeringId, setAnsweringId] = useState<string | null>(null);
     const [answerText, setAnswerText] = useState("");
 
-    useEffect(() => {
-        loadQuestions();
-    }, [profileId, showUnanswered]);
-
-    const loadQuestions = async () => {
+    const loadQuestions = useCallback(async () => {
         const supabase = createClient();
 
         let query = supabase
@@ -45,7 +41,11 @@ export function AnonymousFAQ({profileId, isOwnProfile}: AnonymousFAQProps) {
         const {data} = await query;
 
         setQuestions(data || []);
-    };
+    }, [isOwnProfile, profileId, showUnanswered]);
+
+    useEffect(() => {
+        loadQuestions();
+    }, [loadQuestions]);
 
     const submitQuestion = async () => {
         if (!newQuestion.trim()) {

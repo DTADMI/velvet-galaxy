@@ -36,7 +36,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
         checkUserResponse();
         loadAttendees();
         loadPosts();
-    }, []);
+    }, [checkUserResponse, loadAttendees, loadPosts]);
 
     const checkUserResponse = async () => {
         const {data} = await supabase
@@ -115,7 +115,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
                     text: event.description,
                     url: window.location.href,
                 });
-            } catch (error) {
+            } catch {
                 console.log("[v0] Share cancelled");
             }
         } else {

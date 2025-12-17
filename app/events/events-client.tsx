@@ -65,7 +65,7 @@ export function EventsClient({userId}: { userId?: string }) {
 
     useEffect(() => {
         loadEvents();
-    }, [activeTab]);
+    }, [activeTab, loadEvents]);
 
     const loadEvents = async () => {
         const now = new Date().toISOString();

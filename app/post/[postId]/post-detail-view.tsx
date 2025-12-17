@@ -2,8 +2,7 @@
 
 import {formatDistanceToNow} from "date-fns";
 import {Bookmark, Heart, Share2} from "lucide-react";
-import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {CommentSection} from "@/components/comment-section";
 import {ShareDialog} from "@/components/share-dialog";
@@ -18,12 +17,22 @@ interface PostDetailViewProps {
 }
 
 export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
-    const router = useRouter();
     const supabase = createClient();
-    const [isLiked, setIsLiked] = useState(post.post_likes?.some((like: any) => like.user_id === currentUserId) || false);
+    const [isLiked, setIsLiked] = useState(post.post_likes?.some((like: {
+        user_id: string
+    }) => like.user_id === currentUserId) || false);
     const [likesCount, setLikesCount] = useState(post.post_likes?.length || 0);
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [shareOpen, setShareOpen] = useState(false);
+
+    const loadPostData = useCallback(async () => {
+        const {data: likes} = await supabase.from("post_likes").select("user_id").eq("post_id", post.id);
+
+        if (likes) {
+            setLikesCount(likes.length);
+            setIsLiked(likes.some((like: { user_id: string }) => like.user_id === currentUserId));
+        }
+    }, [currentUserId, post.id, supabase]);
 
     useEffect(() => {
         const handlePopState = () => {
@@ -33,16 +42,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
 
         window.addEventListener("popstate", handlePopState);
         return () => window.removeEventListener("popstate", handlePopState);
-    }, []);
-
-    const loadPostData = async () => {
-        const {data: likes} = await supabase.from("post_likes").select("user_id").eq("post_id", post.id);
-
-        if (likes) {
-            setLikesCount(likes.length);
-            setIsLiked(likes.some((like) => like.user_id === currentUserId));
-        }
-    };
+    }, [loadPostData]);
 
     const handleLike = async () => {
         if (isLiked) {

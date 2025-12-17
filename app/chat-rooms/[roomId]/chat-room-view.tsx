@@ -85,7 +85,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
     const [waitingRoomOpen, setWaitingRoomOpen] = useState(false);
 
     const localVideoRef = useRef<HTMLVideoElement>(null);
-    const remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map());
+    const _remoteVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map());
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const supabase = createBrowserClient();
     const router = useRouter();
@@ -100,7 +100,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
     const [localStream, setLocalStream] = useState<MediaStream | null>(null);
     const [peerConnections, setPeerConnections] = useState<Map<string, RTCPeerConnection>>(new Map());
     const [isCreator, setIsCreator] = useState(false);
-    const [editRoomOpen, setEditRoomOpen] = useState(false);
+    const [_editRoomOpen, set_editRoomOpen] = useState(false);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
     useEffect(() => {
@@ -195,7 +195,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
             supabase.removeChannel(channel);
             cleanupWebRTC();
         };
-    }, [roomId, isCreator]);
+    }, [roomId, isCreator, checkIfCreator, checkWaitingRoomStatus, cleanupWebRTC, initializeWebRTC, loadMessages, loadParticipants, loadWaitingParticipants, roomType, supabase, userId]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
@@ -463,7 +463,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
             }
 
             alert("Room updated successfully");
-            setEditRoomOpen(false);
+            set_editRoomOpen(false);
             window.location.reload();
         } catch (error) {
             console.error("[v0] Error updating room:", error);

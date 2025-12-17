@@ -54,7 +54,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
         if (savedSize) {
             setDisplaySize(savedSize);
         }
-    }, []);
+    }, [checkMembership, group.creator_id, loadEvents, loadMembers, loadPosts, loadUserProfile, userId]);
 
     const handleDisplaySizeChange = (size: PostDisplaySize) => {
         setDisplaySize(size);

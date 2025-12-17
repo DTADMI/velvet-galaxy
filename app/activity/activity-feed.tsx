@@ -43,10 +43,10 @@ export function ActivityFeed({userId}: { userId: string }) {
         const {data: following} = await supabase.from("follows").select("following_id").eq("follower_id", userId);
 
         const friendIds = new Set<string>();
-        friends?.forEach((f) => {
+        friends?.forEach((f: { user_id: string; friend_id: string }) => {
             friendIds.add(f.user_id === userId ? f.friend_id : f.user_id);
         });
-        following?.forEach((f) => friendIds.add(f.following_id));
+        following?.forEach((f: { following_id: string }) => friendIds.add(f.following_id));
 
         // Get activities from friends and followed users
         const userIds = Array.from(friendIds);

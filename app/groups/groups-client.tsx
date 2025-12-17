@@ -45,7 +45,7 @@ export function GroupsClient({userId}: { userId?: string }) {
 
     useEffect(() => {
         loadGroups();
-    }, [activeTab]);
+    }, [activeTab, loadGroups]);
 
     const loadGroups = async () => {
         if (activeTab === "my-groups" && userId) {

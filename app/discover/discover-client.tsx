@@ -34,13 +34,13 @@ interface DiscoverClientProps {
         avatar_url: string | null
         location: string | null
     }
-    likedTags: Array<{
+    _likedTags: Array<{
         tag_id: string
         tags: { name: string } | null
     }>
 }
 
-export function DiscoverClient({profile, likedTags}: DiscoverClientProps) {
+export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
     const [curatedPosts, setCuratedPosts] = useState<any[]>([]);
     const [popularPosts, setPopularPosts] = useState<any[]>([]);
     const [likedPosts, setLikedPosts] = useState<any[]>([]);
@@ -57,7 +57,7 @@ export function DiscoverClient({profile, likedTags}: DiscoverClientProps) {
 
     useEffect(() => {
         loadPosts();
-    }, [contentFilters, feedMode]);
+    }, [contentFilters, feedMode, loadPosts]);
 
     const loadPosts = async () => {
         setLoading(true);

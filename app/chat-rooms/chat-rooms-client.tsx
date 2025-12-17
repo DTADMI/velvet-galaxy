@@ -39,7 +39,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
 
     useEffect(() => {
         loadRooms();
-    }, [activeTab]);
+    }, [activeTab, loadRooms]);
 
     const loadRooms = async () => {
         let query = supabase.from("conversations").select("*").eq("is_chat_room", true);

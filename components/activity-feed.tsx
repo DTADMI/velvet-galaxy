@@ -3,7 +3,7 @@
 import {formatDistanceToNow} from "date-fns";
 import {Calendar, Heart, MessageSquare, ThumbsUp, UserPlus, Users} from "lucide-react";
 import Link from "next/link";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Card, CardContent} from "@/components/ui/card";
@@ -30,15 +30,11 @@ export function ActivityFeed({userId}: { userId: string }) {
     const [isLoading, setIsLoading] = useState(true);
     const supabase = createClient();
 
-    useEffect(() => {
-        loadActivities();
-    }, []);
-
-    const loadActivities = async () => {
+    const loadActivities = useCallback(async () => {
         // Get user's following list
         const {data: following} = await supabase.from("follows").select("following_id").eq("follower_id", userId);
 
-        const followingIds = following?.map((f) => f.following_id) || [];
+        const followingIds = following?.map((f: { following_id: string }) => f.following_id) || [];
         followingIds.push(userId); // Include own activities
 
         // Get activities from followed users
@@ -53,7 +49,11 @@ export function ActivityFeed({userId}: { userId: string }) {
             setActivities(data as Activity[]);
         }
         setIsLoading(false);
-    };
+    }, [supabase, userId]);
+
+    useEffect(() => {
+        loadActivities();
+    }, [loadActivities]);
 
     const getActivityIcon = (type: string) => {
         switch (type) {

@@ -73,12 +73,12 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
 
         window.addEventListener("popstate", handlePopState);
         return () => window.removeEventListener("popstate", handlePopState);
-    }, []);
+    }, [loadComments, loadPostStats]);
 
     useEffect(() => {
         loadPostStats();
         loadComments();
-    }, []);
+    }, [loadComments, loadPostStats]);
 
     const loadPostStats = async () => {
         const {count: likes} = await supabase.from("post_likes").select("id", {count: "exact"}).eq("post_id", post.id);

@@ -114,7 +114,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
 
     useEffect(() => {
         loadNetworkData();
-    }, [showGroups, maxNodes, nodeSpacing]);
+    }, [showGroups, maxNodes, nodeSpacing, loadNetworkData]);
 
     useEffect(() => {
         if (nodes.length > 0 && canvasRef.current) {
@@ -125,7 +125,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 cancelAnimationFrame(animationRef.current);
             }
         };
-    }, [nodes, zoom, rotation, canvasSize, relationshipFilters, stars]);
+    }, [nodes, zoom, rotation, canvasSize, relationshipFilters, stars, startAnimation]);
 
     const loadNetworkData = async () => {
         const supabase = createBrowserClient();

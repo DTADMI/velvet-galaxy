@@ -33,7 +33,7 @@ export default async function DiscoverPage() {
             <Navigation/>
             <main className="min-h-screen bg-background pt-20 pb-8">
                 <div className="container mx-auto max-w-[1800px] px-4">
-                    {profile && <DiscoverClient profile={profile} likedTags={likedTags || []}/>}
+                    {profile && <DiscoverClient profile={profile} _likedTags={likedTags || []}/>}
                 </div>
             </main>
         </>

@@ -26,7 +26,7 @@ export function Network2DVisualization({userId}: { userId: string }) {
 
     useEffect(() => {
         loadConnections();
-    }, []);
+    }, [loadConnections]);
 
     const loadConnections = async () => {
         const {data: relationships} = await supabase
