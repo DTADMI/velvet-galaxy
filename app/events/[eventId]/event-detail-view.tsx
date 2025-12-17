@@ -4,7 +4,7 @@ import {format} from "date-fns";
 import {Calendar, Clock, MapPin, MessageSquare, Plus, Share2, Video} from "lucide-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {EventRSVPCard} from "@/components/event-rsvp-card";
 import {Navigation} from "@/components/navigation";
@@ -32,13 +32,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
     const [newPostContent, setNewPostContent] = useState("");
     const [isPostingDiscussion, setIsPostingDiscussion] = useState(false);
 
-    useEffect(() => {
-        checkUserResponse();
-        loadAttendees();
-        loadPosts();
-    }, [checkUserResponse, loadAttendees, loadPosts]);
-
-    const checkUserResponse = async () => {
+    const checkUserResponse = useCallback(async () => {
         const {data} = await supabase
             .from("event_responses")
             .select("response")
@@ -49,9 +43,9 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
         if (data) {
             setUserResponse(data.response);
         }
-    };
+    }, [event.id, userId, supabase]);
 
-    const loadAttendees = async () => {
+    const loadAttendees = useCallback(async () => {
         const {data: going} = await supabase
             .from("event_responses")
             .select("*, profiles(id, display_name, username, avatar_url)")
@@ -70,9 +64,9 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
         if (interested) {
             setInterestedUsers(interested);
         }
-    };
+    }, [event.id, supabase]);
 
-    const loadPosts = async () => {
+    const loadPosts = useCallback(async () => {
         const {data} = await supabase
             .from("posts")
             .select("*, profiles(id, username, display_name, avatar_url)")
@@ -82,7 +76,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
         if (data) {
             setPosts(data);
         }
-    };
+    }, [event.id, supabase]);
 
     const createDiscussionPost = async () => {
         if (!newPostContent.trim()) {
@@ -124,19 +118,25 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
         }
     };
 
+    useEffect(() => {
+        checkUserResponse();
+        loadAttendees();
+        loadPosts();
+    }, [checkUserResponse, loadAttendees, loadPosts]);
+
     const canPostDiscussion = userResponse === "going" || event.creator_id === userId;
 
     return (
         <>
             <Navigation/>
             <div className="min-h-screen bg-background pt-20">
-                <div className="container mx-auto max-w-[1400px] px-4 py-6">
+                <div className="container mx-auto max-w-350 px-4 py-6">
                     {/* Main Content */}
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
                         {/* Event Header Card */}
                         <Card className="border-royal-orange/20 overflow-hidden">
                             <div
-                                className="h-80 bg-gradient-to-br from-royal-orange to-amber-600 flex items-center justify-center relative">
+                                className="h-80 bg-linear-to-br from-royal-orange to-amber-600 flex items-center justify-center relative">
                                 {event.image_url ? (
                                     <img
                                         src={event.image_url || "/placeholder.svg"}
@@ -156,13 +156,13 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
 
                             <CardContent className="p-6 space-y-6">
                                 <div>
-                                    <h1 className="text-4xl font-bold text-gradient mb-4">{event.title}</h1>
+                                    <h1 className="text-4xl font-bold text-linear mb-4">{event.title}</h1>
                                     {event.profiles && (
                                         <div className="flex items-center gap-3">
                                             <Avatar className="h-12 w-12 border-2 border-royal-orange">
                                                 <AvatarImage src={event.profiles.avatar_url || undefined}/>
                                                 <AvatarFallback
-                                                    className="bg-gradient-to-br from-royal-orange to-amber-600 text-white">
+                                                    className="bg-linear-to-br from-royal-orange to-amber-600 text-white">
                                                     {event.profiles.display_name?.[0]?.toUpperCase() ||
                                                         event.profiles.username?.[0]?.toUpperCase()}
                                                 </AvatarFallback>
@@ -236,7 +236,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
                                     {event.creator_id === userId && (
                                         <Button
                                             onClick={() => router.push(`/events/${event.id}/edit`)}
-                                            className="flex-1 bg-gradient-to-r from-royal-purple to-purple-600"
+                                            className="flex-1 bg-linear-to-r from-royal-purple to-purple-600"
                                         >
                                             Edit Event
                                         </Button>
@@ -264,7 +264,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
                                                 <Avatar className="h-10 w-10 border-2 border-royal-orange">
                                                     <AvatarImage src={event.profiles?.avatar_url || undefined}/>
                                                     <AvatarFallback
-                                                        className="bg-gradient-to-br from-royal-orange to-amber-600 text-white">
+                                                        className="bg-linear-to-br from-royal-orange to-amber-600 text-white">
                                                         {event.profiles?.display_name?.[0]?.toUpperCase() ||
                                                             event.profiles?.username?.[0]?.toUpperCase()}
                                                     </AvatarFallback>
@@ -274,13 +274,13 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
                                                         placeholder="Share your thoughts about this event..."
                                                         value={newPostContent}
                                                         onChange={(e) => setNewPostContent(e.target.value)}
-                                                        className="min-h-[100px] resize-none"
+                                                        className="min-h-25 resize-none"
                                                     />
                                                     <div className="flex justify-end">
                                                         <Button
                                                             onClick={createDiscussionPost}
                                                             disabled={!newPostContent.trim() || isPostingDiscussion}
-                                                            className="bg-gradient-to-r from-royal-orange to-amber-600"
+                                                            className="bg-linear-to-r from-royal-orange to-amber-600"
                                                         >
                                                             <Plus className="h-4 w-4 mr-2"/>
                                                             {isPostingDiscussion ? "Posting..." : "Post Discussion"}
@@ -318,7 +318,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
                                                     <Avatar className="h-14 w-14 border-2 border-royal-green">
                                                         <AvatarImage src={user.profiles?.avatar_url || undefined}/>
                                                         <AvatarFallback
-                                                            className="bg-gradient-to-br from-royal-green to-emerald-600 text-white">
+                                                            className="bg-linear-to-br from-royal-green to-emerald-600 text-white">
                                                             {user.profiles?.display_name?.[0]?.toUpperCase() ||
                                                                 user.profiles?.username?.[0]?.toUpperCase()}
                                                         </AvatarFallback>
@@ -353,7 +353,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
                                                     <Avatar className="h-14 w-14 border-2 border-royal-purple">
                                                         <AvatarImage src={user.profiles?.avatar_url || undefined}/>
                                                         <AvatarFallback
-                                                            className="bg-gradient-to-br from-royal-purple to-purple-600 text-white">
+                                                            className="bg-linear-to-br from-royal-purple to-purple-600 text-white">
                                                             {user.profiles?.display_name?.[0]?.toUpperCase() ||
                                                                 user.profiles?.username?.[0]?.toUpperCase()}
                                                         </AvatarFallback>

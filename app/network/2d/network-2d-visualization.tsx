@@ -2,7 +2,7 @@
 
 import {Sparkles, Users} from "lucide-react";
 import Link from "next/link";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Badge} from "@/components/ui/badge";
@@ -10,13 +10,29 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {createClient} from "@/lib/supabase/client";
 
+interface Profile {
+    id: string;
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+}
+
+interface Relationship {
+    id: string;
+    user_id: string;
+    related_user_id: string;
+    relationship_type: string;
+    status: string;
+    profiles: Profile;
+}
+
 interface Connection {
-    id: string
-    username: string
-    display_name: string | null
-    avatar_url: string | null
-    relationship_type: string
-    mutual_connections: number
+    id: string;
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+    relationship_type: string;
+    mutual_connections: number;
 }
 
 export function Network2DVisualization({userId}: { userId: string }) {
@@ -24,11 +40,7 @@ export function Network2DVisualization({userId}: { userId: string }) {
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
 
-    useEffect(() => {
-        loadConnections();
-    }, [loadConnections]);
-
-    const loadConnections = async () => {
+    const loadConnections = useCallback(async () => {
         const {data: relationships} = await supabase
             .from("relationships")
             .select("*, profiles!relationships_related_user_id_fkey(id, username, display_name, avatar_url)")
@@ -37,7 +49,7 @@ export function Network2DVisualization({userId}: { userId: string }) {
 
         if (relationships) {
             const connectionsData = await Promise.all(
-                relationships.map(async (rel) => {
+                relationships.map(async (rel: Relationship) => {
                     // Count mutual connections
                     const {count} = await supabase
                         .from("relationships")
@@ -46,7 +58,7 @@ export function Network2DVisualization({userId}: { userId: string }) {
                         .eq("status", "accepted")
                         .in(
                             "related_user_id",
-                            relationships.map((r) => r.related_user_id),
+                            relationships.map((r: Relationship) => r.related_user_id),
                         );
 
                     return {
@@ -62,7 +74,7 @@ export function Network2DVisualization({userId}: { userId: string }) {
             setConnections(connectionsData);
         }
         setLoading(false);
-    };
+    }, [userId, supabase]);
 
     const getRelationshipColor = (type: string) => {
         switch (type) {
@@ -77,6 +89,10 @@ export function Network2DVisualization({userId}: { userId: string }) {
         }
     };
 
+    useEffect(() => {
+        loadConnections();
+    }, [loadConnections]);
+    
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
@@ -85,7 +101,7 @@ export function Network2DVisualization({userId}: { userId: string }) {
                         <h1 className="text-3xl font-bold text-gradient mb-2">Your Network</h1>
                         <p className="text-muted-foreground">{connections.length} connections in your network</p>
                     </div>
-                    <Button asChild className="bg-gradient-to-r from-royal-purple to-royal-blue">
+                    <Button asChild className="bg-linear-to-r from-royal-purple to-royal-blue">
                         <Link href="/subscribe">
                             <Sparkles className="h-4 w-4 mr-2"/>
                             Upgrade for 3D View
@@ -108,7 +124,7 @@ export function Network2DVisualization({userId}: { userId: string }) {
                                     <Avatar className="h-12 w-12 border-2 border-royal-purple">
                                         <AvatarImage src={connection.avatar_url || undefined}/>
                                         <AvatarFallback
-                                            className={`bg-gradient-to-br ${getRelationshipColor(connection.relationship_type)} text-white`}
+                                            className={`bg-linear-to-br ${getRelationshipColor(connection.relationship_type)} text-white`}
                                         >
                                             {(connection.display_name || connection.username)[0].toUpperCase()}
                                         </AvatarFallback>

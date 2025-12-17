@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import {useRouter} from "next/navigation";
 import type React from "react";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import {Badge} from "@/components/ui/badge";
@@ -103,105 +103,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
     const [_editRoomOpen, set_editRoomOpen] = useState(false);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
-    useEffect(() => {
-        loadMessages();
-        loadParticipants();
-        loadMediaDevices();
-        checkIfCreator();
-        checkWaitingRoomStatus();
-        if (isCreator) {
-            loadWaitingParticipants();
-        }
-
-        if (roomType !== "text") {
-            initializeWebRTC();
-        }
-
-        const channel = supabase
-            .channel(`room:${roomId}`, {
-                config: {
-                    broadcast: {self: false},
-                    presence: {key: userId},
-                },
-            })
-            .on(
-                "postgres_changes",
-                {
-                    event: "INSERT",
-                    schema: "public",
-                    table: "messages",
-                    filter: `conversation_id=eq.${roomId}`,
-                },
-                async (payload) => {
-                    console.log("[v0] New message received:", payload);
-
-                    // Fetch the sender profile for the new message
-                    const {data: senderData} = await supabase
-                        .from("profiles")
-                        .select("display_name, username")
-                        .eq("id", payload.new.sender_id)
-                        .single();
-
-                    const newMsg: Message = {
-                        id: payload.new.id,
-                        content: payload.new.content,
-                        sender_id: payload.new.sender_id,
-                        created_at: payload.new.created_at,
-                        sender: senderData || undefined,
-                    };
-
-                    // Add message immediately to state for instant display
-                    setMessages((prev) => {
-                        // Prevent duplicates
-                        if (prev.some((msg) => msg.id === newMsg.id)) {
-                            return prev;
-                        }
-                        return [...prev, newMsg];
-                    });
-                },
-            )
-            .on(
-                "postgres_changes",
-                {event: "*", schema: "public", table: "room_waiting_list", filter: `conversation_id=eq.${roomId}`},
-                () => {
-                    if (isCreator) {
-                        loadWaitingParticipants();
-                    }
-                    checkWaitingRoomStatus();
-                },
-            )
-            .on(
-                "postgres_changes",
-                {
-                    event: "*",
-                    schema: "public",
-                    table: "conversation_participants",
-                    filter: `conversation_id=eq.${roomId}`
-                },
-                () => {
-                    // Reload participants when someone joins or leaves
-                    loadParticipants();
-                },
-            )
-            .subscribe((status) => {
-                console.log("[v0] Realtime subscription status:", status);
-                if (status === "SUBSCRIBED") {
-                    console.log("[v0] Successfully subscribed to room updates");
-                }
-            });
-
-        return () => {
-            console.log("[v0] Cleaning up realtime subscription");
-            supabase.removeChannel(channel);
-            cleanupWebRTC();
-        };
-    }, [roomId, isCreator, checkIfCreator, checkWaitingRoomStatus, cleanupWebRTC, initializeWebRTC, loadMessages, loadParticipants, loadWaitingParticipants, roomType, supabase, userId]);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
-    }, [messages]);
-
-    const loadMediaDevices = async () => {
+    const loadMediaDevices = useCallback(async () => {
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
             setAudioDevices(devices.filter((d) => d.kind === "audioinput"));
@@ -226,9 +128,9 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
         } catch (error) {
             console.error("[v0] Error loading media devices:", error);
         }
-    };
+    }, []);
 
-    const initializeWebRTC = async () => {
+    const initializeWebRTC = useCallback(async () => {
         try {
             const constraints: MediaStreamConstraints = {
                 audio: roomType === "audio" || roomType === "video" ? {deviceId: selectedAudioInput || undefined} : false,
@@ -245,7 +147,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
             console.error("[v0] Error initializing WebRTC:", error);
             alert("Failed to access camera/microphone. Please check permissions.");
         }
-    };
+    }, [roomType, selectedAudioInput, selectedVideoInput]);
 
     const cleanupWebRTC = () => {
         if (localStream) {
@@ -297,7 +199,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
         }
     };
 
-    const loadMessages = async () => {
+    const loadMessages = useCallback(async () => {
         const {data} = await supabase
             .from("messages")
             .select("*, profiles:sender_id(display_name, username)")
@@ -316,9 +218,9 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                 })),
             );
         }
-    };
+    }, [roomId, supabase]);
 
-    const loadParticipants = async () => {
+    const loadParticipants = useCallback(async () => {
         const {data} = await supabase
             .from("conversation_participants")
             .select("user_id, profiles(display_name, username)")
@@ -327,9 +229,9 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
         if (data) {
             setParticipants(data);
         }
-    };
+    }, [roomId, supabase]);
 
-    const checkIfCreator = async () => {
+    const checkIfCreator = useCallback(async () => {
         const {data} = await supabase
             .from("conversations")
             .select("created_by, requires_approval")
@@ -342,9 +244,9 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
             }
             setRoomSettings((prev) => ({...prev, requiresApproval: data.requires_approval || false}));
         }
-    };
+    }, [roomId, userId, supabase]);
 
-    const checkWaitingRoomStatus = async () => {
+    const checkWaitingRoomStatus = useCallback(async () => {
         const {data} = await supabase
             .from("room_waiting_list")
             .select("status")
@@ -355,9 +257,9 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
         if (data) {
             setIsInWaitingRoom(data.status === "pending");
         }
-    };
+    }, [roomId, userId, supabase]);
 
-    const loadWaitingParticipants = async () => {
+    const loadWaitingParticipants = useCallback(async () => {
         const {data} = await supabase
             .from("room_waiting_list")
             .select(
@@ -376,7 +278,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
         if (data) {
             setWaitingParticipants(data as any);
         }
-    };
+    }, [roomId, supabase]);
 
     const approveParticipant = async (waitingId: string, participantUserId: string) => {
         try {
@@ -396,8 +298,8 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                 user_id: participantUserId,
             });
 
-            loadWaitingParticipants();
-            loadParticipants();
+            await loadWaitingParticipants();
+            await loadParticipants();
         } catch (error) {
             console.error("[v0] Error approving participant:", error);
             alert("Failed to approve participant");
@@ -415,7 +317,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                 })
                 .eq("id", waitingId);
 
-            loadWaitingParticipants();
+            await loadWaitingParticipants();
         } catch (error) {
             console.error("[v0] Error denying participant:", error);
             alert("Failed to deny participant");
@@ -606,12 +508,110 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
         );
     }
 
+    useEffect(() => {
+        loadMessages();
+        loadParticipants();
+        loadMediaDevices();
+        checkIfCreator();
+        checkWaitingRoomStatus();
+        if (isCreator) {
+            loadWaitingParticipants();
+        }
+
+        if (roomType !== "text") {
+            initializeWebRTC();
+        }
+
+        const channel = supabase
+            .channel(`room:${roomId}`, {
+                config: {
+                    broadcast: {self: false},
+                    presence: {key: userId},
+                },
+            })
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "messages",
+                    filter: `conversation_id=eq.${roomId}`,
+                },
+                async (payload: { new: { id: string; content: string; sender_id: string; created_at: string } }) => {
+                    console.log("[v0] New message received:", payload);
+
+                    // Fetch the sender profile for the new message
+                    const {data: senderData} = await supabase
+                        .from("profiles")
+                        .select("display_name, username")
+                        .eq("id", payload.new.sender_id)
+                        .single();
+
+                    const newMsg: Message = {
+                        id: payload.new.id,
+                        content: payload.new.content,
+                        sender_id: payload.new.sender_id,
+                        created_at: payload.new.created_at,
+                        sender: senderData || undefined,
+                    };
+
+                    // Add message immediately to state for instant display
+                    setMessages((prev) => {
+                        // Prevent duplicates
+                        if (prev.some((msg) => msg.id === newMsg.id)) {
+                            return prev;
+                        }
+                        return [...prev, newMsg];
+                    });
+                },
+            )
+            .on(
+                "postgres_changes",
+                {event: "*", schema: "public", table: "room_waiting_list", filter: `conversation_id=eq.${roomId}`},
+                () => {
+                    if (isCreator) {
+                        loadWaitingParticipants();
+                    }
+                    checkWaitingRoomStatus();
+                },
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "conversation_participants",
+                    filter: `conversation_id=eq.${roomId}`
+                },
+                () => {
+                    // Reload participants when someone joins or leaves
+                    loadParticipants();
+                },
+            )
+            .subscribe((status: string) => {
+                console.log("[v0] Realtime subscription status:", status);
+                if (status === "SUBSCRIBED") {
+                    console.log("[v0] Successfully subscribed to room updates");
+                }
+            });
+
+        return () => {
+            console.log("[v0] Cleaning up realtime subscription");
+            supabase.removeChannel(channel);
+            cleanupWebRTC();
+        };
+    }, [roomId, isCreator, checkIfCreator, checkWaitingRoomStatus, cleanupWebRTC, initializeWebRTC, loadMessages, loadParticipants, loadWaitingParticipants, roomType, supabase, userId]);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+    }, [messages]);
+
     return (
         <div className="container mx-auto h-[calc(100vh-4rem)] p-4">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
                 <Card className="lg:col-span-3 border-royal-purple/20 flex flex-col overflow-hidden">
                     <div
-                        className="p-4 border-b border-royal-purple/20 bg-gradient-to-r from-royal-purple/10 to-royal-blue/10">
+                        className="p-4 border-b border-royal-purple/20 bg-linear-to-r from-royal-purple/10 to-royal-blue/10">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="text-xl font-bold text-gradient">{roomName}</h2>
@@ -648,7 +648,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                             >
                                                                 <Avatar className="h-10 w-10">
                                                                     <AvatarFallback
-                                                                        className="bg-gradient-to-br from-royal-purple to-royal-blue text-xs">
+                                                                        className="bg-linear-to-br from-royal-purple to-royal-blue text-xs">
                                                                         {participant.profiles?.display_name?.[0]?.toUpperCase() || "?"}
                                                                     </AvatarFallback>
                                                                 </Avatar>
@@ -917,7 +917,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
 
                     {roomType === "video" && (
                         <div
-                            className="h-96 bg-gradient-to-br from-royal-purple/20 to-royal-blue/20 flex items-center justify-center border-b border-royal-purple/20 relative">
+                            className="h-96 bg-linear-to-br from-royal-purple/20 to-royal-blue/20 flex items-center justify-center border-b border-royal-purple/20 relative">
                             <video ref={localVideoRef} autoPlay muted playsInline
                                    className="w-full h-full object-contain"/>
                             {!localStream && (
@@ -934,7 +934,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
 
                     {roomType === "audio" && (
                         <div
-                            className="h-32 bg-gradient-to-br from-royal-purple/20 to-royal-blue/20 flex items-center justify-center border-b border-royal-purple/20">
+                            className="h-32 bg-linear-to-br from-royal-purple/20 to-royal-blue/20 flex items-center justify-center border-b border-royal-purple/20">
                             <div className="text-center text-muted-foreground">
                                 <Mic className="h-12 w-12 mx-auto mb-2"/>
                                 <p>Audio chat active</p>
@@ -951,9 +951,9 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                     return (
                                         <div key={message.id}
                                              className={`flex gap-3 ${isOwn ? "flex-row-reverse" : ""}`}>
-                                            <Avatar className="h-8 w-8 flex-shrink-0">
+                                            <Avatar className="h-8 w-8 shrink-0">
                                                 <AvatarFallback
-                                                    className={`text-xs ${isOwn ? "bg-gradient-to-br from-royal-purple to-royal-blue" : "bg-gradient-to-br from-royal-green to-emerald-600"}`}
+                                                    className={`text-xs ${isOwn ? "bg-linear-to-br from-royal-purple to-royal-blue" : "bg-linear-to-br from-royal-green to-emerald-600"}`}
                                                 >
                                                     {message.sender?.display_name?.[0]?.toUpperCase() || "?"}
                                                 </AvatarFallback>
@@ -964,7 +964,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                           {message.sender?.display_name || "Unknown"}
                         </span>
                                                 <div
-                                                    className={`rounded-lg px-4 py-2 ${isOwn ? "bg-gradient-to-r from-royal-purple to-royal-blue text-white" : "bg-card border border-royal-purple/20"}`}
+                                                    className={`rounded-lg px-4 py-2 ${isOwn ? "bg-linear-to-r from-royal-purple to-royal-blue text-white" : "bg-card border border-royal-purple/20"}`}
                                                 >
                                                     <p className="text-sm">{message.content}</p>
                                                 </div>
@@ -998,7 +998,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                         placeholder="Type a message..."
                                         className="flex-1 bg-card/50 border-royal-purple/20"
                                     />
-                                    <Button type="submit" className="bg-gradient-to-r from-royal-purple to-royal-blue">
+                                    <Button type="submit" className="bg-linear-to-r from-royal-purple to-royal-blue">
                                         <Send className="h-4 w-4"/>
                                     </Button>
                                 </div>
@@ -1009,7 +1009,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
 
                 <Card className="border-royal-purple/20 overflow-hidden">
                     <div
-                        className="p-4 border-b border-royal-purple/20 bg-gradient-to-r from-royal-purple/10 to-royal-blue/10">
+                        className="p-4 border-b border-royal-purple/20 bg-linear-to-r from-royal-purple/10 to-royal-blue/10">
                         <h3 className="font-semibold flex items-center gap-2">
                             <Users className="h-4 w-4"/>
                             Participants ({participants.length})
@@ -1021,7 +1021,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-card/50">
                                 <Avatar className="h-8 w-8">
                                     <AvatarFallback
-                                        className="bg-gradient-to-br from-royal-purple to-royal-blue text-xs">
+                                        className="bg-linear-to-br from-royal-purple to-royal-blue text-xs">
                                         {participant.profiles?.display_name?.[0]?.toUpperCase() || "?"}
                                     </AvatarFallback>
                                 </Avatar>

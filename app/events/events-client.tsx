@@ -4,7 +4,7 @@ import {format} from "date-fns";
 import {Calendar, CheckCircle, Clock, History, MapPin, Plus, Search, Star, TrendingUp, Video} from "lucide-react";
 import {useRouter} from "next/navigation";
 import type React from "react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {LocationAutocomplete} from "@/components/location-autocomplete";
 import {Badge} from "@/components/ui/badge";
@@ -63,11 +63,7 @@ export function EventsClient({userId}: { userId?: string }) {
     const router = useRouter();
     const supabase = createBrowserClient();
 
-    useEffect(() => {
-        loadEvents();
-    }, [activeTab, loadEvents]);
-
-    const loadEvents = async () => {
+    const loadEvents = useCallback(async () => {
         const now = new Date().toISOString();
 
         let query = supabase.from("events").select(`
@@ -85,7 +81,7 @@ export function EventsClient({userId}: { userId?: string }) {
                 .in("response", ["going", "interested"]);
 
             if (responses) {
-                const eventIds = responses.map((r) => r.event_id);
+                const eventIds = responses.map((r: { event_id: string }) => r.event_id);
                 query = query.in("id", eventIds);
             }
         } else if (activeTab === "past") {
@@ -96,7 +92,7 @@ export function EventsClient({userId}: { userId?: string }) {
 
         if (data) {
             const eventsWithCounts = await Promise.all(
-                data.map(async (event) => {
+                data.map(async (event: Event) => {
                     const {count: goingCount} = await supabase
                         .from("event_responses")
                         .select("id", {count: "exact"})
@@ -127,7 +123,7 @@ export function EventsClient({userId}: { userId?: string }) {
             );
             setEvents(eventsWithCounts);
         }
-    };
+    }, [activeTab, userId, supabase]);
 
     const respondToEvent = async (eventId: string, response: "going" | "interested" | "not_going") => {
         if (!userId) {
@@ -147,7 +143,7 @@ export function EventsClient({userId}: { userId?: string }) {
             await supabase.from("event_responses").insert({event_id: eventId, user_id: userId, response});
         }
 
-        loadEvents();
+        await loadEvents();
     };
 
     const deleteEvent = async (eventId: string) => {
@@ -169,7 +165,7 @@ export function EventsClient({userId}: { userId?: string }) {
                 throw error;
             }
 
-            loadEvents();
+            await loadEvents();
         } catch (error) {
             console.error("[v0] Error deleting event:", error);
             alert("Failed to delete event");
@@ -229,7 +225,7 @@ export function EventsClient({userId}: { userId?: string }) {
                 longitude: null,
             });
             setIsCreateDialogOpen(false);
-            loadEvents();
+            await loadEvents();
         }
     };
 
@@ -239,6 +235,10 @@ export function EventsClient({userId}: { userId?: string }) {
             event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             event.location?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
+
+    useEffect(() => {
+        loadEvents();
+    }, [activeTab, loadEvents]);
 
     return (
         <div className="space-y-6">
@@ -254,7 +254,7 @@ export function EventsClient({userId}: { userId?: string }) {
                 </div>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-gradient-to-r from-royal-orange to-amber-600 hover:opacity-90 h-12 px-6">
+                        <Button className="bg-linear-to-r from-royal-orange to-amber-600 hover:opacity-90 h-12 px-6">
                             <Plus className="h-5 w-5 mr-2"/>
                             Create Event
                         </Button>
@@ -344,7 +344,7 @@ export function EventsClient({userId}: { userId?: string }) {
                                 />
                             </div>
                             <Button type="submit"
-                                    className="w-full bg-gradient-to-r from-royal-orange to-amber-600 h-11">
+                                    className="w-full bg-linear-to-r from-royal-orange to-amber-600 h-11">
                                 Create Event
                             </Button>
                         </form>
@@ -378,7 +378,7 @@ export function EventsClient({userId}: { userId?: string }) {
                             >
                                 <CardHeader className="p-0">
                                     <div
-                                        className="h-48 bg-gradient-to-br from-royal-orange to-amber-600 flex items-center justify-center relative overflow-hidden">
+                                        className="h-48 bg-linear-to-br from-royal-orange to-amber-600 flex items-center justify-center relative overflow-hidden">
                                         {event.image_url ? (
                                             <img
                                                 src={event.image_url || "/placeholder.svg"}
@@ -442,7 +442,7 @@ export function EventsClient({userId}: { userId?: string }) {
                                                     e.stopPropagation();
                                                     router.push(`/events/${event.id}`);
                                                 }}
-                                                className="flex-1 bg-gradient-to-r from-royal-purple to-purple-600"
+                                                className="flex-1 bg-linear-to-r from-royal-purple to-purple-600"
                                             >
                                                 Manage
                                             </Button>
@@ -467,7 +467,7 @@ export function EventsClient({userId}: { userId?: string }) {
                                                 }}
                                                 className={
                                                     event.user_response === "going"
-                                                        ? "flex-1 bg-gradient-to-r from-royal-green to-emerald-600"
+                                                        ? "flex-1 bg-linear-to-r from-royal-green to-emerald-600"
                                                         : "flex-1 bg-card border border-royal-green/30 hover:bg-royal-green/10 text-foreground"
                                                 }
                                             >
@@ -481,7 +481,7 @@ export function EventsClient({userId}: { userId?: string }) {
                                                 }}
                                                 className={
                                                     event.user_response === "interested"
-                                                        ? "flex-1 bg-gradient-to-r from-royal-purple to-purple-600"
+                                                        ? "flex-1 bg-linear-to-r from-royal-purple to-purple-600"
                                                         : "flex-1 bg-card border border-royal-purple/30 hover:bg-royal-purple/10 text-foreground"
                                                 }
                                             >
@@ -508,7 +508,7 @@ export function EventsClient({userId}: { userId?: string }) {
                                 {activeTab === "upcoming" && (
                                     <Button
                                         onClick={() => setIsCreateDialogOpen(true)}
-                                        className="bg-gradient-to-r from-royal-orange to-amber-600"
+                                        className="bg-linear-to-r from-royal-orange to-amber-600"
                                     >
                                         <Plus className="h-4 w-4 mr-2"/>
                                         Create Your First Event

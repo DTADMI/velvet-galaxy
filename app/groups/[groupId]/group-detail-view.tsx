@@ -3,7 +3,7 @@
 import {Calendar, Edit, Globe, Lock, Trash2, Users} from "lucide-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {EnhancedCreatePost} from "@/components/enhanced-create-post";
 import {FeedViewSettings, type PostDisplaySize} from "@/components/feed-view-settings";
@@ -42,33 +42,19 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
     });
     const [displaySize, setDisplaySize] = useState<PostDisplaySize>("normal");
 
-    useEffect(() => {
-        checkMembership();
-        loadMembers();
-        loadPosts();
-        loadEvents();
-        loadUserProfile();
-        setIsCreator(group.creator_id === userId);
-        // Load saved display size
-        const savedSize = localStorage.getItem("feedDisplaySize") as PostDisplaySize;
-        if (savedSize) {
-            setDisplaySize(savedSize);
-        }
-    }, [checkMembership, group.creator_id, loadEvents, loadMembers, loadPosts, loadUserProfile, userId]);
-
     const handleDisplaySizeChange = (size: PostDisplaySize) => {
         setDisplaySize(size);
         localStorage.setItem("feedDisplaySize", size);
     };
 
-    const loadUserProfile = async () => {
+    const loadUserProfile = useCallback(async () => {
         const {data} = await supabase.from("profiles").select("*").eq("id", userId).single();
         if (data) {
             setUserProfile(data);
         }
-    };
+    }, [userId, supabase]);
 
-    const checkMembership = async () => {
+    const checkMembership = useCallback(async () => {
         const {data} = await supabase
             .from("group_members")
             .select("id")
@@ -77,9 +63,9 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
             .single();
 
         setIsMember(!!data);
-    };
+    }, [group.id, userId, supabase]);
 
-    const loadMembers = async () => {
+    const loadMembers = useCallback(async () => {
         const {data, count} = await supabase
             .from("group_members")
             .select("*, profiles(id, display_name, username, avatar_url)", {count: "exact"})
@@ -91,9 +77,9 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
         if (count) {
             setMemberCount(count);
         }
-    };
+    }, [group.id, supabase]);
 
-    const loadPosts = async () => {
+    const loadPosts = useCallback(async () => {
         const {data} = await supabase
             .from("posts")
             .select("*, profiles(id, username, display_name, avatar_url)")
@@ -103,9 +89,9 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
         if (data) {
             setPosts(data);
         }
-    };
+    }, [group.id, supabase]);
 
-    const loadEvents = async () => {
+    const loadEvents = useCallback(async () => {
         const {data} = await supabase
             .from("events")
             .select("*")
@@ -115,7 +101,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
         if (data) {
             setEvents(data);
         }
-    };
+    }, [group.id, supabase]);
 
     const handleJoinLeave = async () => {
         if (isMember) {
@@ -169,6 +155,20 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
         }
     };
 
+    useEffect(() => {
+        checkMembership();
+        loadMembers();
+        loadPosts();
+        loadEvents();
+        loadUserProfile();
+        setIsCreator(group.creator_id === userId);
+        // Load saved display size
+        const savedSize = localStorage.getItem("feedDisplaySize") as PostDisplaySize;
+        if (savedSize) {
+            setDisplaySize(savedSize);
+        }
+    }, [checkMembership, group.creator_id, loadEvents, loadMembers, loadPosts, loadUserProfile, userId]);
+
     return (
         <>
             <Navigation/>
@@ -176,7 +176,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
                 <div className="max-w-6xl mx-auto p-6">
                     <div className="bg-card rounded-xl border border-royal-green/20 overflow-hidden mb-6">
                         <div
-                            className="h-48 bg-gradient-to-br from-royal-green to-emerald-600 flex items-center justify-center relative">
+                            className="h-48 bg-linear-to-br from-royal-green to-emerald-600 flex items-center justify-center relative">
                             {group.image_url ? (
                                 <img
                                     src={group.image_url || "/placeholder.svg"}
@@ -192,7 +192,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <h1 className="text-3xl font-bold text-gradient">{group.name}</h1>
+                                        <h1 className="text-3xl font-bold text-linear">{group.name}</h1>
                                         {group.is_private ? (
                                             <Badge variant="secondary" className="bg-royal-purple/20">
                                                 <Lock className="h-3 w-3 mr-1"/>
@@ -291,7 +291,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
                                         className={
                                             isMember
                                                 ? "bg-card border border-royal-green hover:bg-card/80"
-                                                : "bg-gradient-to-r from-royal-green to-emerald-600 hover:opacity-90"
+                                                : "bg-linear-to-r from-royal-green to-emerald-600 hover:opacity-90"
                                         }
                                     >
                                         {isMember ? "Leave Group" : "Join Group"}
@@ -335,7 +335,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
                                             className="bg-card rounded-lg border border-royal-orange/20 p-4 hover:border-royal-orange/40 transition-all cursor-pointer">
                                             <div className="flex items-start gap-3">
                                                 <div
-                                                    className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-royal-orange to-amber-600 flex-shrink-0">
+                                                    className="flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-royal-orange to-amber-600 shrink-0">
                                                     <Calendar className="h-6 w-6 text-white"/>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -367,7 +367,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
                                             <Avatar className="h-12 w-12 border-2 border-royal-green">
                                                 <AvatarImage src={member.profiles?.avatar_url || undefined}/>
                                                 <AvatarFallback
-                                                    className="bg-gradient-to-br from-royal-green to-emerald-600 text-white">
+                                                    className="bg-linear-to-br from-royal-green to-emerald-600 text-white">
                                                     {member.profiles?.display_name?.[0]?.toUpperCase() ||
                                                         member.profiles?.username?.[0]?.toUpperCase()}
                                                 </AvatarFallback>

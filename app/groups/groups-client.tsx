@@ -2,7 +2,7 @@
 
 import {Globe, Lock, Plus, Search, TrendingUp, Users} from "lucide-react";
 import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
@@ -43,11 +43,7 @@ export function GroupsClient({userId}: { userId?: string }) {
     const supabase = createBrowserClient();
     const router = useRouter();
 
-    useEffect(() => {
-        loadGroups();
-    }, [activeTab, loadGroups]);
-
-    const loadGroups = async () => {
+    const loadGroups = useCallback(async () => {
         if (activeTab === "my-groups" && userId) {
             const {data} = await supabase.from("group_members").select("group_id, groups(*)").eq("user_id", userId);
 
@@ -64,7 +60,7 @@ export function GroupsClient({userId}: { userId?: string }) {
 
             if (data) {
                 const groupsWithMemberCount = await Promise.all(
-                    data.map(async (group) => {
+                    data.map(async (group: Group) => {
                         const {count} = await supabase
                             .from("group_members")
                             .select("id", {count: "exact"})
@@ -87,7 +83,7 @@ export function GroupsClient({userId}: { userId?: string }) {
                 setGroups(groupsWithMemberCount);
             }
         }
-    };
+    }, [activeTab, userId, supabase]);
 
     const joinGroup = async (groupId: string) => {
         if (!userId) {
@@ -179,10 +175,14 @@ export function GroupsClient({userId}: { userId?: string }) {
     };
 
     const filteredGroups = groups.filter(
-        (group) =>
+        (group: Group) =>
             group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             group.description?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
+
+    useEffect(() => {
+        loadGroups();
+    }, [activeTab, loadGroups]);
 
     return (
         <div className="space-y-6">
@@ -198,14 +198,14 @@ export function GroupsClient({userId}: { userId?: string }) {
                 </div>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-gradient-to-r from-royal-green to-emerald-600 hover:opacity-90 h-12 px-6">
+                        <Button className="bg-linear-to-r from-royal-green to-emerald-600 hover:opacity-90 h-12 px-6">
                             <Plus className="h-5 w-5 mr-2"/>
                             Create Group
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-card border-royal-green/20 max-w-lg">
                         <DialogHeader>
-                            <DialogTitle className="text-2xl text-gradient">Create New Group</DialogTitle>
+                            <DialogTitle className="text-2xl text-linear">Create New Group</DialogTitle>
                             <DialogDescription>Build a community around your interests</DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4">
@@ -240,7 +240,7 @@ export function GroupsClient({userId}: { userId?: string }) {
                                 </select>
                             </div>
                             <Button
-                                className="w-full bg-gradient-to-r from-royal-green to-emerald-600 h-11"
+                                className="w-full bg-linear-to-r from-royal-green to-emerald-600 h-11"
                                 onClick={createGroup}
                                 disabled={!newGroupName.trim()}
                             >
@@ -273,7 +273,7 @@ export function GroupsClient({userId}: { userId?: string }) {
                             >
                                 <CardHeader className="p-0">
                                     <div
-                                        className="h-40 bg-gradient-to-br from-royal-green to-emerald-600 flex items-center justify-center relative overflow-hidden">
+                                        className="h-40 bg-linear-to-br from-royal-green to-emerald-600 flex items-center justify-center relative overflow-hidden">
                                         {group.image_url ? (
                                             <img
                                                 src={group.image_url || "/placeholder.svg"}
@@ -360,7 +360,7 @@ export function GroupsClient({userId}: { userId?: string }) {
                                                 e.stopPropagation();
                                                 joinGroup(group.id);
                                             }}
-                                            className="flex-1 bg-gradient-to-r from-royal-green to-emerald-600 hover:opacity-90"
+                                            className="flex-1 bg-linear-to-r from-royal-green to-emerald-600 hover:opacity-90"
                                         >
                                             Join Group
                                         </Button>
@@ -382,7 +382,7 @@ export function GroupsClient({userId}: { userId?: string }) {
                                 {activeTab === "discover" && (
                                     <Button
                                         onClick={() => setIsCreateDialogOpen(true)}
-                                        className="bg-gradient-to-r from-royal-green to-emerald-600"
+                                        className="bg-linear-to-r from-royal-green to-emerald-600"
                                     >
                                         <Plus className="h-4 w-4 mr-2"/>
                                         Create Your First Group

@@ -15,7 +15,7 @@ import {
     TrendingUp,
     Video,
 } from "lucide-react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {MasonryGrid} from "@/components/masonry-grid";
 import {Button} from "@/components/ui/button";
@@ -55,137 +55,233 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
         promotional: false,
     });
 
-    useEffect(() => {
-        loadPosts();
-    }, [contentFilters, feedMode, loadPosts]);
-
-    const loadPosts = async () => {
+    const loadPosts = useCallback(async () => {
         setLoading(true);
         const supabase = createClient();
 
         // Build content type filter
         const contentTypes = [];
-        if (contentFilters.image) {
-            contentTypes.push("image");
-        }
-        if (contentFilters.video) {
-            contentTypes.push("video");
-        }
-        if (contentFilters.audio) {
-            contentTypes.push("audio");
-        }
-        if (contentFilters.writing) {
-            contentTypes.push("writing");
-        }
-        if (contentFilters.text) {
-            contentTypes.push("text");
-        }
+        if (contentFilters.image) contentTypes.push("image");
+        if (contentFilters.video) contentTypes.push("video");
+        if (contentFilters.audio) contentTypes.push("audio");
+        if (contentFilters.writing) contentTypes.push("writing");
+        if (contentFilters.text) contentTypes.push("text");
 
         const ratingFilter = feedMode === "sfw" ? ["sfw"] : ["sfw", "nsfw"];
 
-        // Load curated posts based on user's location and liked tags
-        const curatedQuery = supabase
-            .from("posts")
-            .select(
-                `
-        id,
-        content,
-        created_at,
-        content_rating,
-        media_type,
-        media_url,
-        images,
-        audio_url,
-        content_type,
-        is_promotional,
-        profiles!inner (
-          id,
-          username,
-          display_name,
-          avatar_url,
-          location
-        )
-      `,
-            )
-            .in("content_rating", ratingFilter)
-            .order("created_at", {ascending: false})
-            .limit(50);
+        try {
+            // Load curated posts based on user's location and liked tags
+            const curatedQuery = supabase
+                .from("posts")
+                .select(
+                    `
+                    id,
+                    content,
+                    created_at,
+                    media_type,
+                    media_url,
+                    images,
+                    audio_url,
+                    content_rating,
+                    is_promotional,
+                    profiles (
+                        id,
+                        username,
+                        display_name,
+                        avatar_url
+                    )
+                    `
+                )
+                .in("media_type", contentTypes)
+                .in("content_rating", ratingFilter)
+                .eq("is_promotional", false)
+                .order("created_at", {ascending: false})
+                .limit(20);
 
-        if (profile.location) {
-            curatedQuery.eq("profiles.location", profile.location);
+            // Load popular posts (most liked in the last 7 days)
+            const popularQuery = supabase
+                .from("posts")
+                .select(
+                    `
+                    id,
+                    content,
+                    created_at,
+                    media_type,
+                    media_url,
+                    images,
+                    audio_url,
+                    content_rating,
+                    is_promotional,
+                    profiles (
+                        id,
+                        username,
+                        display_name,
+                        avatar_url
+                    )
+                    `
+                )
+                .in("media_type", contentTypes)
+                .in("content_rating", ratingFilter)
+                .gt("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+                .order("like_count", {ascending: false})
+                .limit(20);
+
+            const [curatedResult, popularResult] = await Promise.all([
+                curatedQuery,
+                popularQuery,
+            ]);
+
+            if (curatedResult.data) setCuratedPosts(curatedResult.data);
+            if (popularResult.data) setPopularPosts(popularResult.data);
+        } catch (error) {
+            console.error("Error loading posts:", error);
+        } finally {
+            setLoading(false);
         }
+    }, [feedMode, contentFilters.image, contentFilters.video, contentFilters.audio, contentFilters.writing, contentFilters.text]);
 
-        const {data: curated} = await curatedQuery;
+    useEffect(() => {
+        loadPosts();
+    }, [loadPosts]);
 
-        // Load popular posts
-        const {data: popular} = await supabase
-            .from("posts")
-            .select(
-                `
-        id,
-        content,
-        created_at,
-        content_rating,
-        media_type,
-        media_url,
-        images,
-        audio_url,
-        content_type,
-        is_promotional,
-        profiles!inner (
-          id,
-          username,
-          display_name,
-          avatar_url
-        )
-      `,
-            )
-            .in("content_rating", ratingFilter)
-            .order("created_at", {ascending: false})
-            .limit(50);
+    // Load liked posts separately since it's not filtered by content type
+    const loadInitialData = useCallback(async () => {
+        setLoading(true);
+        const supabase = createClient();
 
-        // Load user's liked posts
-        const {data: liked} = await supabase
-            .from("post_likes")
-            .select(
-                `
-        post_id,
-        posts!inner (
-          id,
-          content,
-          created_at,
-          content_rating,
-          media_type,
-          media_url,
-          images,
-          audio_url,
-          content_type,
-          is_promotional,
-          profiles!inner (
-            id,
-            username,
-            display_name,
-            avatar_url
-          )
-        )
-      `,
-            )
-            .eq("user_id", profile.id)
-            .order("created_at", {ascending: false})
-            .limit(50);
+        try {
+            // Build content type filter
+            const contentTypes = [];
+            if (contentFilters.image) contentTypes.push("image");
+            if (contentFilters.video) contentTypes.push("video");
+            if (contentFilters.audio) contentTypes.push("audio");
+            if (contentFilters.writing) contentTypes.push("writing");
+            if (contentFilters.text) contentTypes.push("text");
 
-        const filterPromotional = (posts: any[]) => {
-            if (!contentFilters.promotional) {
-                return posts.filter((post) => !post.is_promotional);
+            const ratingFilter = feedMode === "sfw" ? ["sfw"] : ["sfw", "nsfw"];
+
+            // Load curated posts based on user's location and liked tags
+            const curatedQuery = supabase
+                .from("posts")
+                .select(
+                    `
+                    id,
+                    content,
+                    created_at,
+                    content_rating,
+                    media_type,
+                    media_url,
+                    images,
+                    audio_url,
+                    content_type,
+                    is_promotional,
+                    profiles!inner (
+                        id,
+                        username,
+                        display_name,
+                        avatar_url,
+                        location
+                    )
+                    `
+                )
+                .in("content_rating", ratingFilter)
+                .order("created_at", {ascending: false})
+                .limit(50);
+
+            if (profile.location) {
+                curatedQuery.eq("profiles.location", profile.location);
             }
-            return posts;
-        };
 
-        setCuratedPosts(filterPromotional(curated || []));
-        setPopularPosts(filterPromotional(popular || []));
-        setLikedPosts(filterPromotional(liked?.map((l) => l.posts).filter(Boolean) || []));
-        setLoading(false);
-    };
+            // Load popular posts
+            const popularQuery = supabase
+                .from("posts")
+                .select(
+                    `
+                    id,
+                    content,
+                    created_at,
+                    content_rating,
+                    media_type,
+                    media_url,
+                    images,
+                    audio_url,
+                    content_type,
+                    is_promotional,
+                    profiles!inner (
+                        id,
+                        username,
+                        display_name,
+                        avatar_url
+                    )
+                    `
+                )
+                .in("content_rating", ratingFilter)
+                .order("created_at", {ascending: false})
+                .limit(50);
+
+            // Load user's liked posts
+            const likedQuery = supabase
+                .from("post_likes")
+                .select(
+                    `
+                    post_id,
+                    posts!inner (
+                        id,
+                        content,
+                        created_at,
+                        content_rating,
+                        media_type,
+                        media_url,
+                        images,
+                        audio_url,
+                        content_type,
+                        is_promotional,
+                        profiles!inner (
+                            id,
+                            username,
+                            display_name,
+                            avatar_url
+                        )
+                    )
+                    `
+                )
+                .eq("user_id", profile.id)
+                .order("created_at", {ascending: false})
+                .limit(50);
+
+            // Execute all queries in parallel
+            const [
+                {data: curated},
+                {data: popular},
+                {data: liked}
+            ] = await Promise.all([
+                curatedQuery,
+                popularQuery,
+                likedQuery
+            ]);
+
+            const filterPromotional = (posts: any[]) => {
+                if (!contentFilters.promotional) {
+                    return posts.filter((post: any) => !post.is_promotional);
+                }
+                return posts;
+            };
+
+            setCuratedPosts(filterPromotional(curated || []));
+            setPopularPosts(filterPromotional(popular || []));
+            setLikedPosts(filterPromotional(liked?.map((like: any) => like.posts).filter(Boolean) || []));
+        } catch (error) {
+            console.error("Error loading initial data:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [feedMode, profile.id, profile.location, contentFilters.image, contentFilters.video, contentFilters.audio, contentFilters.writing, contentFilters.text, contentFilters.promotional]);
+
+    // Initial data loading
+    useEffect(() => {
+        loadPosts();
+        loadInitialData();
+    }, [loadPosts, loadInitialData]);
 
     const toggleFilter = (filter: keyof typeof contentFilters) => {
         setContentFilters((prev) => ({...prev, [filter]: !prev[filter]}));

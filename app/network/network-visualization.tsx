@@ -3,7 +3,7 @@
 import {Eye, EyeOff, Filter, Move, RotateCcw, Search, SettingsIcon, X, ZoomIn, ZoomOut} from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Badge} from "@/components/ui/badge";
@@ -22,7 +22,7 @@ interface NetworkNode {
     id: string
     username: string
     display_name: string
-    avatar_url?: string
+    avatar_url?: string | null
     x: number
     y: number
     z: number
@@ -34,16 +34,110 @@ interface NetworkNode {
         member_count: number
     }
     manuallyPositioned?: boolean
+    profiles?: Profile
+}
+
+interface Profile {
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+}
+
+interface Relationship {
+    id: string;
+    user_id: string;
+    related_user_id: string;
+    relationship_type: string;
+    status: string;
+    profiles: Profile;
+}
+
+interface Follow {
+    id: string;
+    follower_id: string;
+    following_id: string;
+    profiles: Profile;
+}
+
+interface Friendship {
+    id: string;
+    user_id: string;
+    friend_id: string;
+    status: string;
+    profiles: Profile;
+}
+
+interface GroupMember {
+    group_id: string;
+    groups: {
+        id: string;
+        name: string;
+    };
 }
 
 interface Star {
-    x: number
-    y: number
+    x: number;
+    y: number;
+    z: number;
+    size: number;
+    opacity: number;
+    twinkleSpeed: number;
+    twinkleOffset: number;
+}
+
+const filterNetworkNodes = (nodes: NetworkNode[], hiddenNodes: Set<string>, searchQuery: string, showGroups: boolean, userId: string, relationshipFilters: {
+    friend: boolean;
+    partner: boolean;
+    family: boolean;
+    colleague: boolean;
+    acquaintance: boolean
+}) => {
+    return nodes.filter((node, index) => {
+        if (index === 0) {
+            return true;
+        }
+        if (hiddenNodes.has(node.id)) {
+            return false;
+        }
+        if (searchQuery && !node.display_name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            return false;
+        }
+        if (node.type === "group") {
+            return showGroups;
+        }
+        const relationshipType = node.relationshipTypes[userId];
+        return relationshipFilters[relationshipType as keyof typeof relationshipFilters];
+    });
+};
+
+const calculateNodeMetrics = (project3DTo2D: (node: {
+    x: number;
+    y: number;
     z: number
-    size: number
-    opacity: number
-    twinkleSpeed: number
-    twinkleOffset: number
+}, centerX: number, centerY: number) => {
+    x: number;
+    y: number;
+    z: number
+}, node: NetworkNode, centerX: number, centerY: number, filteredNodes: NetworkNode[], clickX: number, clickY: number) => {
+    const pos = project3DTo2D(node, centerX, centerY);
+    const size = node.id === filteredNodes[0].id ? 24 : node.type === "group" ? 20 : 16;
+    const distance = Math.sqrt(Math.pow(clickX - pos.x, 2) + Math.pow(clickY - pos.y, 2));
+    return {pos, size, distance};
+};
+
+const calculateMouseReference = (canvas: HTMLCanvasElement, e: React.MouseEvent, cameraOffset: {
+    x: number;
+    y: number
+}) => {
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const centerX = canvas.width / 2 + cameraOffset.x;
+    const centerY = canvas.height / 2 + cameraOffset.y;
+
+    return {clickX, clickY, centerX, centerY};
 }
 
 export function NetworkVisualization({userId}: { userId: string }) {
@@ -77,57 +171,10 @@ export function NetworkVisualization({userId}: { userId: string }) {
     const [hiddenNodes, setHiddenNodes] = useState<Set<string>>(new Set());
     const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(new Set());
     const [isPanning, setIsPanning] = useState(false);
-    const animationRef = useRef<number>();
+    const animationRef = useRef<number>(0);
     const timeRef = useRef(0);
 
-    useEffect(() => {
-        const starCount = 300;
-        const newStars: Star[] = [];
-        for (let i = 0; i < starCount; i++) {
-            newStars.push({
-                x: (Math.random() - 0.5) * 2000,
-                y: (Math.random() - 0.5) * 2000,
-                z: (Math.random() - 0.5) * 2000,
-                size: Math.random() * 2 + 0.5,
-                opacity: Math.random() * 0.5 + 0.3,
-                twinkleSpeed: Math.random() * 0.02 + 0.01,
-                twinkleOffset: Math.random() * Math.PI * 2,
-            });
-        }
-        setStars(newStars);
-    }, []);
-
-    useEffect(() => {
-        const handleResize = () => {
-            if (containerRef.current) {
-                setCanvasSize({
-                    width: containerRef.current.clientWidth,
-                    height: containerRef.current.clientHeight,
-                });
-            }
-        };
-
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    useEffect(() => {
-        loadNetworkData();
-    }, [showGroups, maxNodes, nodeSpacing, loadNetworkData]);
-
-    useEffect(() => {
-        if (nodes.length > 0 && canvasRef.current) {
-            startAnimation();
-        }
-        return () => {
-            if (animationRef.current) {
-                cancelAnimationFrame(animationRef.current);
-            }
-        };
-    }, [nodes, zoom, rotation, canvasSize, relationshipFilters, stars, startAnimation]);
-
-    const loadNetworkData = async () => {
+    const loadNetworkData = useCallback(async () => {
         const supabase = createBrowserClient();
 
         const [relationshipsResult, followsResult, friendshipsResult, groupsResult] = await Promise.all([
@@ -153,14 +200,14 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 : Promise.resolve({data: []}),
         ]);
 
-        const relationships = relationshipsResult.data || [];
-        const follows = followsResult.data || [];
-        const friendships = friendshipsResult.data || [];
-        const userGroups = groupsResult.data || [];
+        const relationships: Relationship[] = relationshipsResult.data || [];
+        const follows: Follow[] = followsResult.data || [];
+        const friendships: Friendship[] = friendshipsResult.data || [];
+        const userGroups: GroupMember[] = groupsResult.data || [];
 
         const allConnections = new Map<string, any>();
 
-        relationships.forEach((rel) => {
+        relationships.forEach((rel: Relationship) => {
             const connectedUserId = rel.user_id === userId ? rel.related_user_id : rel.user_id;
             if (rel.profiles) {
                 allConnections.set(connectedUserId, {
@@ -171,7 +218,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
             }
         });
 
-        follows.forEach((follow) => {
+        follows.forEach((follow: Follow) => {
             const connectedUserId = follow.follower_id === userId ? follow.following_id : follow.follower_id;
             if (follow.profiles && !allConnections.has(connectedUserId)) {
                 allConnections.set(connectedUserId, {
@@ -182,7 +229,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
             }
         });
 
-        friendships.forEach((friendship) => {
+        friendships.forEach((friendship: Friendship) => {
             const connectedUserId = friendship.user_id === userId ? friendship.friend_id : friendship.user_id;
             if (friendship.profiles && !allConnections.has(connectedUserId)) {
                 allConnections.set(connectedUserId, {
@@ -242,7 +289,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
 
         if (showGroups && userGroups.length > 0) {
             const groupRadius = radius * 1.3;
-            userGroups.forEach((groupMember: any, index: number) => {
+            userGroups.forEach((groupMember: GroupMember, index: number) => {
                 if (groupMember.groups) {
                     const angle = (index / userGroups.length) * Math.PI * 2;
                     const groupNode: NetworkNode = {
@@ -276,7 +323,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 .eq("status", "accepted");
 
             if (secondDegree && secondDegree.length > 0) {
-                secondDegree.forEach((rel) => {
+                secondDegree.forEach((rel: Relationship) => {
                     const fromNode = networkNodes.find((n) => n.id === rel.user_id);
                     const toNode = networkNodes.find((n) => n.id === rel.related_user_id);
 
@@ -291,9 +338,9 @@ export function NetworkVisualization({userId}: { userId: string }) {
         }
 
         setNodes(networkNodes);
-    };
+    }, [userId, maxNodes, showGroups, nodeSpacing]);
 
-    const startAnimation = () => {
+    const startAnimation = useCallback(() => {
         const canvas = canvasRef.current;
         if (!canvas) {
             return;
@@ -392,22 +439,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 }
             });
 
-            const filteredNodes = nodes.filter((node, index) => {
-                if (index === 0) {
-                    return true;
-                }
-                if (hiddenNodes.has(node.id)) {
-                    return false;
-                }
-                if (searchQuery && !node.display_name.toLowerCase().includes(searchQuery.toLowerCase())) {
-                    return false;
-                }
-                if (node.type === "group") {
-                    return showGroups;
-                }
-                const relationshipType = node.relationshipTypes[userId];
-                return relationshipFilters[relationshipType as keyof typeof relationshipFilters] !== false;
-            });
+            const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
 
             const drawnConnections = new Set<string>();
 
@@ -546,7 +578,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
         };
 
         animate();
-    };
+    }, [nodes, zoom, relationshipFilters, stars, autoRotate, cameraOffset.x, cameraOffset.y, hiddenNodes, searchQuery, showGroups, userId, selectedNode?.id, highlightedNodes]);
 
     const project3DTo2D = (node: { x: number; y: number; z: number }, centerX: number, centerY: number) => {
         const cosX = Math.cos(rotation.x);
@@ -582,29 +614,9 @@ export function NetworkVisualization({userId}: { userId: string }) {
             return;
         }
 
-        const rect = canvas.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
+        const {clickX, clickY, centerX, centerY} = calculateMouseReference(canvas, e, cameraOffset);
 
-        const centerX = canvas.width / 2 + cameraOffset.x;
-        const centerY = canvas.height / 2 + cameraOffset.y;
-
-        const filteredNodes = nodes.filter((node, index) => {
-            if (index === 0) {
-                return true;
-            }
-            if (hiddenNodes.has(node.id)) {
-                return false;
-            }
-            if (searchQuery && !node.display_name.toLowerCase().includes(searchQuery.toLowerCase())) {
-                return false;
-            }
-            if (node.type === "group") {
-                return showGroups;
-            }
-            const relationshipType = node.relationshipTypes[userId];
-            return relationshipFilters[relationshipType as keyof typeof relationshipFilters] !== false;
-        });
+        const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
 
         const sortedNodes = [...filteredNodes].sort((a, b) => {
             const posA = project3DTo2D(a, centerX, centerY);
@@ -613,9 +625,11 @@ export function NetworkVisualization({userId}: { userId: string }) {
         });
 
         for (const node of sortedNodes) {
-            const pos = project3DTo2D(node, centerX, centerY);
-            const size = node.id === filteredNodes[0].id ? 24 : node.type === "group" ? 20 : 16;
-            const distance = Math.sqrt(Math.pow(clickX - pos.x, 2) + Math.pow(clickY - pos.y, 2));
+            const {
+                pos,
+                size,
+                distance
+            } = calculateNodeMetrics(project3DTo2D, node, centerX, centerY, filteredNodes, clickX, clickY);
 
             if (distance <= size) {
                 if (lastClickedNode === node.id && clickCount === 1) {
@@ -657,35 +671,17 @@ export function NetworkVisualization({userId}: { userId: string }) {
             return;
         }
 
-        const rect = canvas.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-
-        const centerX = canvas.width / 2 + cameraOffset.x;
-        const centerY = canvas.height / 2 + cameraOffset.y;
+        const {clickX, clickY, centerX, centerY} = calculateMouseReference(canvas, e, cameraOffset);
 
         if (e.ctrlKey || e.metaKey) {
-            const filteredNodes = nodes.filter((node, index) => {
-                if (index === 0) {
-                    return true;
-                }
-                if (hiddenNodes.has(node.id)) {
-                    return false;
-                }
-                if (searchQuery && !node.display_name.toLowerCase().includes(searchQuery.toLowerCase())) {
-                    return false;
-                }
-                if (node.type === "group") {
-                    return showGroups;
-                }
-                const relationshipType = node.relationshipTypes[userId];
-                return relationshipFilters[relationshipType as keyof typeof relationshipFilters] !== false;
-            });
+            const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
 
             for (const node of filteredNodes) {
-                const pos = project3DTo2D(node, centerX, centerY);
-                const size = node.id === filteredNodes[0].id ? 24 : node.type === "group" ? 20 : 16;
-                const distance = Math.sqrt(Math.pow(clickX - pos.x, 2) + Math.pow(clickY - pos.y, 2));
+                const {
+                    pos,
+                    size,
+                    distance
+                } = calculateNodeMetrics(project3DTo2D, node, centerX, centerY, filteredNodes, clickX, clickY);
 
                 if (distance <= size) {
                     setIsDraggingNode(true);
@@ -796,26 +792,57 @@ export function NetworkVisualization({userId}: { userId: string }) {
         });
     };
 
-    const visibleNodes = nodes.filter((node, index) => {
-        if (index === 0) {
-            return false;
-        }
-        if (hiddenNodes.has(node.id)) {
-            return false;
-        }
-        if (searchQuery && !node.display_name.toLowerCase().includes(searchQuery.toLowerCase())) {
-            return false;
-        }
-        if (node.type === "group") {
-            return showGroups;
-        }
-        const relationshipType = node.relationshipTypes[userId];
-        return relationshipFilters[relationshipType as keyof typeof relationshipFilters] !== false;
-    });
+    const visibleNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
 
     const totalConnections = Math.max(0, nodes.length - 1);
     const visibleCount = visibleNodes.length;
     const linkCount = Math.max(0, Math.floor(nodes.reduce((sum, node) => sum + node.connections.length, 0) / 2));
+    useEffect(() => {
+        const starCount = 300;
+        const newStars: Star[] = [];
+        for (let i = 0; i < starCount; i++) {
+            newStars.push({
+                x: (Math.random() - 0.5) * 2000,
+                y: (Math.random() - 0.5) * 2000,
+                z: (Math.random() - 0.5) * 2000,
+                size: Math.random() * 2 + 0.5,
+                opacity: Math.random() * 0.5 + 0.3,
+                twinkleSpeed: Math.random() * 0.02 + 0.01,
+                twinkleOffset: Math.random() * Math.PI * 2,
+            });
+        }
+        setStars(newStars);
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (containerRef.current) {
+                setCanvasSize({
+                    width: containerRef.current.clientWidth,
+                    height: containerRef.current.clientHeight,
+                });
+            }
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    useEffect(() => {
+        loadNetworkData();
+    }, [showGroups, maxNodes, nodeSpacing, loadNetworkData]);
+
+    useEffect(() => {
+        if (nodes.length > 0 && canvasRef.current) {
+            startAnimation();
+        }
+        return () => {
+            if (animationRef.current) {
+                cancelAnimationFrame(animationRef.current);
+            }
+        };
+    }, [nodes, zoom, rotation, canvasSize, relationshipFilters, stars, startAnimation]);
 
     return (
         <div className="min-h-screen bg-background pt-16">
@@ -1059,7 +1086,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                             <Avatar className="h-12 w-12 border-2 border-royal-purple">
                                 <AvatarImage src={selectedNode.avatar_url || undefined}/>
                                 <AvatarFallback
-                                    className="bg-gradient-to-br from-royal-purple to-purple-600 text-white">
+                                    className="bg-linear-to-br from-royal-purple to-purple-600 text-white">
                                     {selectedNode.display_name[0].toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>

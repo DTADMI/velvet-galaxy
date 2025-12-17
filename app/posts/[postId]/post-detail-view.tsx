@@ -4,7 +4,7 @@ import {formatDistanceToNow} from "date-fns";
 import {Eye, Heart, MessageCircle, MoreHorizontal, Send, Share2, Volume2} from "lucide-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {ImageCarousel} from "@/components/image-carousel";
 import {PollDisplay} from "@/components/poll-display";
@@ -65,22 +65,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
 
     const isPoll = post.media_type === "poll" && post.poll_question && post.poll_options;
 
-    useEffect(() => {
-        const handlePopState = () => {
-            loadPostStats();
-            loadComments();
-        };
-
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, [loadComments, loadPostStats]);
-
-    useEffect(() => {
-        loadPostStats();
-        loadComments();
-    }, [loadComments, loadPostStats]);
-
-    const loadPostStats = async () => {
+    const loadPostStats = useCallback(async () => {
         const {count: likes} = await supabase.from("post_likes").select("id", {count: "exact"}).eq("post_id", post.id);
 
         const {data: userLike} = await supabase
@@ -92,23 +77,23 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
 
         setLiked(!!userLike);
         setLikeCount(likes || 0);
-    };
+    }, [post.id, currentUserId, supabase]);
 
-    const loadComments = async () => {
+    const loadComments = useCallback(async () => {
         const {data} = await supabase
             .from("comments")
             .select(
                 `
-        id,
-        content,
-        created_at,
-        profiles (
-          id,
-          username,
-          display_name,
-          avatar_url
-        )
-      `,
+                id,
+                content,
+                created_at,
+                profiles (
+                    id,
+                    username,
+                    display_name,
+                    avatar_url
+                )
+                `
             )
             .eq("post_id", post.id)
             .order("created_at", {ascending: true});
@@ -116,17 +101,44 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
         if (data) {
             setComments(data as Comment[]);
         }
-    };
+    }, [post.id, supabase]);
 
-    const toggleLike = async () => {
+    const toggleLike = useCallback(async () => {
         if (liked) {
             await supabase.from("post_likes").delete().eq("post_id", post.id).eq("user_id", currentUserId);
             setLiked(false);
-            setLikeCount((prev) => prev - 1);
+            setLikeCount(prev => Math.max(0, prev - 1));
         } else {
             await supabase.from("post_likes").insert({post_id: post.id, user_id: currentUserId});
             setLiked(true);
-            setLikeCount((prev) => prev + 1);
+            setLikeCount(prev => prev + 1);
+        }
+    }, [liked, post.id, currentUserId, supabase]);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            loadPostStats();
+            loadComments();
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        loadPostStats();
+        loadComments();
+
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [loadPostStats, loadComments]);
+
+    const deletePost = async () => {
+        if (!confirm("Are you sure you want to delete this post?")) {
+            return;
+        }
+
+        const {error} = await supabase.from("posts").delete().eq("id", post.id);
+
+        if (!error) {
+            router.push("/feed");
         }
     };
 
@@ -162,22 +174,10 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
         }
     };
 
-    const deletePost = async () => {
-        if (!confirm("Are you sure you want to delete this post?")) {
-            return;
-        }
-
-        const {error} = await supabase.from("posts").delete().eq("id", post.id);
-
-        if (!error) {
-            router.push("/feed");
-        }
-    };
-
     const isNSFW = post.content_rating === "nsfw";
     const shouldBlur = isNSFW && !showNSFW;
 
-    const hasImages = post.images && post.images.length > 0;
+    const hasImages = Array.isArray(post.images) && post.images.length > 0;
     const hasMedia = post.media_url || hasImages || post.audio_url;
 
     return (
@@ -195,7 +195,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                                     <Avatar className="h-12 w-12 border-2 border-royal-purple">
                                         <AvatarImage src={post.profiles.avatar_url || undefined}/>
                                         <AvatarFallback
-                                            className="bg-gradient-to-br from-royal-purple to-royal-blue text-white">
+                                            className="bg-linear-to-br from-royal-purple to-royal-blue text-white">
                                             {post.profiles.display_name?.[0]?.toUpperCase() || post.profiles.username[0].toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
@@ -269,7 +269,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                                             )}
 
                                             {hasImages ? (
-                                                <ImageCarousel images={post.images}
+                                                <ImageCarousel images={post.images || []}
                                                                className={shouldBlur ? "blur-2xl" : ""}/>
                                             ) : post.media_type === "picture" && post.media_url ? (
                                                 <div
@@ -292,7 +292,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                                                 </div>
                                             ) : post.audio_url ? (
                                                 <div
-                                                    className="bg-gradient-to-br from-royal-purple/10 to-royal-blue/10 p-6 rounded-lg border border-royal-purple/20">
+                                                    className="bg-linear-to-br from-royal-purple/10 to-royal-blue/10 p-6 rounded-lg border border-royal-purple/20">
                                                     <div className="flex items-center gap-3 mb-3">
                                                         <Volume2 className="h-6 w-6 text-royal-purple"/>
                                                         <span className="font-semibold">Audio Post</span>
@@ -312,7 +312,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                         </CardContent>
 
                         <CardFooter
-                            className="pt-0 flex items-center justify-between border-t border-royal-purple/20 pt-4">
+                            className="flex items-center justify-between border-t border-royal-purple/20 pt-4">
                             <div className="flex items-center gap-4">
                                 <Button
                                     variant="ghost"
@@ -347,7 +347,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                                         <Avatar className="h-10 w-10 border-2 border-royal-purple">
                                             <AvatarImage src={comment.profiles.avatar_url || undefined}/>
                                             <AvatarFallback
-                                                className="bg-gradient-to-br from-royal-purple to-royal-blue text-white">
+                                                className="bg-linear-to-br from-royal-purple to-royal-blue text-white">
                                                 {comment.profiles.display_name?.[0]?.toUpperCase() ||
                                                     comment.profiles.username[0].toUpperCase()}
                                             </AvatarFallback>
@@ -377,7 +377,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                             <div className="flex gap-3 pt-4 border-t border-royal-purple/20">
                                 <Avatar className="h-10 w-10 border-2 border-royal-purple">
                                     <AvatarFallback
-                                        className="bg-gradient-to-br from-royal-purple to-royal-blue text-white">
+                                        className="bg-linear-to-br from-royal-purple to-royal-blue text-white">
                                         You
                                     </AvatarFallback>
                                 </Avatar>

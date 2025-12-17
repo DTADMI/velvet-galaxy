@@ -3,7 +3,7 @@
 import {Globe, Lock, LogOut, MessageSquare, Mic, Plus, Radio, Search, Trash2, Users, Video} from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {Label} from "@/components/ui/label";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
 import {createBrowserClient} from "@/lib/supabase/client";
+import {SupabaseClient} from "@supabase/supabase-js";
 
 interface ChatRoom {
     id: string
@@ -29,6 +30,32 @@ interface ChatRoom {
     requires_approval?: boolean
 }
 
+interface Participation {
+    conversation_id: string
+}
+
+interface CreatedRoom {
+    id: string;
+}
+
+async function getUserChatRoomIds(supabase: SupabaseClient, userId: string): Promise<string[]> {
+    const {data: participations} = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", userId);
+
+    const {data: createdRooms} = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("is_chat_room", true)
+        .eq("created_by", userId);
+
+    return [
+        ...(participations?.map((p: Participation) => p.conversation_id) || []),
+        ...(createdRooms?.map((r: CreatedRoom) => r.id) || []),
+    ];
+}
+
 export function ChatRoomsClient({userId}: { userId?: string }) {
     const [rooms, setRooms] = useState<ChatRoom[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -37,30 +64,12 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
     const supabase = createBrowserClient();
 
-    useEffect(() => {
-        loadRooms();
-    }, [activeTab, loadRooms]);
-
-    const loadRooms = async () => {
+    const loadRooms = useCallback(async () => {
         let query = supabase.from("conversations").select("*").eq("is_chat_room", true);
 
         if (activeTab === "all" && userId) {
             // All Rooms: rooms the user created OR joined
-            const {data: participations} = await supabase
-                .from("conversation_participants")
-                .select("conversation_id")
-                .eq("user_id", userId);
-
-            const {data: createdRooms} = await supabase
-                .from("conversations")
-                .select("id")
-                .eq("is_chat_room", true)
-                .eq("created_by", userId);
-
-            const roomIds = [
-                ...(participations?.map((p) => p.conversation_id) || []),
-                ...(createdRooms?.map((r) => r.id) || []),
-            ];
+            const roomIds = await getUserChatRoomIds(supabase, userId);
 
             if (roomIds.length > 0) {
                 query = query.in("id", [...new Set(roomIds)]);
@@ -73,21 +82,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
             query = query.eq("created_by", userId);
         } else if (activeTab === "discover" && userId) {
             // Discover: public rooms the user hasn't joined yet
-            const {data: participations} = await supabase
-                .from("conversation_participants")
-                .select("conversation_id")
-                .eq("user_id", userId);
-
-            const {data: createdRooms} = await supabase
-                .from("conversations")
-                .select("id")
-                .eq("is_chat_room", true)
-                .eq("created_by", userId);
-
-            const excludeIds = [
-                ...(participations?.map((p) => p.conversation_id) || []),
-                ...(createdRooms?.map((r) => r.id) || []),
-            ];
+            const excludeIds = await getUserChatRoomIds(supabase, userId);
 
             query = query.eq("is_public", true);
 
@@ -100,7 +95,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
 
         if (data) {
             const roomsWithCounts = await Promise.all(
-                data.map(async (room) => {
+                data.map(async (room: ChatRoom) => {
                     const {count} = await supabase
                         .from("conversation_participants")
                         .select("id", {count: "exact", head: true})
@@ -136,7 +131,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
             );
             setRooms(roomsWithCounts);
         }
-    };
+    }, [activeTab, userId, supabase]);
 
     const joinRoom = async (roomId: string) => {
         if (!userId) {
@@ -188,7 +183,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
             return;
         }
         await supabase.from("conversation_participants").delete().eq("conversation_id", roomId).eq("user_id", userId);
-        loadRooms();
+        await loadRooms();
     };
 
     const createRoom = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -275,7 +270,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
             await supabase.from("conversation_participants").delete().eq("conversation_id", roomId);
             await supabase.from("chat_room_settings").delete().eq("conversation_id", roomId);
             await supabase.from("conversations").delete().eq("id", roomId);
-            loadRooms();
+            await loadRooms();
         } catch (error) {
             console.error("[v0] Error deleting room:", error);
             alert("Failed to delete room");
@@ -311,6 +306,10 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
         }
     };
 
+    useEffect(() => {
+        loadRooms();
+    }, [activeTab, loadRooms]);
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -325,7 +324,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                 </div>
                 <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-gradient-to-r from-royal-purple to-royal-blue hover:opacity-90">
+                        <Button className="bg-linear-to-r from-royal-purple to-royal-blue hover:opacity-90">
                             <Plus className="h-4 w-4 mr-2"/>
                             Create Room
                         </Button>
@@ -377,7 +376,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                                     <option value="private">Private - Invite only</option>
                                 </select>
                             </div>
-                            <Button type="submit" className="w-full bg-gradient-to-r from-royal-purple to-royal-blue">
+                            <Button type="submit" className="w-full bg-linear-to-r from-royal-purple to-royal-blue">
                                 Create Room
                             </Button>
                         </form>
@@ -407,7 +406,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                                     className="overflow-hidden hover:border-royal-purple/40 transition-all bg-card/50 border-royal-purple/20"
                                 >
                                     <div
-                                        className={`h-24 bg-gradient-to-br ${getRoomTypeColor(room.room_type)} flex items-center justify-center relative`}
+                                        className={`h-24 bg-linear-to-br ${getRoomTypeColor(room.room_type)} flex items-center justify-center relative`}
                                     >
                                         <Radio className="h-12 w-12 text-white"/>
                                         <Badge className="absolute top-2 right-2 bg-black/50">
@@ -419,9 +418,9 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                                         <div className="flex items-start justify-between mb-2">
                                             <h3 className="font-semibold text-lg line-clamp-1">{room.name}</h3>
                                             {room.is_public ? (
-                                                <Globe className="h-4 w-4 text-muted-foreground flex-shrink-0"/>
+                                                <Globe className="h-4 w-4 text-muted-foreground shrink-0"/>
                                             ) : (
-                                                <Lock className="h-4 w-4 text-muted-foreground flex-shrink-0"/>
+                                                <Lock className="h-4 w-4 text-muted-foreground shrink-0"/>
                                             )}
                                         </div>
                                         {room.description && (
@@ -445,7 +444,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                                                 {room.is_member ? (
                                                     <>
                                                         <Button size="sm" asChild
-                                                                className="bg-gradient-to-r from-royal-purple to-royal-blue">
+                                                                className="bg-linear-to-r from-royal-purple to-royal-blue">
                                                             <Link href={`/chat-rooms/${room.id}`}>Join</Link>
                                                         </Button>
                                                         {!isCreator && (
@@ -464,7 +463,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                                                     <Button
                                                         size="sm"
                                                         onClick={() => joinRoom(room.id)}
-                                                        className="bg-gradient-to-r from-royal-purple to-royal-blue"
+                                                        className="bg-linear-to-r from-royal-purple to-royal-blue"
                                                     >
                                                         Join
                                                     </Button>

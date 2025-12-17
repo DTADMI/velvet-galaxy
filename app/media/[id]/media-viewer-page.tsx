@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import type React from "react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {toast} from "sonner";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
@@ -56,54 +56,7 @@ const MediaViewerPage = ({
     const [likesWithProfiles, setLikesWithProfiles] = useState<any[]>([]);
     const [showAllLikes, setShowAllLikes] = useState(false);
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "ArrowLeft") {
-                e.preventDefault();
-                if (previousMedia) {
-                    router.push(`/media/${previousMedia.id}`);
-                } else {
-                    const userId = mediaItem.profiles.id;
-                    router.push(`/profile/${userId}?tab=content`);
-                }
-            } else if (e.key === "ArrowRight") {
-                e.preventDefault();
-                if (nextMedia) {
-                    router.push(`/media/${nextMedia.id}`);
-                } else {
-                    const userId = mediaItem.profiles.id;
-                    router.push(`/profile/${userId}?tab=content`);
-                }
-            } else if (e.key === "Escape") {
-                const userId = mediaItem.profiles.id;
-                router.push(`/profile/${userId}?tab=content`);
-            }
-        };
-
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [previousMedia, nextMedia, router, mediaItem]);
-
-    useEffect(() => {
-        const handlePopState = () => {
-            // Browser back/forward buttons will naturally work with router.push
-            // This ensures the page updates correctly
-            loadMediaStats();
-            loadComments();
-            loadLikesWithProfiles();
-        };
-
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, [currentMediaId, loadLikesWithProfiles, loadMediaStats]);
-
-    useEffect(() => {
-        loadMediaStats();
-        loadComments();
-        loadLikesWithProfiles();
-    }, [currentMediaId, loadLikesWithProfiles, loadMediaStats]);
-
-    const loadMediaStats = async () => {
+    const loadMediaStats = useCallback(async () => {
         const {count: likes} = await supabase
             .from("media_likes")
             .select("id", {count: "exact"})
@@ -118,9 +71,9 @@ const MediaViewerPage = ({
 
         setLiked(!!userLike);
         setLikeCount(likes || 0);
-    };
+    }, [currentMediaId, currentUserId, supabase]);
 
-    const loadLikesWithProfiles = async () => {
+    const loadLikesWithProfiles = useCallback(async () => {
         const {data: likes} = await supabase
             .from("media_likes")
             .select(
@@ -142,7 +95,7 @@ const MediaViewerPage = ({
             .limit(100);
 
         setLikesWithProfiles(likes || []);
-    };
+    }, [currentMediaId, supabase]);
 
     const loadComments = async () => {
         setComments([]);
@@ -215,8 +168,55 @@ const MediaViewerPage = ({
     const _topLikes = likesWithProfiles.slice(0, 7);
     const displayedLikes = showAllLikes ? likesWithProfiles : likesWithProfiles.slice(0, 50);
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                if (previousMedia) {
+                    router.push(`/media/${previousMedia.id}`);
+                } else {
+                    const userId = mediaItem.profiles.id;
+                    router.push(`/profile/${userId}?tab=content`);
+                }
+            } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                if (nextMedia) {
+                    router.push(`/media/${nextMedia.id}`);
+                } else {
+                    const userId = mediaItem.profiles.id;
+                    router.push(`/profile/${userId}?tab=content`);
+                }
+            } else if (e.key === "Escape") {
+                const userId = mediaItem.profiles.id;
+                router.push(`/profile/${userId}?tab=content`);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [previousMedia, nextMedia, router, mediaItem]);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            // Browser back/forward buttons will naturally work with router.push
+            // This ensures the page updates correctly
+            loadMediaStats();
+            loadComments();
+            loadLikesWithProfiles();
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, [currentMediaId, loadLikesWithProfiles, loadMediaStats]);
+
+    useEffect(() => {
+        loadMediaStats();
+        loadComments();
+        loadLikesWithProfiles();
+    }, [currentMediaId, loadLikesWithProfiles, loadMediaStats]);
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-royal-purple/5">
+        <div className="min-h-screen bg-linear-to-br from-background via-background to-royal-purple/5">
             <div className="container mx-auto max-w-7xl p-4">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Main Content */}
@@ -236,7 +236,7 @@ const MediaViewerPage = ({
                                                 alt={mediaItem.profiles.display_name || mediaItem.profiles.username}
                                             />
                                             <AvatarFallback
-                                                className="bg-gradient-to-br from-royal-purple to-royal-blue text-white font-semibold">
+                                                className="bg-linear-to-br from-royal-purple to-royal-blue text-white font-semibold">
                                                 {(mediaItem.profiles.display_name || mediaItem.profiles.username)[0].toUpperCase()}
                                             </AvatarFallback>
                                         </Avatar>
@@ -423,7 +423,7 @@ const MediaViewerPage = ({
                                     <div className="flex gap-3">
                                         <Avatar className="h-10 w-10 border-2 border-royal-purple">
                                             <AvatarFallback
-                                                className="bg-gradient-to-br from-royal-purple to-royal-blue text-white">
+                                                className="bg-linear-to-br from-royal-purple to-royal-blue text-white">
                                                 You
                                             </AvatarFallback>
                                         </Avatar>
@@ -470,7 +470,7 @@ const MediaViewerPage = ({
                                             </Button>
                                         )}
                                     </div>
-                                    <div className="grid grid-cols-6 gap-2 max-h-[400px] overflow-y-auto">
+                                    <div className="grid grid-cols-6 gap-2 max-h-100 overflow-y-auto">
                                         {displayedLikes.map((like: any) => (
                                             <Link
                                                 key={like.id}
@@ -485,7 +485,7 @@ const MediaViewerPage = ({
                                                         alt={like.profiles.display_name || like.profiles.username}
                                                     />
                                                     <AvatarFallback
-                                                        className="bg-gradient-to-br from-royal-purple to-royal-blue text-white text-xs">
+                                                        className="bg-linear-to-br from-royal-purple to-royal-blue text-white text-xs">
                                                         {(like.profiles.display_name || like.profiles.username)[0].toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
@@ -501,13 +501,13 @@ const MediaViewerPage = ({
                         )}
 
                         <Card
-                            className="border-royal-purple/30 bg-gradient-to-br from-royal-purple/10 to-royal-blue/10 backdrop-blur-sm shadow-lg">
+                            className="border-royal-purple/30 bg-linear-to-br from-royal-purple/10 to-royal-blue/10 backdrop-blur-sm shadow-lg">
                             <CardContent className="p-4 space-y-3">
                                 <div
                                     className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Advertisement
                                 </div>
                                 <div
-                                    className="aspect-square bg-gradient-to-br from-royal-purple/20 to-royal-blue/20 rounded-lg flex items-center justify-center">
+                                    className="aspect-square bg-linear-to-br from-royal-purple/20 to-royal-blue/20 rounded-lg flex items-center justify-center">
                                     <p className="text-sm text-muted-foreground">Ad Space</p>
                                 </div>
                                 <div className="space-y-1">

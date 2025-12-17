@@ -19,8 +19,7 @@ import {
 } from "lucide-react";
 import {useRouter} from "next/navigation";
 import type React from "react";
-import {useEffect, useState} from "react";
-
+import {useCallback, useEffect, useState} from "react";
 import {MessageThread} from "@/components/message-thread";
 import {NewConversationDialog} from "@/components/new-conversation-dialog";
 import {Badge} from "@/components/ui/badge";
@@ -29,6 +28,20 @@ import {Card} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createBrowserClient} from "@/lib/supabase/client";
+
+type MessageWithConversation = {
+    conversation_id: string;
+    conversations: {
+        message_type?: string;
+        is_chat_room: boolean;
+    };
+};
+
+type ConversationWithId = {
+    id: string;
+    conversation_id: string;
+    // Add other properties as needed
+};
 
 interface Conversation {
     id: string
@@ -73,16 +86,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
     const router = useRouter();
     const supabase = createBrowserClient();
 
-    useEffect(() => {
-        setActiveInbox("all");
-        setSelectedConversation(undefined);
-    }, [activeTab]);
-
-    useEffect(() => {
-        loadConversations();
-    }, [activeTab, activeInbox, loadConversations]);
-
-    const loadConversations = async () => {
+    const loadConversations = useCallback(async () => {
         if (activeTab === "rooms") {
             setFilteredConvs([]);
             return;
@@ -123,7 +127,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                 .neq("sender_id", currentUserId);
 
             if (unreadConvs && unreadConvs.length > 0) {
-                const convIds = [...new Set(unreadConvs.map((m) => m.conversation_id))];
+                const convIds = [...new Set(unreadConvs.map((m: { conversation_id: string }) => m.conversation_id))];
                 query = query.in("id", convIds);
             } else {
                 setFilteredConvs([]);
@@ -155,7 +159,9 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                     .in("user_id", relatedUserIds);
 
                 if (relatedConvs && relatedConvs.length > 0) {
-                    const convIds = [...new Set(relatedConvs.map((c) => c.conversation_id))];
+                    const convIds = [...new Set(relatedConvs.map((c: {
+                        conversation_id: string
+                    }) => c.conversation_id))];
                     query = query.in("id", convIds);
                 } else {
                     setFilteredConvs([]);
@@ -175,7 +181,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                 .order("created_at", {ascending: false});
 
             if (sentMessages && sentMessages.length > 0) {
-                const convIds = [...new Set(sentMessages.map((m) => m.conversation_id))];
+                const convIds = [...new Set(sentMessages.map((m: { conversation_id: string }) => m.conversation_id))];
                 query = query.in("id", convIds);
             } else {
                 setFilteredConvs([]);
@@ -222,7 +228,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
         }
 
         await calculateInboxCounts();
-    };
+    }, [activeTab, activeInbox, currentUserId, supabase]);
 
     const calculateInboxCounts = async () => {
         const messageType = activeTab === "rooms" ? null : activeTab;
@@ -253,7 +259,9 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
             const matchesType = messageType ? m.conversations?.message_type === messageType : true;
             return !isRoom && matchesType;
         });
-        const unreadCount = unreadForType ? [...new Set(unreadForType.map((m) => m.conversation_id))].length : 0;
+        const unreadCount = unreadForType ? [...new Set(unreadForType.map((m: {
+            conversation_id: string
+        }) => m.conversation_id))].length : 0;
 
         const {data: friendships} = await supabase
             .from("friendships")
@@ -276,7 +284,9 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                 return !isRoom && matchesType;
             });
 
-            friendsCount = filteredFriendConvs ? [...new Set(filteredFriendConvs.map((c) => c.conversation_id))].length : 0;
+            friendsCount = filteredFriendConvs ? [...new Set(filteredFriendConvs.map((c: {
+                conversation_id: string
+            }) => c.conversation_id))].length : 0;
         }
 
         const {data: follows} = await supabase.from("follows").select("following_id").eq("follower_id", currentUserId);
@@ -297,7 +307,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
             });
 
             followersCount = filteredFollowerConvs
-                ? [...new Set(filteredFollowerConvs.map((c) => c.conversation_id))].length
+                ? [...new Set(filteredFollowerConvs.map((c: { conversation_id: string }) => c.conversation_id))].length
                 : 0;
         }
 
@@ -306,12 +316,17 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
             .select("conversation_id, conversations!inner(message_type, is_chat_room)")
             .eq("sender_id", currentUserId);
 
-        const sentForType = sentMessages?.filter((m: any) => {
+        const sentForType = sentMessages?.filter((m: {
+            conversations: { is_chat_room: boolean, message_type?: string },
+            conversation_id: string
+        }) => {
             const isRoom = m.conversations?.is_chat_room === true;
             const matchesType = messageType ? m.conversations?.message_type === messageType : true;
             return !isRoom && matchesType;
         });
-        const sentCount = sentForType ? [...new Set(sentForType.map((m) => m.conversation_id))].length : 0;
+        const sentCount = sentForType ? [...new Set(sentForType.map((m: {
+            conversation_id: string
+        }) => m.conversation_id))].length : 0;
 
         let archivedQuery = supabase
             .from("conversations")
@@ -337,14 +352,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
         });
     };
 
-    useEffect(() => {
-        if (activeTab === "rooms") {
-            loadRooms();
-            calculateInboxCounts();
-        }
-    }, [activeTab, calculateInboxCounts, loadRooms]);
-
-    const loadRooms = async () => {
+    const loadRooms = useCallback(async () => {
         const {data} = await supabase
             .from("conversations")
             .select("*")
@@ -355,7 +363,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
 
         if (data) {
             const roomsWithCounts = await Promise.all(
-                data.map(async (room) => {
+                data.map(async (room: { id: string }) => {
                     const {count} = await supabase
                         .from("conversation_participants")
                         .select("id", {count: "exact", head: true})
@@ -369,12 +377,12 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
             );
             setRooms(roomsWithCounts);
         }
-    };
+    }, [supabase]);
 
     const counts = inboxCounts;
 
     const displayedConversations = filteredConvs
-        .filter((c) => {
+        .filter((c: Conversation) => {
             if (!searchQuery) {
                 return true;
             }
@@ -385,7 +393,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                 c.other_participant?.display_name?.toLowerCase().includes(query)
             );
         })
-        .sort((a, b) => {
+        .sort((a: Conversation, b: Conversation) => {
             if (sortBy === "date") {
                 return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
             }
@@ -397,13 +405,13 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
     const archiveConversation = async (convId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         await supabase.from("conversations").update({is_archived: true, archived_by: currentUserId}).eq("id", convId);
-        loadConversations();
+        await loadConversations();
     };
 
     const unarchiveConversation = async (convId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         await supabase.from("conversations").update({is_archived: false, archived_by: null}).eq("id", convId);
-        loadConversations();
+        await loadConversations();
     };
 
     const deleteConversation = async (convId: string, e: React.MouseEvent) => {
@@ -414,7 +422,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
 
         await supabase.from("messages").delete().eq("conversation_id", convId);
         await supabase.from("conversations").delete().eq("id", convId);
-        loadConversations();
+        await loadConversations();
     };
 
     const markAsUnread = async (convId: string, e: React.MouseEvent) => {
@@ -424,14 +432,30 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
             .update({is_read: false})
             .eq("conversation_id", convId)
             .neq("sender_id", currentUserId);
-        loadConversations();
+        await loadConversations();
     };
 
     const pinConversation = async (convId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         await supabase.from("conversations").update({is_pinned: true}).eq("id", convId);
-        loadConversations();
+        await loadConversations();
     };
+
+    useEffect(() => {
+        setActiveInbox("all");
+        setSelectedConversation(undefined);
+    }, [activeTab]);
+
+    useEffect(() => {
+        loadConversations();
+    }, [activeTab, activeInbox, loadConversations]);
+
+    useEffect(() => {
+        if (activeTab === "rooms") {
+            loadRooms();
+            calculateInboxCounts();
+        }
+    }, [activeTab, calculateInboxCounts, loadRooms]);
 
     return (
         <div className="container mx-auto h-[calc(100vh-4rem)] p-4">
@@ -459,7 +483,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                     <div className="lg:col-span-1 space-y-2 overflow-y-auto">
                         <Button
                             onClick={() => setIsNewMessageOpen(true)}
-                            className="w-full bg-gradient-to-r from-royal-purple to-royal-blue mb-4"
+                            className="w-full bg-linear-to-r from-royal-purple to-royal-blue mb-4"
                         >
                             <Plus className="h-4 w-4 mr-2"/>
                             New Message
@@ -645,7 +669,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
 
                                         <div className="flex items-start gap-3">
                                             <div
-                                                className="h-10 w-10 rounded-full bg-gradient-to-br from-royal-purple to-royal-blue flex items-center justify-center text-white font-semibold">
+                                                className="h-10 w-10 rounded-full bg-linear-to-br from-royal-purple to-royal-blue flex items-center justify-center text-white font-semibold">
                                                 {conv.other_participant?.display_name?.[0] || conv.other_participant?.username[0] || "?"}
                                             </div>
                                             <div className="flex-1 min-w-0">
