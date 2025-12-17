@@ -14,9 +14,10 @@ export default function AboutPage() {
                         <div className="flex justify-center mb-6">
                             <LinkNetLogo size="xl"/>
                         </div>
-                        <h1 className="text-4xl font-bold text-gradient mb-4">About LinkNet</h1>
+                        <h1 className="text-4xl font-bold text-gradient mb-4">About Velvet Galaxy</h1>
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                            LinkNet is a vibrant social platform designed to connect people through shared interests,
+                            Velvet Galaxy is a vibrant social platform designed to connect people through shared
+                            interests,
                             meaningful
                             conversations, and local communities.
                         </p>
@@ -36,7 +37,7 @@ export default function AboutPage() {
                                 icon: Heart,
                                 title: "Meaningful Connections",
                                 description:
-                                    "Whether you're looking for friendship, dating, or professional networking, LinkNet provides the tools to connect meaningfully.",
+                                    "Whether you're looking for friendship, dating, or professional networking, Velvet Galaxy provides the tools to connect meaningfully.",
                                 color: "from-royal-orange to-amber-600",
                             },
                             {
@@ -73,7 +74,8 @@ export default function AboutPage() {
                         <CardContent className="pt-6">
                             <h2 className="text-2xl font-bold text-gradient mb-4">Our Mission</h2>
                             <p className="text-muted-foreground leading-relaxed mb-4">
-                                At LinkNet, we're on a mission to create a social platform that prioritizes genuine
+                                At Velvet Galaxy, we're on a mission to create a social platform that prioritizes
+                                genuine
                                 human connection
                                 over algorithms and engagement metrics. We believe that the best online communities are
                                 built on trust,
@@ -83,7 +85,8 @@ export default function AboutPage() {
                             <p className="text-muted-foreground leading-relaxed">
                                 Whether you're sharing your creative work, organizing local events, buying and selling
                                 with neighbors,
-                                or simply chatting with friends, LinkNet provides the tools and space to make it happen
+                                or simply chatting with friends, Velvet Galaxy provides the tools and space to make it
+                                happen
                                 - all while
                                 keeping your data secure and your experience personalized.
                             </p>

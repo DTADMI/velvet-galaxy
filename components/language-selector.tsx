@@ -20,7 +20,7 @@ export function LanguageSelector() {
     const [currentLanguage, setCurrentLanguage] = useState<Language>("en");
 
     useEffect(() => {
-        const saved = localStorage.getItem("linknet-language") as Language;
+        const saved = localStorage.getItem("velvet_galaxy-language") as Language;
         if (saved && languages[saved]) {
             setCurrentLanguage(saved);
         }
@@ -28,7 +28,7 @@ export function LanguageSelector() {
 
     const handleLanguageChange = (lang: Language) => {
         setCurrentLanguage(lang);
-        localStorage.setItem("linknet-language", lang);
+        localStorage.setItem("velvet_galaxy-language", lang);
         window.location.reload();
     };
 

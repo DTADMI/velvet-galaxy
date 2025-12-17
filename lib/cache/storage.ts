@@ -20,7 +20,7 @@ interface CacheDB extends DBSchema {
 
 class CacheStorage {
     private db: IDBPDatabase<CacheDB> | null = null;
-    private dbName = "linknet-cache";
+    private dbName = "velvet_galaxy-cache";
     private version = 1;
 
     async init() {

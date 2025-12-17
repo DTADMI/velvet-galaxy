@@ -25,7 +25,7 @@ const ThemeProviderContext = React.createContext<ThemeProviderState>(initialStat
 export function ThemeProvider({
                                   children,
                                   defaultTheme = "dark",
-                                  storageKey = "linknet-theme",
+                                  storageKey = "velvet_galaxy-theme",
                                   // </CHANGE>
                                   ...props
                               }: ThemeProviderProps) {

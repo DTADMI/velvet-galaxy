@@ -1,7 +1,7 @@
 // Service Worker for caching static assets and API responses
-const CACHE_NAME = "linknet-cache-v1"
-const STATIC_CACHE = "linknet-static-v1"
-const API_CACHE = "linknet-api-v1"
+const CACHE_NAME = "velvet_galaxy-cache-v1"
+const STATIC_CACHE = "velvet_galaxy-static-v1"
+const API_CACHE = "velvet_galaxy-api-v1"
 
 // Static assets to cache immediately
 const STATIC_ASSETS = ["/", "/feed", "/discover", "/messages", "/profile", "/manifest.json"]

@@ -11,7 +11,7 @@ import {CacheProvider} from "@/lib/cache/provider";
 const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
-    title: "LinkNet - Connect with Your Community",
+    title: "Velvet Galaxy - Connect with Your Community",
     description: "A social platform for meaningful connections and local commerce",
     generator: 'v0.app'
 };
@@ -56,7 +56,7 @@ export default function RootLayout({
             />
         </head>
         <body className={inter.className}>
-        <ThemeProvider defaultTheme="dark" storageKey="linknet-theme">
+        <ThemeProvider defaultTheme="dark" storageKey="velvet_galaxy-theme">
             <CacheProvider>
                 <TooltipProvider>{children}</TooltipProvider>
             </CacheProvider>

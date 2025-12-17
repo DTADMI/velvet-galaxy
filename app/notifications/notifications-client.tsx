@@ -3,7 +3,7 @@
 import {formatDistanceToNow} from "date-fns";
 import {Bell, BellOff, Heart, Loader2, MessageCircle, UserPlus, Users} from "lucide-react";
 import Link from "next/link";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Button} from "@/components/ui/button";
@@ -19,7 +19,8 @@ interface NotificationsClientProps {
 export function NotificationsClient({profile, initialNotifications}: NotificationsClientProps) {
     const [notifications, setNotifications] = useState(initialNotifications);
     const [mounted, setMounted] = useState(false);
-    // Removed unused pagination state to satisfy lint rules
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(initialNotifications.length === 50);
     const supabase = createClient();
 
     useEffect(() => {
@@ -56,6 +57,38 @@ export function NotificationsClient({profile, initialNotifications}: Notificatio
     };
 
     const unreadCount = notifications.filter((n) => !n.read).length;
+
+    const loadMore = useCallback(async () => {
+        if (isLoadingMore || !hasMore || notifications.length === 0) {
+            return;
+        }
+        setIsLoadingMore(true);
+
+        try {
+            const last = notifications[notifications.length - 1];
+            const lastCreatedAt = last?.created_at;
+            const {data, error} = await supabase
+                .from("notifications")
+                .select("*, from_user:profiles!notifications_from_user_id_fkey(id, username, display_name, avatar_url)")
+                .eq("user_id", profile.id)
+                .lt("created_at", lastCreatedAt)
+                .order("created_at", {ascending: false})
+                .limit(50);
+
+            if (error) {
+                console.error("loadMore notifications error", error);
+            }
+
+            if (data && data.length > 0) {
+                setNotifications((prev) => [...prev, ...data]);
+                setHasMore(data.length === 50);
+            } else {
+                setHasMore(false);
+            }
+        } finally {
+            setIsLoadingMore(false);
+        }
+    }, [hasMore, isLoadingMore, notifications, profile.id, supabase]);
 
     if (!mounted) {
         return (
@@ -195,6 +228,26 @@ export function NotificationsClient({profile, initialNotifications}: Notificatio
                                     </CardContent>
                                 </Card>
                             ))}
+
+                            {notifications.length > 0 && hasMore && (
+                                <div className="flex justify-center py-4">
+                                    <Button
+                                        variant="outline"
+                                        className="border-royal-purple/30 hover:bg-royal-purple/10"
+                                        onClick={loadMore}
+                                        disabled={isLoadingMore}
+                                    >
+                                        {isLoadingMore ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                                                Loading more
+                                            </>
+                                        ) : (
+                                            "Load more"
+                                        )}
+                                    </Button>
+                                </div>
+                            )}
 
                             {notifications.length === 0 && (
                                 <Card className="border-royal-purple/30 bg-card/80 backdrop-blur-sm shadow-lg">
