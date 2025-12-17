@@ -1,0 +1,46 @@
+{
+  "common": {
+    "welcome": "Willkommen",
+    "search": "Suchen",
+    "feed": "Feed",
+    "discover": "Entdecken",
+    "messages": "Nachrichten",
+    "marketplace": "Marktplatz",
+    "community": "Gemeinschaft",
+    "upload": "Hochladen",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "explore": "Erkunden",
+    "notifications": "Benachrichtigungen"
+  },
+  "chat": {
+    "rooms": "Chaträume",
+    "participants": "Teilnehmer",
+    "leaveRoom": "Raum verlassen",
+    "sendMessage": "Nachricht senden",
+    "typeMessage": "Nachricht eingeben..."
+  },
+  "profile": {
+    "posts": "Beiträge",
+    "pictures": "Bilder",
+    "videos": "Videos",
+    "audios": "Audios",
+    "writings": "Schriften",
+    "followers": "Follower",
+    "following": "Folge ich",
+    "friends": "Freunde"
+  }
+}

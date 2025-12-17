@@ -1,0 +1,46 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "search": "Search",
+    "feed": "Feed",
+    "discover": "Discover",
+    "messages": "Messages",
+    "marketplace": "Marketplace",
+    "community": "Community",
+    "upload": "Upload",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "navigation": {
+    "home": "Home",
+    "explore": "Explore",
+    "notifications": "Notifications"
+  },
+  "chat": {
+    "rooms": "Chat Rooms",
+    "participants": "Participants",
+    "leaveRoom": "Leave Room",
+    "sendMessage": "Send message",
+    "typeMessage": "Type a message..."
+  },
+  "profile": {
+    "posts": "Posts",
+    "pictures": "Pictures",
+    "videos": "Videos",
+    "audios": "Audios",
+    "writings": "Writings",
+    "followers": "Followers",
+    "following": "Following",
+    "friends": "Friends"
+  }
+}

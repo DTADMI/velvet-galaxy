@@ -1,0 +1,46 @@
+{
+  "common": {
+    "welcome": "Bienvenido",
+    "search": "Buscar",
+    "feed": "Feed",
+    "discover": "Descubrir",
+    "messages": "Mensajes",
+    "marketplace": "Mercado",
+    "community": "Comunidad",
+    "upload": "Subir",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "explore": "Explorar",
+    "notifications": "Notificaciones"
+  },
+  "chat": {
+    "rooms": "Salas de chat",
+    "participants": "Participantes",
+    "leaveRoom": "Salir de la sala",
+    "sendMessage": "Enviar mensaje",
+    "typeMessage": "Escribe un mensaje..."
+  },
+  "profile": {
+    "posts": "Publicaciones",
+    "pictures": "Imágenes",
+    "videos": "Videos",
+    "audios": "Audios",
+    "writings": "Escritos",
+    "followers": "Seguidores",
+    "following": "Siguiendo",
+    "friends": "Amigos"
+  }
+}
