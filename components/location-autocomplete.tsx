@@ -43,7 +43,7 @@ export function LocationAutocomplete({
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const debounceRef = useRef<NodeJS.Timeout>();
+    const debounceRef = useRef<NodeJS.Timeout>(null);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

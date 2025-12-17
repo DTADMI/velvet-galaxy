@@ -1,5 +1,6 @@
 "use client";
 
+import {SupabaseClient} from "@supabase/supabase-js";
 import {Globe, Lock, LogOut, MessageSquare, Mic, Plus, Radio, Search, Trash2, Users, Video} from "lucide-react";
 import Link from "next/link";
 import type React from "react";
@@ -14,7 +15,6 @@ import {Label} from "@/components/ui/label";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
 import {createBrowserClient} from "@/lib/supabase/client";
-import {SupabaseClient} from "@supabase/supabase-js";
 
 interface ChatRoom {
     id: string

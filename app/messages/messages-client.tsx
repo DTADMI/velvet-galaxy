@@ -20,6 +20,7 @@ import {
 import {useRouter} from "next/navigation";
 import type React from "react";
 import {useCallback, useEffect, useState} from "react";
+
 import {MessageThread} from "@/components/message-thread";
 import {NewConversationDialog} from "@/components/new-conversation-dialog";
 import {Badge} from "@/components/ui/badge";

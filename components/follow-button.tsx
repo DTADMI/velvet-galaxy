@@ -1,7 +1,7 @@
 "use client";
 
 import {UserMinus, UserPlus} from "lucide-react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Button} from "@/components/ui/button";
 import {createBrowserClient} from "@/lib/supabase/client";
@@ -11,11 +11,7 @@ export function FollowButton({userId}: { userId: string }) {
     const [loading, setLoading] = useState(false);
     const supabase = createBrowserClient();
 
-    useEffect(() => {
-        checkFollowStatus();
-    }, [userId]);
-
-    const checkFollowStatus = async () => {
+    const checkFollowStatus = useCallback(async () => {
         const {
             data: {user},
         } = await supabase.auth.getUser();
@@ -31,7 +27,11 @@ export function FollowButton({userId}: { userId: string }) {
             .single();
 
         setIsFollowing(!!data);
-    };
+    }, [supabase, userId]);
+
+    useEffect(() => {
+        checkFollowStatus();
+    }, [checkFollowStatus]);
 
     const handleFollow = async () => {
         setLoading(true);

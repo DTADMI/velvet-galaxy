@@ -138,7 +138,7 @@ const calculateMouseReference = (canvas: HTMLCanvasElement, e: React.MouseEvent,
     const centerY = canvas.height / 2 + cameraOffset.y;
 
     return {clickX, clickY, centerX, centerY};
-}
+};
 
 export function NetworkVisualization({userId}: { userId: string }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);

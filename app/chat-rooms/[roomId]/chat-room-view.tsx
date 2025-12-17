@@ -483,30 +483,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
         }
     };
 
-    if (isInWaitingRoom) {
-        return (
-            <div className="container mx-auto h-[calc(100vh-4rem)] p-4 flex items-center justify-center">
-                <Card className="max-w-md w-full border-royal-purple/20 p-8 text-center">
-                    <div className="mb-6">
-                        <Clock className="h-16 w-16 mx-auto text-royal-purple animate-pulse"/>
-                    </div>
-                    <h2 className="text-2xl font-bold text-gradient mb-4">Waiting for Approval</h2>
-                    <p className="text-muted-foreground mb-6">
-                        You're in the waiting room for <span className="font-semibold">{roomName}</span>. The room
-                        creator will
-                        review your request shortly.
-                    </p>
-                    <Button
-                        variant="outline"
-                        onClick={() => router.push("/chat-rooms")}
-                        className="w-full border-royal-purple/20"
-                    >
-                        Back to Chat Rooms
-                    </Button>
-                </Card>
-            </div>
-        );
-    }
+    // Note: no early returns before hooks to keep hooks ordering consistent
 
     useEffect(() => {
         loadMessages();
@@ -600,7 +577,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
             supabase.removeChannel(channel);
             cleanupWebRTC();
         };
-    }, [roomId, isCreator, checkIfCreator, checkWaitingRoomStatus, cleanupWebRTC, initializeWebRTC, loadMessages, loadParticipants, loadWaitingParticipants, roomType, supabase, userId]);
+    }, [roomId, isCreator, checkIfCreator, checkWaitingRoomStatus, cleanupWebRTC, initializeWebRTC, loadMessages, loadParticipants, loadWaitingParticipants, loadMediaDevices, roomType, supabase, userId]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
@@ -608,6 +585,27 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
 
     return (
         <div className="container mx-auto h-[calc(100vh-4rem)] p-4">
+            {isInWaitingRoom ? (
+                <div className="h-full flex items-center justify-center">
+                    <Card className="max-w-md w-full border-royal-purple/20 p-8 text-center">
+                        <div className="mb-6">
+                            <Clock className="h-16 w-16 mx-auto text-royal-purple animate-pulse"/>
+                        </div>
+                        <h2 className="text-2xl font-bold text-gradient mb-4">Waiting for Approval</h2>
+                        <p className="text-muted-foreground mb-6">
+                            You're in the waiting room for <span className="font-semibold">{roomName}</span>. The room
+                            creator will review your request shortly.
+                        </p>
+                        <Button
+                            variant="outline"
+                            onClick={() => router.push("/chat-rooms")}
+                            className="w-full border-royal-purple/20"
+                        >
+                            Back to Chat Rooms
+                        </Button>
+                    </Card>
+                </div>
+            ) : (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
                 <Card className="lg:col-span-3 border-royal-purple/20 flex flex-col overflow-hidden">
                     <div
@@ -1039,6 +1037,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                     </div>
                 </Card>
             </div>
+            )}
         </div>
     );
 }

@@ -61,11 +61,21 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
 
         // Build content type filter
         const contentTypes = [];
-        if (contentFilters.image) contentTypes.push("image");
-        if (contentFilters.video) contentTypes.push("video");
-        if (contentFilters.audio) contentTypes.push("audio");
-        if (contentFilters.writing) contentTypes.push("writing");
-        if (contentFilters.text) contentTypes.push("text");
+        if (contentFilters.image) {
+            contentTypes.push("image");
+        }
+        if (contentFilters.video) {
+            contentTypes.push("video");
+        }
+        if (contentFilters.audio) {
+            contentTypes.push("audio");
+        }
+        if (contentFilters.writing) {
+            contentTypes.push("writing");
+        }
+        if (contentFilters.text) {
+            contentTypes.push("text");
+        }
 
         const ratingFilter = feedMode === "sfw" ? ["sfw"] : ["sfw", "nsfw"];
 
@@ -131,8 +141,12 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
                 popularQuery,
             ]);
 
-            if (curatedResult.data) setCuratedPosts(curatedResult.data);
-            if (popularResult.data) setPopularPosts(popularResult.data);
+            if (curatedResult.data) {
+                setCuratedPosts(curatedResult.data);
+            }
+            if (popularResult.data) {
+                setPopularPosts(popularResult.data);
+            }
         } catch (error) {
             console.error("Error loading posts:", error);
         } finally {
@@ -152,11 +166,21 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
         try {
             // Build content type filter
             const contentTypes = [];
-            if (contentFilters.image) contentTypes.push("image");
-            if (contentFilters.video) contentTypes.push("video");
-            if (contentFilters.audio) contentTypes.push("audio");
-            if (contentFilters.writing) contentTypes.push("writing");
-            if (contentFilters.text) contentTypes.push("text");
+            if (contentFilters.image) {
+                contentTypes.push("image");
+            }
+            if (contentFilters.video) {
+                contentTypes.push("video");
+            }
+            if (contentFilters.audio) {
+                contentTypes.push("audio");
+            }
+            if (contentFilters.writing) {
+                contentTypes.push("writing");
+            }
+            if (contentFilters.text) {
+                contentTypes.push("text");
+            }
 
             const ratingFilter = feedMode === "sfw" ? ["sfw"] : ["sfw", "nsfw"];
 
