@@ -51,7 +51,7 @@ export default async function PublicProfilePage({
         redirect("/feed");
     }
 
-    const {data: posts} = await supabase
+    const {data: postsData} = await supabase
         .from("posts")
         .select(
             `
@@ -61,17 +61,20 @@ export default async function PublicProfilePage({
       content_rating,
       media_type,
       media_url,
-      profiles (
-        id,
-        username,
-        display_name,
-        avatar_url
-      )
+      author_id,
+      profiles:author_id (id, username, display_name, avatar_url)
     `,
         )
         .eq("author_id", userId)
         .order("created_at", {ascending: false})
         .limit(20);
+
+    // Map the posts to ensure author_profile is a single object
+    const posts = (postsData || []).map(post => ({
+        ...post,
+        author_profile: Array.isArray(post.profiles) ? post.profiles[0] : post.profiles,
+        profiles: undefined // Remove the profiles array to avoid confusion
+    }));
 
     // Fetch user's media
     const {data: pictures} = await supabase

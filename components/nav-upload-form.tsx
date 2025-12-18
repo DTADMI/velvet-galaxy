@@ -6,7 +6,7 @@ import {toast} from "react-toastify";
 
 import {createBrowserClient} from "@/lib/supabase/client";
 
-import {validateMediaFile} from "./utils"; // Assuming validateMediaFile is a utility function
+import {validateMediaFile} from "./media-utils";
 
 const NavUploadForm = () => {
     const [mediaType, setMediaType] = useState("");

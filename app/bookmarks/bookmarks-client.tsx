@@ -19,7 +19,7 @@ interface BookmarksClientProps {
         media_url: string | null
         content_type?: string
         is_promotional?: boolean
-        profiles: {
+        author_profile: {
             id: string
             username: string
             display_name: string | null

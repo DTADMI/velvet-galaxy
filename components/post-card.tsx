@@ -32,7 +32,7 @@ interface PostCardProps {
         poll_options?: any[] | null
         poll_multiple_choice?: boolean | null
         poll_end_date?: string | null
-        profiles: {
+        author_profile: {
             id: string
             username: string
             display_name: string | null
@@ -139,17 +139,17 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
             <CardHeader className={displaySize === "compact" ? "pb-2" : "pb-3"}>
                 <div className="flex items-center justify-between">
                     <Link
-                        href={`/profile/${post.profiles.id}`}
+                        href={`/profile/${post.author_profile.id}`}
                         className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                     >
                         <Avatar className={`${avatarSize} border-2 border-royal-purple`}>
-                            <AvatarImage src={post.profiles.avatar_url || undefined}/>
+                            <AvatarImage src={post.author_profile.avatar_url || undefined}/>
                             <AvatarFallback className="bg-gradient-to-br from-royal-purple to-royal-blue text-white">
-                                {post.profiles.display_name?.[0]?.toUpperCase() || post.profiles.username[0].toUpperCase()}
+                                {post.author_profile.display_name?.[0]?.toUpperCase() || post.author_profile.username[0].toUpperCase()}
                             </AvatarFallback>
                         </Avatar>
                         <div>
-                            <p className={`font-semibold ${textSize}`}>{post.profiles.display_name || post.profiles.username}</p>
+                            <p className={`font-semibold ${textSize}`}>{post.author_profile.display_name || post.author_profile.username}</p>
                             <p className={`${displaySize === "compact" ? "text-[10px]" : "text-xs"} text-muted-foreground`}>
                                 {formatDistanceToNow(new Date(post.created_at), {addSuffix: true})}
                             </p>
@@ -175,7 +175,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                                 NSFW
                             </Badge>
                         )}
-                        {currentUserId === post.profiles.id && (
+                        {currentUserId === post.author_profile.id && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -204,7 +204,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                         options={post.poll_options!}
                         multipleChoice={post.poll_multiple_choice || false}
                         endDate={post.poll_end_date!}
-                        authorId={post.profiles.id}
+                        authorId={post.author_profile.id}
                     />
                 ) : (
                     <>
@@ -227,7 +227,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                                 )}
 
                                 {hasImages ? (
-                                    <ImageCarousel images={post.images} className={shouldBlur ? "blur-2xl" : ""}/>
+                                    <ImageCarousel images={post.images || []} className={shouldBlur ? "blur-2xl" : ""}/>
                                 ) : post.media_type === "picture" && post.media_url ? (
                                     <div
                                         className="w-full rounded-lg overflow-hidden bg-black/5 flex items-center justify-center"

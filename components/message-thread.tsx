@@ -4,6 +4,7 @@ import {formatDistanceToNow} from "date-fns";
 import {Send} from "lucide-react";
 import type React from "react";
 import {useEffect, useRef, useState} from "react";
+import type {RealtimePostgresInsertPayload} from '@supabase/supabase-js';
 
 import {RichTextEditor} from "@/components/rich-text-editor";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
@@ -57,7 +58,13 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                     table: "messages",
                     filter: `conversation_id=eq.${conversationId}`,
                 },
-                async (payload) => {
+                async (payload: RealtimePostgresInsertPayload<{
+                    id: string;
+                    content: string;
+                    sender_id: string;
+                    created_at: string;
+                    conversation_id: string;
+                }>) => {
                     console.log("[v0] Real-time message received:", payload);
 
                     if (payload.new.sender_id === currentUserId) {
@@ -89,7 +96,7 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                     });
                 },
             )
-            .subscribe((status) => {
+            .subscribe((status: string) => {
                 console.log("[v0] Subscription status:", status);
             });
 

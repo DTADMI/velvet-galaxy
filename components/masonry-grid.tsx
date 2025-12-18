@@ -50,7 +50,7 @@ export function MasonryGrid({posts, columns = 3}: MasonryGridProps) {
             {columnPosts.map((columnItems, columnIndex) => (
                 <div key={columnIndex} className="flex flex-col gap-4">
                     {columnItems.map((post) => (
-                        <PostCard key={post.id} post={post} compact/>
+                        <PostCard key={post.id} post={post} displaySize="compact"/>
                     ))}
                 </div>
             ))}

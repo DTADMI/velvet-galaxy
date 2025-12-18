@@ -41,30 +41,6 @@ export function SearchBar() {
     const itemsPerPage = 10;
     const router = useRouter();
 
-    useEffect(() => {
-        if (query.length > 2) {
-            performSearch();
-        } else {
-            setResults({
-                users: [],
-                pictures: [],
-                videos: [],
-                audios: [],
-                writings: [],
-                posts: [],
-                events: [],
-                groups: [],
-            });
-        }
-    }, [query, performSearch]);
-
-    // Cleanup function for the effect
-    useEffect(() => {
-        return () => {
-            // Any cleanup if needed
-        };
-    }, []);
-
     const performSearch = useCallback(async (searchQuery: string = query) => {
         setIsLoading(true);
         const supabase = createClient();
@@ -112,7 +88,10 @@ export function SearchBar() {
             // Search posts
             const {data: posts} = await supabase
                 .from("posts")
-                .select("*, profiles(username, display_name, avatar_url)")
+                .select(`
+                    *,
+                    author_profile:author_id (id, username, display_name, avatar_url)
+                `)
                 .ilike("content", `%${searchQuery}%`)
                 .limit(50);
 
@@ -168,6 +147,30 @@ export function SearchBar() {
     const getTotalPages = (items: any[]) => {
         return Math.ceil(items.length / itemsPerPage);
     };
+
+    useEffect(() => {
+        if (query.length > 2) {
+            performSearch();
+        } else {
+            setResults({
+                users: [],
+                pictures: [],
+                videos: [],
+                audios: [],
+                writings: [],
+                posts: [],
+                events: [],
+                groups: [],
+            });
+        }
+    }, [query, performSearch]);
+
+    // Cleanup function for the effect
+    useEffect(() => {
+        return () => {
+            // Any cleanup if needed
+        };
+    }, []);
 
     return (
         <>

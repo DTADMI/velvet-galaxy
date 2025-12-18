@@ -56,7 +56,7 @@ export function CommentSection({contentType, contentId, currentUserId}: CommentS
         if (data) {
             // Fetch replies for each comment
             const commentsWithReplies = await Promise.all(
-                data.map(async (comment) => {
+                data.map(async (comment: Comment) => {
                     const {data: replies} = await supabase
                         .from("comments")
                         .select(`

@@ -437,3 +437,9 @@ create index if not exists idx_messages_conv_created on public.messages(conversa
 -- Example RLS policies (DISABLED by default here; enable as needed)
 -- alter table public.profiles enable row level security;
 -- create policy "profiles_select_self_public" on public.profiles for select using (true);
+
+-- The foreign key constraint in your database might look like this:
+ALTER TABLE posts
+    ADD CONSTRAINT posts_author_id_fkey
+        FOREIGN KEY (author_id)
+            REFERENCES profiles (id);
