@@ -2,7 +2,7 @@
 
 import {formatDistanceToNow} from "date-fns";
 import {Heart, MessageCircle, Trash2} from "lucide-react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Button} from "@/components/ui/button";
@@ -30,18 +30,14 @@ interface CommentSectionProps {
     currentUserId: string
 }
 
-export function CommentSection({contentType, contentId, currentUserId}: CommentSectionProps) {
+export function CommentSection({contentType: _contentType, contentId, currentUserId}: CommentSectionProps) {
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
     const [replyTo, setReplyTo] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState("");
     const supabase = createClient();
 
-    useEffect(() => {
-        fetchComments();
-    }, [contentId]);
-
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async () => {
         const {data, error} = await supabase
             .from("comments")
             .select(`
@@ -72,7 +68,11 @@ export function CommentSection({contentType, contentId, currentUserId}: CommentS
             );
             setComments(commentsWithReplies);
         }
-    };
+    }, [contentId, supabase]);
+
+    useEffect(() => {
+        fetchComments();
+    }, [fetchComments]);
 
     const handleAddComment = async () => {
         if (!newComment.trim()) {
@@ -86,7 +86,7 @@ export function CommentSection({contentType, contentId, currentUserId}: CommentS
 
         console.log("[v0] Submitting comment:", {user_id: currentUserId, post_id: contentId, content: newComment});
 
-        const {data, error} = await supabase
+        const {data, error: _error} = await supabase
             .from("comments")
             .insert({
                 user_id: currentUserId,
@@ -95,8 +95,8 @@ export function CommentSection({contentType, contentId, currentUserId}: CommentS
             })
             .select();
 
-        if (error) {
-            console.error("[v0] Comment submission error:", error);
+        if (_error) {
+            console.error("[v0] Comment submission error:", _error);
             alert(`Failed to post comment: ${error.message}`);
         } else {
             console.log("[v0] Comment posted successfully:", data);
