@@ -4,7 +4,7 @@ import {formatDistanceToNow} from "date-fns";
 import {Eye, Heart, Lock, MessageCircle, MoreHorizontal, Play, Share2, Volume2} from "lucide-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import type {PostDisplaySize} from "@/components/feed-view-settings";
 import {ImageCarousel} from "@/components/image-carousel";
@@ -53,21 +53,16 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
 
     const isPoll = post.media_type === "poll" && post.poll_question && post.poll_options;
 
-    useEffect(() => {
-        loadPostStats();
-        getCurrentUser();
-    }, []);
-
-    const getCurrentUser = async () => {
+    const getCurrentUser = useCallback(async () => {
         const {
             data: {user},
         } = await supabase.auth.getUser();
         if (user) {
             setCurrentUserId(user.id);
         }
-    };
+    }, [supabase]);
 
-    const loadPostStats = async () => {
+    const loadPostStats = useCallback(async () => {
         const {count: likes} = await supabase.from("post_likes").select("id", {count: "exact"}).eq("post_id", post.id);
 
         const {count: comments} = await supabase.from("comments").select("id", {count: "exact"}).eq("post_id", post.id);
@@ -88,7 +83,12 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
 
         setLikeCount(likes || 0);
         setCommentCount(comments || 0);
-    };
+    }, [post.id, supabase]);
+
+    useEffect(() => {
+        loadPostStats();
+        getCurrentUser();
+    }, [loadPostStats, getCurrentUser]);
 
     const toggleLike = async () => {
         const {

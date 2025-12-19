@@ -24,7 +24,7 @@ export default async function HomePage() {
                         <LinkNetLogo size="xl"/>
                     </div>
                     <h1 className="text-5xl font-bold bg-gradient-to-r from-royal-auburn via-royal-purple to-royal-blue bg-clip-text text-transparent">
-                        Welcome to LinkNet
+                        Welcome to Velvet Galaxy
                     </h1>
                     {/* </CHANGE> */}
                     <p className="text-xl text-muted-foreground leading-relaxed">

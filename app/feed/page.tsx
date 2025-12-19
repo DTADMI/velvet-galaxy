@@ -24,7 +24,7 @@ export default async function FeedPage() {
         .eq("id", user.id)
         .single();
 
-    const {data: posts} = await supabase
+    const {data: postsData} = await supabase
         .from("posts")
         .select(
             `
@@ -38,7 +38,7 @@ export default async function FeedPage() {
       audio_url,
       is_promotional,
       visibility,
-      profiles (
+      profiles:author_id (
         id,
         username,
         display_name,
@@ -48,6 +48,13 @@ export default async function FeedPage() {
         )
         .order("created_at", {ascending: false})
         .limit(20);
+
+    // Map the posts to ensure author_profile is a single object
+    const posts = (postsData || []).map(post => ({
+        ...post,
+        author_profile: Array.isArray(post.profiles) ? post.profiles[0] : post.profiles,
+        profiles: undefined // Remove the profiles array to avoid confusion
+    }));
 
     return (
         <>

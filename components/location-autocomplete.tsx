@@ -69,7 +69,7 @@ export function LocationAutocomplete({
                 `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
                 {
                     headers: {
-                        "User-Agent": "LinkNet-App",
+                        "User-Agent": "VelvetGalaxy-App",
                     },
                 },
             );

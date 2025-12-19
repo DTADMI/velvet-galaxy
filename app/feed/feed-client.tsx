@@ -32,7 +32,7 @@ interface FeedClientProps {
         images?: string[] | null
         audio_url?: string | null
         visibility?: string
-        profiles: {
+        author_profile: {
             id: string
             username: string
             display_name: string | null

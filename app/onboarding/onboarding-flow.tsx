@@ -98,7 +98,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                     <div className="flex justify-center mb-4">
                         <LinkNetLogo size="lg"/>
                     </div>
-                    <h1 className="text-3xl font-bold text-gradient mb-2">Welcome to LinkNet</h1>
+                    <h1 className="text-3xl font-bold text-gradient mb-2">Welcome to Velvet Galaxy</h1>
                     <p className="text-muted-foreground">Let's set up your profile</p>
                 </div>
 

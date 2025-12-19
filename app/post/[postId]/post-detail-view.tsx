@@ -47,10 +47,10 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
     const handleLike = async () => {
         if (isLiked) {
             await supabase.from("post_likes").delete().eq("post_id", post.id).eq("user_id", currentUserId);
-            setLikesCount((prev) => prev - 1);
+            setLikesCount((prev: number) => prev - 1);
         } else {
             await supabase.from("post_likes").insert({post_id: post.id, user_id: currentUserId});
-            setLikesCount((prev) => prev + 1);
+            setLikesCount((prev: number) => prev + 1);
         }
         setIsLiked(!isLiked);
     };

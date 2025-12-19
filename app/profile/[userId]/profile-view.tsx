@@ -1,5 +1,10 @@
 import {RelationshipManager} from "@/components/relationship-manager";
-import type {ProfileViewProps} from "@/types/profile";
+
+interface ProfileViewProps {
+    profile: { id: string }
+    isOwnProfile: boolean
+    currentUserId: string | null
+}
 
 export function ProfileView({profile, isOwnProfile, currentUserId}: ProfileViewProps) {
     return (

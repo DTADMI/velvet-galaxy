@@ -71,7 +71,7 @@ export default function SignUpPage() {
                             </div>
                         </div>
                         <CardTitle className="text-2xl">Create Account</CardTitle>
-                        <CardDescription>Join LinkNet community today</CardDescription>
+                        <CardDescription>Join Velvet Galaxy community today</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSignUp}>

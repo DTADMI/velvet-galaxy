@@ -97,7 +97,7 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
 
         if (_error) {
             console.error("[v0] Comment submission error:", _error);
-            alert(`Failed to post comment: ${error.message}`);
+            alert(`Failed to post comment: ${_error.message}`);
         } else {
             console.log("[v0] Comment posted successfully:", data);
             setNewComment("");
