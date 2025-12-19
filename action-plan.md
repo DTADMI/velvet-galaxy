@@ -1,5 +1,5 @@
 This document is the single source of truth for the current plan. It is kept up-to-date continuously. Tasks are grouped
-by status: Completed, In Progress, and Planned. The plan reflects the app’s objective and scope as described in the
+by status: Completed, In Progress, and Planned. The plan reflects the app's objective and scope as described in the
 README.
 
 ## Objective (from README)
@@ -13,20 +13,28 @@ recommended) or Docker deploy. Strict linting and type safety.
 ## Completed
 
 - Fixed TypeScript/ESLint issues already addressed:
-    - Resolved parser error in `components/search-bar.tsx` and closed hooks correctly.
+    - Resolved parser error
+      in [components/search-bar.tsx](cci:7://file:///B:/git/velvet-galaxy/components/search-bar.tsx:0:0-0:0) and closed
+      hooks correctly.
     - TS7006 fix: typed callbacks in `app/activity/activity-feed.tsx`.
     - Notifications pagination implemented and wired (`isLoadingMore`/`hasMore`).
     - Rebranding baseline to Velvet Galaxy (metadata/title, theme storage key, search/about copy, cache/IDB keys,
       package name).
     - README added/expanded with full setup/deploy docs.
-    - Added Dockerfile (multi-stage, Node 20 + pnpm) and `sql/schema.sql`, `sql/seed.sql`.
-    - Updated logo display text in `components/linknet-logo.tsx` to “VG / Velvet Galaxy”.
+    - Added Dockerfile (multi-stage, Node 20 + pnpm)
+      and [sql/schema.sql](cci:7://file:///B:/git/velvet-galaxy/sql/schema.sql:0:0-0:0), `sql/seed.sql`.
+    - Updated logo display text
+      in [components/linknet-logo.tsx](cci:7://file:///B:/git/velvet-galaxy/components/linknet-logo.tsx:0:0-0:0) to "
+      VG / Velvet Galaxy".
     - Lint fixes batch 1:
         - `components/ui/use-toast.ts` and `hooks/use-toast.ts` (string-literal action types).
         - `app/post/[postId]/post-detail-view.tsx` (useCallback + deps; removed unused router).
-        - `components/activity-feed.tsx` (useCallback + deps).
-        - `components/anonymous-faq.tsx` (useCallback + deps).
-        - `components/comment-section.tsx` (useCallback + deps; unused param).
+      - [components/activity-feed.tsx](cci:7://file:///B:/git/velvet-galaxy/components/activity-feed.tsx:0:0-0:0) (
+        useCallback + deps).
+      - [components/anonymous-faq.tsx](cci:7://file:///B:/git/velvet-galaxy/components/anonymous-faq.tsx:0:0-0:0) (
+        useCallback + deps).
+      - [components/comment-section.tsx](cci:7://file:///B:/git/velvet-galaxy/components/comment-section.tsx:0:0-0:0) (
+        useCallback + deps; unused param).
 
 ## In Progress
 
@@ -36,24 +44,81 @@ recommended) or Docker deploy. Strict linting and type safety.
     - Current status: warnings trending down (target: 0).
 - Rebranding completion:
     - Replace remaining LinkNet mentions and `linknet_*` keys with `velvet_galaxy_*` (note persistence impact).
+- Media Management:
+    - Implementing secure media viewing (prevent downloads).
+    - Developing media gallery with keyboard navigation and carousel.
+    - Adding drag & drop and multiple file upload support.
+- 3D Network Visualization:
+    - Developing galaxy-themed visualization.
+    - Implementing node interaction and connection filtering.
 
 ## Planned
 
-1. Continue hook dependency fixes and unused variable cleanup across:
-    - app: chat-rooms, discover, events, groups, media viewer, messages, network, posts, profile, relationships, search,
-      settings (+ verify).
-    - components: followers/friends lists & buttons, image-carousel, live-media-capture, media-viewer, message-thread,
-      multi-image-upload*, nav-upload-form, new-conversation-dialog, notifications-dropdown, poll-*, post-card,
-      profile-*, relationship-manager, share-dialog, upload-form, user-activity-feed, video-viewer.
-2. Rebranding sweep completion across all user-facing strings and storage keys.
-3. CI/CD: Add GitHub Actions workflow (lint, type-check, build with pnpm cache).
-4. Optional tests: Add Playwright smoke test (landing/search) and document.
-5. Sanity checks: `pnpm dev`, `pnpm build`, Docker build; validate Supabase schema/seed against app flows.
-6. Submit: Ensure `pnpm lint:ci` passes with 0 warnings; provide before/after lint counts.
+### Core Functionality
+
+1. **Media Management**:
+    - [ ] Live capture functionality (camera/mic) with device selection.
+    - [ ] Media preview before posting.
+    - [ ] Image carousel for multiple uploads.
+    - [ ] Video preview on hover with playback controls.
+
+2. **User Interface**:
+    - [ ] Standardized navigation across all pages.
+    - [ ] Tooltips for interactive elements.
+    - [ ] Dark/light theme support.
+    - [ ] Responsive design improvements.
+
+3. **Messaging System**:
+    - [ ] Real-time message updates using WebSockets.
+    - [ ] Message archiving/unarchiving.
+    - [ ] Rich text formatting and emoji support.
+    - [ ] Message filtering (Unread, Friends, etc.).
+
+4. **Content Management**:
+    - [ ] Edit time limit (10 minutes) for posts.
+    - [ ] Content filtering (SFW/NSFW).
+    - [ ] Content reporting system.
+    - [ ] Content organization in albums.
+
+5. **Security & Performance**:
+    - [ ] Client-side caching.
+    - [ ] Rate limiting and CSRF protection.
+    - [ ] Secure media delivery.
+
+### Technical Improvements
+
+1. **Testing**:
+    - [ ] Unit tests for critical components.
+    - [ ] Integration tests for user flows.
+    - [ ] E2E tests for core features.
+
+2. **Accessibility**:
+    - [ ] Screen reader support.
+    - [ ] Keyboard navigation.
+    - [ ] ARIA labels and color contrast compliance.
+
+3. **Deployment**:
+    - [ ] CI/CD pipeline with GitHub Actions.
+    - [ ] Staging environment setup.
+    - [ ] Production deployment process.
+
+### Future Enhancements
+
+1. **3D Network Visualization**:
+    - [ ] Advanced node interaction.
+    - [ ] Connection type filtering.
+    - [ ] Performance optimization.
+
+2. **Advanced Features**:
+    - [ ] AI/ML content recommendations.
+    - [ ] Advanced analytics.
+    - [ ] Additional third-party integrations.
 
 ## Changelog (recent)
 
-- Added Dockerfile and Supabase schema/seed.
+- Added comprehensive action plan with detailed task breakdown.
+- Updated media management and 3D visualization requirements.
+- Enhanced security and accessibility considerations.
+- Added testing and deployment strategies.
 - Fixed multiple hook dependency warnings and unused var issues.
 - Updated logo text; maintained README accordingly.
-
