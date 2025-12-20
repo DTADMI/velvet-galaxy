@@ -4,6 +4,7 @@ export * from './media';
 export * from './chat';
 export * from './post';
 export * from './community';
+export * from './activity';
 
 // Common utility types
 export type Nullable<T> = T | null;
@@ -43,4 +44,5 @@ export interface SearchResults {
     writings: import('./media').MediaItem[];
     events: import('./community').Event[];
     groups: import('./community').Group[];
+    activities?: import('./activity').ActivityWithAuthor[];
 }

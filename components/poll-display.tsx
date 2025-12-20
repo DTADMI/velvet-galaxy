@@ -10,12 +10,7 @@ import {Checkbox} from "@/components/ui/checkbox";
 import {Label} from "@/components/ui/label";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {createClient} from "@/lib/supabase/client";
-
-interface PollOption {
-    index: number
-    text: string
-    votes: number
-}
+import {PollOption} from "@/types";
 
 interface PollDisplayProps {
     postId: string
@@ -34,7 +29,7 @@ export function PollDisplay({postId, question, options, multipleChoice, endDate,
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     const pollEnded = new Date(endDate) < new Date();
-    const totalVotes = pollResults.reduce((sum, opt) => sum + opt.votes, 0);
+    const totalVotes = pollResults.reduce((sum, opt) => sum + (opt.votes_count || 0), 0);
 
     useEffect(() => {
         checkUserVote();
@@ -59,7 +54,7 @@ export function PollDisplay({postId, question, options, multipleChoice, endDate,
 
         if (votes && votes.length > 0) {
             setHasVoted(true);
-            setSelectedOptions(votes.map((v) => v.option_index));
+            setSelectedOptions(votes.map((v: { option_index: number }) => v.option_index));
         }
 
         // Fetch current vote counts
@@ -68,7 +63,7 @@ export function PollDisplay({postId, question, options, multipleChoice, endDate,
         if (allVotes) {
             const voteCounts = pollResults.map((opt) => ({
                 ...opt,
-                votes: allVotes.filter((v) => v.option_index === opt.index).length,
+                votes_count: allVotes.filter((v: { option_index: number }) => v.option_index === opt.index).length,
             }));
             setPollResults(voteCounts);
         }
@@ -197,7 +192,7 @@ export function PollDisplay({postId, question, options, multipleChoice, endDate,
                     ) : (
                         <div className="space-y-2">
                             {pollResults.map((option) => {
-                                const percentage = getPercentage(option.votes);
+                                const percentage = getPercentage(option.votes_count || 0);
                                 const isSelected = selectedOptions.includes(option.index);
                                 return (
                                     <div key={option.index} className="relative p-3 border rounded-lg overflow-hidden">
@@ -211,7 +206,7 @@ export function PollDisplay({postId, question, options, multipleChoice, endDate,
                                                 <span className={isSelected ? "font-semibold" : ""}>{option.text}</span>
                                             </div>
                                             <span className="font-semibold text-sm">
-                        {percentage}% ({option.votes})
+                        {percentage}% ({option.votes_count})
                       </span>
                                         </div>
                                     </div>

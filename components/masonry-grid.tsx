@@ -3,14 +3,15 @@
 import {useEffect, useRef, useState} from "react";
 
 import {PostCard} from "@/components/post-card";
+import type {Post} from "@/types/post";
 
 interface MasonryGridProps {
-    posts: any[]
-    columns?: number
+    posts: Post[];
+    columns?: number;
 }
 
 export function MasonryGrid({posts, columns = 3}: MasonryGridProps) {
-    const [columnPosts, setColumnPosts] = useState<any[][]>([]);
+    const [columnPosts, setColumnPosts] = useState<Post[][]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     const [actualColumns, setActualColumns] = useState(columns);
 
@@ -38,7 +39,7 @@ export function MasonryGrid({posts, columns = 3}: MasonryGridProps) {
 
     useEffect(() => {
         // Distribute posts across columns
-        const cols: any[][] = Array.from({length: actualColumns}, () => []);
+        const cols: Post[][] = Array.from({length: actualColumns}, () => []);
         posts.forEach((post, index) => {
             cols[index % actualColumns].push(post);
         });

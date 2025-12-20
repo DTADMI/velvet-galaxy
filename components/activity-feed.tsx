@@ -8,25 +8,24 @@ import {useCallback, useEffect, useState} from "react";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Card, CardContent} from "@/components/ui/card";
 import {createClient} from "@/lib/supabase/client";
+import type {Activity} from "@/types/activity";
 
-interface Activity {
-    id: string
-    user_id: string
-    activity_type: string
-    target_id: string | null
-    target_type: string | null
-    metadata: any
-    created_at: string
+// Extend the base Activity type with UI-specific properties
+interface ActivityWithAuthor extends Activity {
     author_profile: {
-        id: string
-        username: string
-        display_name: string | null
-        avatar_url: string | null
-    }
+        id: string;
+        username: string;
+        display_name: string | null;
+        avatar_url: string | null;
+    };
 }
 
-export function ActivityFeed({userId}: { userId: string }) {
-    const [activities, setActivities] = useState<Activity[]>([]);
+interface ActivityFeedProps {
+    userId: string;
+}
+
+export function ActivityFeed({userId}: ActivityFeedProps) {
+    const [activities, setActivities] = useState<ActivityWithAuthor[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const supabase = createClient();
 
@@ -46,7 +45,7 @@ export function ActivityFeed({userId}: { userId: string }) {
             .limit(20);
 
         if (data) {
-            setActivities(data as Activity[]);
+            setActivities(data as ActivityWithAuthor[]);
         }
         setIsLoading(false);
     }, [supabase, userId]);

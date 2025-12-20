@@ -15,37 +15,17 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {createClient} from "@/lib/supabase/client";
+import type {Post} from "@/types/post";
 
 interface PostCardProps {
-    post: {
-        id: string
-        content: string
-        created_at: string
-        content_rating?: string
-        media_type?: string | null
-        media_url?: string | null
-        images?: string[] | null
-        audio_url?: string | null
-        is_promotional?: boolean
-        visibility?: string
-        poll_question?: string | null
-        poll_options?: any[] | null
-        poll_multiple_choice?: boolean | null
-        poll_end_date?: string | null
-        author_profile: {
-            id: string
-            username: string
-            display_name: string | null
-            avatar_url: string | null
-        }
-    }
-    displaySize?: PostDisplaySize
+    post: Post;
+    displaySize?: PostDisplaySize;
 }
 
 export function PostCard({post, displaySize = "normal"}: PostCardProps) {
-    const [liked, setLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(0);
-    const [commentCount, setCommentCount] = useState(0);
+    const [liked, setLiked] = useState(post.is_liked || false);
+    const [likeCount, setLikeCount] = useState(post.likes_count || 0);
+    const [commentCount, setCommentCount] = useState(post.comments_count || 0);
     const [showNSFW, setShowNSFW] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const supabase = createClient();

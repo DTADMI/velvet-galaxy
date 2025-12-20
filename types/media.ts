@@ -21,6 +21,10 @@ export interface MediaItem {
     created_at: string;  // ISO date string
     updated_at: string;  // ISO date string
     author_profile?: UserProfile;  // Added this line for the joined profile
+    width?: number;
+    height?: number;
+    duration?: number;
+    alt_text?: string;
 }
 
 /**
