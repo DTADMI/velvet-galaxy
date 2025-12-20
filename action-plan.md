@@ -73,12 +73,31 @@ recommended) or Docker deploy. Strict linting and type safety.
     - [ ] Message archiving/unarchiving.
     - [ ] Rich text formatting and emoji support.
     - [ ] Message filtering (Unread, Friends, etc.).
+   - [ ] Marco Polo-style video messaging:
+       - [ ] Record and send short video messages
+       - [ ] View videos in chat interface
+       - [ ] Video playback controls
+       - [ ] Video compression and optimization
+       - [ ] Offline support for video messages
+       - [ ] Video message status indicators (sent, delivered, viewed)
+       - [ ] Video message storage and retention policies
 
 4. **Content Management**:
     - [ ] Edit time limit (10 minutes) for posts.
     - [ ] Content filtering (SFW/NSFW).
     - [ ] Content reporting system.
     - [ ] Content organization in albums.
+   - [ ] Co-authorship system:
+       - [ ] Add user selection UI during post creation
+       - [ ] Implement co-author invitation system
+       - [ ] Create notification flow for co-author requests
+       - [ ] Store co-author relationships and status
+       - [ ] Implement visibility rules for pending/approved co-authored posts
+       - [ ] Add co-author management interface
+       - [ ] Support for co-author permissions (edit/delete)
+       - [ ] Activity feed integration for co-author actions
+       - [ ] Email notifications for co-author requests
+       - [ ] Co-author credit display on published content
 
 5. **Security & Performance**:
     - [ ] Client-side caching.

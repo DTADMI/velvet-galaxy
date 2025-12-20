@@ -3,6 +3,7 @@
 import {Calendar, FileText, ImageIcon, MessageSquare, Music, Search, Users, UsersRound, Video} from "lucide-react";
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
+import type {MediaItem, SearchResults} from "@/types";
 import type React from "react";
 import {useEffect, useState} from "react";
 
@@ -25,7 +26,7 @@ export function SearchResults({query: initialQuery, type: initialType, userId}: 
     const searchParams = useSearchParams();
     const [query, setQuery] = useState(initialQuery);
     const [activeTab, setActiveTab] = useState(initialType);
-    const [results, setResults] = useState<any>({
+    const [results, setResults] = useState<SearchResults>({
         users: [],
         pictures: [],
         videos: [],
@@ -58,14 +59,14 @@ export function SearchResults({query: initialQuery, type: initialType, userId}: 
         // Search media
         const {data: media} = await supabase
             .from("media_items")
-            .select("*, profiles(display_name, avatar_url)")
+            .select("*, author_profile:profiles!inner(display_name, avatar_url)")
             .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
             .limit(20);
 
         // Search posts
         const {data: posts} = await supabase
             .from("posts")
-            .select("*, profiles(display_name, avatar_url, username)")
+            .select("*, author_profile:profiles!inner(display_name, avatar_url, username)")
             .ilike("content", searchTerm)
             .limit(20);
 
@@ -85,10 +86,10 @@ export function SearchResults({query: initialQuery, type: initialType, userId}: 
 
         setResults({
             users: users || [],
-            pictures: media?.filter((m) => m.media_type === "picture") || [],
-            videos: media?.filter((m) => m.media_type === "video") || [],
-            audios: media?.filter((m) => m.media_type === "audio") || [],
-            writings: media?.filter((m) => m.media_type === "writing") || [],
+            pictures: (media as MediaItem[])?.filter((m) => m.media_type === "picture") || [],
+            videos: (media as MediaItem[])?.filter((m) => m.media_type === "video") || [],
+            audios: (media as MediaItem[])?.filter((m) => m.media_type === "audio") || [],
+            writings: (media as MediaItem[])?.filter((m) => m.media_type === "writing") || [],
             posts: posts || [],
             events: events || [],
             groups: groups || [],
@@ -172,11 +173,15 @@ export function SearchResults({query: initialQuery, type: initialType, userId}: 
                         </TabsList>
 
                         <TabsContent value="all" className="space-y-8">
-                            {Object.entries(results).map(
-                                ([key, items]: [string, any[]]) =>
+                            {(Object.entries(results) as [keyof SearchResults, any[]][]).map(
+                                ([key, items]) =>
                                     items.length > 0 && (
                                         <div key={key}>
-                                            <h2 className="text-xl font-bold mb-4 text-foreground capitalize">{key}</h2>
+                                            <h2 className="text-xl font-bold mb-4 text-foreground capitalize">
+                                                {key === 'pictures' ? 'Photos' :
+                                                    key === 'writings' ? 'Text Posts' :
+                                                        key.charAt(0).toUpperCase() + key.slice(1)}
+                                            </h2>
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {items.slice(0, 6).map((item) => (
                                                     <ResultCard key={item.id} item={item} type={key}/>

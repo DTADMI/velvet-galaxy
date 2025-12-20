@@ -18,7 +18,7 @@ interface Activity {
     target_type?: string
     content?: string
     created_at: string
-    profiles: {
+    author_profile: {
         id: string
         username: string
         display_name: string | null
@@ -58,7 +58,7 @@ export function ActivityFeed({userId}: { userId: string }) {
 
         const {data} = await supabase
             .from("activities")
-            .select("*, profiles(id, username, display_name, avatar_url)")
+            .select("*, author_profile:profiles!inner(id, username, display_name, avatar_url)")
             .in("user_id", userIds)
             .order("created_at", {ascending: false})
             .limit(50);
@@ -120,7 +120,7 @@ export function ActivityFeed({userId}: { userId: string }) {
     };
 
     const getActivityText = (activity: Activity) => {
-        const displayName = activity.profiles.display_name || activity.profiles.username;
+        const displayName = activity.author_profile.display_name || activity.author_profile.username;
         switch (activity.activity_type) {
             case "post":
                 return (
@@ -242,10 +242,10 @@ export function ActivityFeed({userId}: { userId: string }) {
                         <CardContent className="p-4">
                             <div className="flex items-start gap-3">
                                 <Avatar className="h-10 w-10 ring-2 ring-royal-purple/20">
-                                    <AvatarImage src={activity.profiles.avatar_url || undefined}/>
+                                    <AvatarImage src={activity.author_profile.avatar_url || undefined}/>
                                     <AvatarFallback
                                         className="bg-gradient-to-br from-royal-purple to-royal-blue text-white">
-                                        {(activity.profiles.display_name || activity.profiles.username)[0].toUpperCase()}
+                                        {(activity.author_profile.display_name || activity.author_profile.username)[0].toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">

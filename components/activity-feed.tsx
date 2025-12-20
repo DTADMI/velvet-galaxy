@@ -17,7 +17,7 @@ interface Activity {
     target_type: string | null
     metadata: any
     created_at: string
-    profiles: {
+    author_profile: {
         id: string
         username: string
         display_name: string | null
@@ -40,7 +40,7 @@ export function ActivityFeed({userId}: { userId: string }) {
         // Get activities from followed users
         const {data} = await supabase
             .from("activities")
-            .select("*, profiles(id, username, display_name, avatar_url)")
+            .select("*, author_profile:profiles!inner(id, username, display_name, avatar_url)")
             .in("user_id", followingIds)
             .order("created_at", {ascending: false})
             .limit(20);
@@ -75,7 +75,7 @@ export function ActivityFeed({userId}: { userId: string }) {
     };
 
     const getActivityText = (activity: Activity) => {
-        const displayName = activity.profiles?.display_name || activity.profiles?.username || "Someone";
+        const displayName = activity.author_profile?.display_name || activity.author_profile?.username || "Someone";
 
         switch (activity.activity_type) {
             case "post":
@@ -161,11 +161,11 @@ export function ActivityFeed({userId}: { userId: string }) {
                         <CardContent className="p-4">
                             <div className="flex items-start gap-3">
                                 <Avatar className="h-10 w-10 border-2 border-royal-purple/20">
-                                    <AvatarImage src={activity.profiles?.avatar_url || undefined}/>
+                                    <AvatarImage src={activity.author_profile?.avatar_url || undefined}/>
                                     <AvatarFallback
                                         className="bg-gradient-to-br from-royal-purple to-royal-blue text-white text-sm">
-                                        {activity.profiles?.display_name?.[0]?.toUpperCase() ||
-                                            activity.profiles?.username?.[0]?.toUpperCase() ||
+                                        {activity.author_profile?.display_name?.[0]?.toUpperCase() ||
+                                            activity.author_profile?.username?.[0]?.toUpperCase() ||
                                             "?"}
                                     </AvatarFallback>
                                 </Avatar>

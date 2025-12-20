@@ -106,7 +106,7 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
         images,
         audio_url,
         visibility,
-        profiles (
+        author_profile:profiles!inner (
           id,
           username,
           display_name,
@@ -150,7 +150,7 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
         images,
         audio_url,
         visibility,
-        profiles (
+        author_profile:profiles!inner (
           id,
           username,
           display_name,

@@ -68,7 +68,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
     const loadMembers = useCallback(async () => {
         const {data, count} = await supabase
             .from("group_members")
-            .select("*, profiles(id, display_name, username, avatar_url)", {count: "exact"})
+            .select("*, author_profile:profiles!inner(id, display_name, username, avatar_url)", {count: "exact"})
             .eq("group_id", group.id);
 
         if (data) {
@@ -82,7 +82,7 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
     const loadPosts = useCallback(async () => {
         const {data} = await supabase
             .from("posts")
-            .select("*, profiles(id, username, display_name, avatar_url)")
+            .select("*, author_profile:profiles!inner(id, username, display_name, avatar_url)")
             .eq("group_id", group.id)
             .order("created_at", {ascending: false});
 

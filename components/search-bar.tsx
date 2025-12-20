@@ -56,7 +56,7 @@ export function SearchBar() {
             // Search pictures
             const {data: pictures} = await supabase
                 .from("media_items")
-                .select("*, profiles(username, display_name, avatar_url)")
+                .select("*, author_profile:profiles!inner(username, display_name, avatar_url)")
                 .eq("media_type", "picture")
                 .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
                 .limit(50);
@@ -64,7 +64,7 @@ export function SearchBar() {
             // Search videos
             const {data: videos} = await supabase
                 .from("media_items")
-                .select("*, profiles(username, display_name, avatar_url)")
+                .select("*, author_profile:profiles!inner(username, display_name, avatar_url)")
                 .eq("media_type", "video")
                 .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
                 .limit(50);
@@ -72,7 +72,7 @@ export function SearchBar() {
             // Search audios
             const {data: audios} = await supabase
                 .from("media_items")
-                .select("*, profiles(username, display_name, avatar_url)")
+                .select("*, author_profile:profiles!inner(username, display_name, avatar_url)")
                 .eq("media_type", "audio")
                 .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
                 .limit(50);
@@ -80,7 +80,7 @@ export function SearchBar() {
             // Search writings
             const {data: writings} = await supabase
                 .from("media_items")
-                .select("*, profiles(username, display_name, avatar_url)")
+                .select("*, author_profile:profiles!inner(username, display_name, avatar_url)")
                 .eq("media_type", "writing")
                 .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
                 .limit(50);
@@ -98,14 +98,14 @@ export function SearchBar() {
             // Search events
             const {data: events} = await supabase
                 .from("events")
-                .select("*, profiles(username, display_name, avatar_url)")
+                .select("*, author_profile:profiles!inner(username, display_name, avatar_url)")
                 .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
                 .limit(50);
 
             // Search groups
             const {data: groups} = await supabase
                 .from("groups")
-                .select("*, profiles(username, display_name, avatar_url)")
+                .select("*, author_profile:profiles!inner(username, display_name, avatar_url)")
                 .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
                 .limit(50);
 

@@ -16,7 +16,7 @@ interface MarketplaceItem {
     location: string
     image_url: string | null
     status: string
-    profiles: {
+    author_profile: {
         username: string
         display_name: string | null
     }
@@ -29,6 +29,8 @@ interface MarketplaceClientProps {
 export function MarketplaceClient({items: initialItems}: MarketplaceClientProps) {
     const [items, setItems] = useState(initialItems);
     const [searchQuery, setSearchQuery] = useState("");
+
+    const [mappedItems, setMappedItems] = useState<MarketplaceItem[]>([]);
 
     const refreshItems = async () => {
         const supabase = createClient();
@@ -44,7 +46,7 @@ export function MarketplaceClient({items: initialItems}: MarketplaceClientProps)
         image_url,
         status,
         created_at,
-        profiles (
+        author_profile:profiles!inner (
           username,
           display_name
         )
@@ -53,11 +55,16 @@ export function MarketplaceClient({items: initialItems}: MarketplaceClientProps)
             .order("created_at", {ascending: false});
 
         if (data) {
+            // Map the posts to ensure author_profile is a single object
+            setMappedItems((data as MarketplaceItem[] || []).map(item => ({
+                ...item,
+                author_profile: Array.isArray(item.author_profile) ? item.author_profile[0] : item.author_profile,
+            })));
             setItems(data);
         }
     };
 
-    const filteredItems = items.filter(
+    const filteredItems = (mappedItems || []).filter(
         (item) =>
             item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||

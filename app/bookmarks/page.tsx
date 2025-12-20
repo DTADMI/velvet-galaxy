@@ -31,7 +31,7 @@ export default async function BookmarksPage() {
             content_type?: string;
             is_promotional?: boolean;
             author_id: string;
-            profiles: {
+            author_profile: {
                 id: string;
                 username: string;
                 display_name: string | null;
@@ -56,7 +56,7 @@ export default async function BookmarksPage() {
         content_type,
         is_promotional,
         author_id,
-        profiles!posts_author_id_fkey (
+        author_profile:profiles!posts_author_id_fkey (
           id,
           username,
           display_name,
@@ -72,7 +72,7 @@ export default async function BookmarksPage() {
         .filter(bookmark => bookmark.posts !== null)
         .map(bookmark => ({
             ...bookmark.posts!,
-            author_profile: bookmark.posts!.profiles
+            author_profile: Array.isArray(bookmark.posts!.author_profile) ? bookmark.posts!.author_profile[0] : bookmark.posts!.author_profile
         }));
 
     // Debug: Log the structure of the first post

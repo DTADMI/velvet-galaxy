@@ -15,7 +15,7 @@ interface Comment {
     content: string
     created_at: string
     parent_comment_id: string | null
-    profiles: {
+    author_profile: {
         username: string
         display_name: string | null
         avatar_url: string | null
@@ -42,7 +42,7 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
             .from("comments")
             .select(`
         *,
-        profiles(username, display_name, avatar_url),
+        author_profile:profiles!inner(username, display_name, avatar_url),
         comment_likes(user_id)
       `)
             .eq("post_id", contentId)
@@ -57,7 +57,7 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
                         .from("comments")
                         .select(`
               *,
-              profiles(username, display_name, avatar_url),
+              author_profile:profiles!inner(username, display_name, avatar_url),
               comment_likes(user_id)
             `)
                         .eq("parent_comment_id", comment.id)
@@ -163,13 +163,13 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
     const renderComment = (comment: Comment, isReply = false) => {
         const isLiked = comment.comment_likes.some((like) => like.user_id === currentUserId);
         const likesCount = comment.comment_likes.length;
-        const displayName = comment.profiles.display_name || comment.profiles.username;
+        const displayName = comment.author_profile.display_name || comment.author_profile.username;
 
         return (
             <div key={comment.id} className={`${isReply ? "ml-12 mt-4" : "mt-6"}`}>
                 <div className="flex gap-3">
                     <Avatar className="h-10 w-10 border-2 border-royal-blue">
-                        <AvatarImage src={comment.profiles.avatar_url || undefined}/>
+                        <AvatarImage src={comment.author_profile.avatar_url || undefined}/>
                         <AvatarFallback className="bg-gradient-to-br from-royal-blue to-royal-purple text-white">
                             {displayName[0].toUpperCase()}
                         </AvatarFallback>

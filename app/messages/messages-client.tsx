@@ -197,7 +197,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                 data.map(async (conv: any) => {
                     const {data: participants} = await supabase
                         .from("conversation_participants")
-                        .select("user_id, profiles(username, display_name)")
+                        .select("user_id, author_profile:profiles!inner(username, display_name)")
                         .eq("conversation_id", conv.id)
                         .neq("user_id", currentUserId);
 

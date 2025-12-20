@@ -16,7 +16,10 @@ export default async function EditPostPage({params}: { params: Promise<{ postId:
         redirect("/login");
     }
 
-    const {data: post, error} = await supabase.from("posts").select("*, profiles(*)").eq("id", postId).single();
+    const {
+        data: post,
+        error
+    } = await supabase.from("posts").select("*, author_profile:profiles!inner(*)").eq("id", postId).single();
 
     if (error || !post) {
         redirect("/feed");

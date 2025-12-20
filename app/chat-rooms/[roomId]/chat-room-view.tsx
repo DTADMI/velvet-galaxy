@@ -51,7 +51,7 @@ interface WaitingParticipant {
     user_id: string
     status: string
     created_at: string
-    profiles: {
+    author_profile: {
         display_name: string
         username: string
         avatar_url: string | null
@@ -223,7 +223,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
     const loadParticipants = useCallback(async () => {
         const {data} = await supabase
             .from("conversation_participants")
-            .select("user_id, profiles(display_name, username)")
+            .select("user_id, author_profile:profiles!inner(display_name, username)")
             .eq("conversation_id", roomId);
 
         if (data) {
@@ -647,13 +647,13 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                                 <Avatar className="h-10 w-10">
                                                                     <AvatarFallback
                                                                         className="bg-linear-to-br from-royal-purple to-royal-blue text-xs">
-                                                                        {participant.profiles?.display_name?.[0]?.toUpperCase() || "?"}
+                                                                        {participant.author_profile?.display_name?.[0]?.toUpperCase() || "?"}
                                                                     </AvatarFallback>
                                                                 </Avatar>
                                                                 <div className="flex-1 min-w-0">
-                                                                    <p className="text-sm font-medium truncate">{participant.profiles?.display_name}</p>
+                                                                    <p className="text-sm font-medium truncate">{participant.author_profile?.display_name}</p>
                                                                     <p className="text-xs text-muted-foreground truncate">
-                                                                        @{participant.profiles?.username}
+                                                                        @{participant.author_profile?.username}
                                                                     </p>
                                                                 </div>
                                                                 <div className="flex gap-2">

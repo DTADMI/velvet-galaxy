@@ -25,7 +25,7 @@ export default async function PostDetailPage({
         .from("posts")
         .select(`
       *,
-      profiles(id, username, display_name, avatar_url),
+      author_profile:profiles!inner(id, username, display_name, avatar_url),
       post_likes(user_id)
     `)
         .eq("id", postId)

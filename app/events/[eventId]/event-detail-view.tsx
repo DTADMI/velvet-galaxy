@@ -48,13 +48,13 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
     const loadAttendees = useCallback(async () => {
         const {data: going} = await supabase
             .from("event_responses")
-            .select("*, profiles(id, display_name, username, avatar_url)")
+            .select("*, author_profile:profiles!inner(id, display_name, username, avatar_url)")
             .eq("event_id", event.id)
             .eq("response", "going");
 
         const {data: interested} = await supabase
             .from("event_responses")
-            .select("*, profiles(id, display_name, username, avatar_url)")
+            .select("*, author_profile:profiles!inner(id, display_name, username, avatar_url)")
             .eq("event_id", event.id)
             .eq("response", "interested");
 
@@ -69,7 +69,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
     const loadPosts = useCallback(async () => {
         const {data} = await supabase
             .from("posts")
-            .select("*, profiles(id, username, display_name, avatar_url)")
+            .select("*, author_profile:profiles!inner(id, username, display_name, avatar_url)")
             .eq("event_id", event.id)
             .order("created_at", {ascending: false});
 

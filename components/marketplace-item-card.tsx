@@ -16,7 +16,7 @@ interface MarketplaceItemCardProps {
         location: string
         image_url: string | null
         status: string
-        profiles: {
+        author_profile: {
             username: string
             display_name: string | null
         }
@@ -25,7 +25,7 @@ interface MarketplaceItemCardProps {
 }
 
 export function MarketplaceItemCard({item, onContact}: MarketplaceItemCardProps) {
-    const displayName = item.profiles.display_name || item.profiles.username;
+    const displayName = item.author_profile.display_name || item.author_profile.username;
 
     return (
         <Card

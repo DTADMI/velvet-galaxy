@@ -60,7 +60,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
         if (user) {
             setCurrentUserId(user.id);
         }
-    }, [supabase]);
+    }, [supabase.auth]);
 
     const loadPostStats = useCallback(async () => {
         const {count: likes} = await supabase.from("post_likes").select("id", {count: "exact"}).eq("post_id", post.id);
