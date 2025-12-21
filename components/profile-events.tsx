@@ -40,13 +40,13 @@ export function ProfileEvents({userId}: ProfileEventsProps) {
 
         const createdEvents = createdResult.data || [];
         const attendingEvents = (attendingResult.data || [])
-            .filter((r) => r.events)
-            .map((r) => ({...r.events, isAttending: true}));
+            .filter((r: any) => r.events)
+            .map((r: any) => ({...r.events, isAttending: true}));
 
         // Combine and deduplicate
         const allEventsMap = new Map();
-        createdEvents.forEach((e) => allEventsMap.set(e.id, {...e, isCreator: true}));
-        attendingEvents.forEach((e) => {
+        createdEvents.forEach((e: any) => allEventsMap.set(e.id, {...e, isCreator: true}));
+        attendingEvents.forEach((e: any) => {
             if (allEventsMap.has(e.id)) {
                 allEventsMap.get(e.id).isAttending = true;
             } else {

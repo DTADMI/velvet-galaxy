@@ -47,6 +47,9 @@ export default function SubscriptionCheckout({productId}: { productId: string })
             console.log("[v0] Starting checkout session for product:", productId);
             const clientSecret = await startCheckoutSession(productId);
             console.log("[v0] Checkout session created successfully");
+            if (!clientSecret) {
+                throw new Error("No client secret returned from server");
+            }
             return clientSecret;
         } catch (err) {
             console.error("[v0] Checkout session error:", err);

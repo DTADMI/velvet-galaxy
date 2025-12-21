@@ -340,6 +340,30 @@ export function NetworkVisualization({userId}: { userId: string }) {
         setNodes(networkNodes);
     }, [userId, maxNodes, showGroups, nodeSpacing]);
 
+    const project3DTo2D = useCallback((node: { x: number; y: number; z: number }, centerX: number, centerY: number) => {
+        const cosX = Math.cos(rotation.x);
+        const sinX = Math.sin(rotation.x);
+        const cosY = Math.cos(rotation.y);
+        const sinY = Math.sin(rotation.y);
+
+        let x = node.x;
+        const y = node.y * cosX - node.z * sinX;
+        let z = node.y * sinX + node.z * cosX;
+
+        const tempX = x;
+        x = x * cosY + z * sinY;
+        z = -tempX * sinY + z * cosY;
+
+        const perspective = 300;
+        const scale = zoom * (perspective / (perspective + z));
+
+        return {
+            x: centerX + x * scale,
+            y: centerY + y * scale,
+            z: z,
+        };
+    }, [rotation.x, rotation.y, zoom]);
+
     const startAnimation = useCallback(() => {
         const canvas = canvasRef.current;
         if (!canvas) {
@@ -578,31 +602,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
         };
 
         animate();
-    }, [nodes, zoom, relationshipFilters, stars, autoRotate, cameraOffset.x, cameraOffset.y, hiddenNodes, searchQuery, showGroups, userId, selectedNode?.id, highlightedNodes]);
-
-    const project3DTo2D = (node: { x: number; y: number; z: number }, centerX: number, centerY: number) => {
-        const cosX = Math.cos(rotation.x);
-        const sinX = Math.sin(rotation.x);
-        const cosY = Math.cos(rotation.y);
-        const sinY = Math.sin(rotation.y);
-
-        let x = node.x;
-        const y = node.y * cosX - node.z * sinX;
-        let z = node.y * sinX + node.z * cosX;
-
-        const tempX = x;
-        x = x * cosY + z * sinY;
-        z = -tempX * sinY + z * cosY;
-
-        const perspective = 300;
-        const scale = zoom * (perspective / (perspective + z));
-
-        return {
-            x: centerX + x * scale,
-            y: centerY + y * scale,
-            z: z,
-        };
-    };
+    }, [nodes, zoom, relationshipFilters, stars, autoRotate, cameraOffset.x, cameraOffset.y, hiddenNodes, searchQuery, showGroups, userId, selectedNode.id, highlightedNodes, project3DTo2D]);
 
     const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (isPanning || isDraggingNode) {

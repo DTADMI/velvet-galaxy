@@ -2,8 +2,9 @@
  * Post and Comment related types
  */
 
+import type {MediaItem} from "@/types/media";
+
 import type {UserProfile} from "./user";
-import {MediaItem} from "@/types/media";
 
 export interface PollOption {
     id: string;
@@ -13,30 +14,57 @@ export interface PollOption {
     voted?: boolean;
 }
 
+/**
+ * Unified Post shape used across the app. Some fields are optional because
+ * different queries/pages select different subsets.
+ */
 export interface Post {
     id: string;
-    author_id: string;
+    user_id?: string;
+    author_id?: string; // Some code refers to author_id
+
+    // Core content
     content: string;
-    images?: string[] | null
+    title?: string;
+    description?: string | null;
+    content_rating?: string;
+    visibility?: string;
+    is_promotional?: boolean;
+
+    // Media
+    media_type?: string | null; // Keep as string to match DB union and usages
+    media_url?: string | null;
+    images?: string[] | null;
+    audio_url?: string | null;
+    thumbnail_url?: string | null;
+    content_type?: string; // legacy/compat
+
+    // Relations/denormalized
+    author_profile: UserProfile;
+
+    // Timestamps
     created_at: string;
-    updated_at: string;
+    updated_at?: string;
+
+    // Metrics/state
     likes_count?: number;
     comments_count?: number;
     is_liked?: boolean;
-    author_profile: UserProfile;
-    content_rating?: string;
-    media_type?: string | null;
-    media_url?: string | null;
-    audio_url?: string | null;
-    is_promotional?: boolean;
-    visibility?: string;
+
+    // Polls
     poll_question?: string | null;
     poll_options?: Array<PollOption> | null;
     poll_multiple_choice?: boolean | null;
     poll_end_date?: string | null;
-    // Media attachments associated with the post
+
+    // Attachments/extra
+    album_id?: string | null;
     media_items?: Array<MediaItem>;
     tags?: string[];
+    width?: number;
+    height?: number;
+    duration?: number;
+    alt_text?: string;
 }
 
 export interface Comment {

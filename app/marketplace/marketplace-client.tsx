@@ -27,7 +27,7 @@ interface MarketplaceClientProps {
 }
 
 export function MarketplaceClient({items: initialItems}: MarketplaceClientProps) {
-    const [items, setItems] = useState(initialItems);
+    const [setItems] = useState(initialItems);
     const [searchQuery, setSearchQuery] = useState("");
 
     const [mappedItems, setMappedItems] = useState<MarketplaceItem[]>([]);

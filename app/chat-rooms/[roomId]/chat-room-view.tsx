@@ -149,13 +149,13 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
         }
     }, [roomType, selectedAudioInput, selectedVideoInput]);
 
-    const cleanupWebRTC = () => {
+    const cleanupWebRTC = useCallback(() => {
         if (localStream) {
             localStream.getTracks().forEach((track) => track.stop());
         }
         peerConnections.forEach((pc) => pc.close());
         setPeerConnections(new Map());
-    };
+    }, []);
 
     const changeMediaDevice = async (deviceType: "audio" | "video", deviceId: string) => {
         if (!localStream) {

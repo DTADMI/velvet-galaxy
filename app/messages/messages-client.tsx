@@ -87,6 +87,128 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
     const router = useRouter();
     const supabase = createBrowserClient();
 
+    const calculateInboxCounts = useCallback(async () => {
+        const messageType = activeTab === "rooms" ? null : activeTab;
+
+        let allQuery = supabase
+            .from("conversations")
+            .select("id, conversation_participants!inner(user_id), message_type")
+            .eq("conversation_participants.user_id", currentUserId)
+            .or("is_chat_room.is.null,is_chat_room.eq.false");
+
+        if (messageType) {
+            allQuery = allQuery.eq("message_type", messageType);
+        }
+
+        const {data: allConvs} = await allQuery;
+        const allCount = allConvs?.length || 0;
+
+        const unreadQuery = supabase
+            .from("messages")
+            .select("conversation_id, conversations!inner(message_type, is_chat_room)")
+            .eq("is_read", false)
+            .neq("sender_id", currentUserId);
+
+        const {data: unreadMessages} = await unreadQuery;
+
+        const unreadForType = unreadMessages?.filter((m: any) => {
+            const isRoom = m.conversations?.is_chat_room === true;
+            const matchesType = messageType ? m.conversations?.message_type === messageType : true;
+            return !isRoom && matchesType;
+        });
+        const unreadCount = unreadForType ? [...new Set(unreadForType.map((m: {
+            conversation_id: string
+        }) => m.conversation_id))].length : 0;
+
+        const {data: friendships} = await supabase
+            .from("friendships")
+            .select("friend_id, user_id")
+            .or(`user_id.eq.${currentUserId},friend_id.eq.${currentUserId}`)
+            .eq("status", "accepted");
+
+        let friendsCount = 0;
+        if (friendships && friendships.length > 0) {
+            const friendIds = friendships.map((f: any) => (f.user_id === currentUserId ? f.friend_id : f.user_id));
+
+            const {data: friendConvs} = await supabase
+                .from("conversation_participants")
+                .select("conversation_id, conversations!inner(message_type, is_chat_room)")
+                .in("user_id", friendIds);
+
+            const filteredFriendConvs = friendConvs?.filter((c: any) => {
+                const isRoom = c.conversations?.is_chat_room === true;
+                const matchesType = messageType ? c.conversations?.message_type === messageType : true;
+                return !isRoom && matchesType;
+            });
+
+            friendsCount = filteredFriendConvs ? [...new Set(filteredFriendConvs.map((c: {
+                conversation_id: string
+            }) => c.conversation_id))].length : 0;
+        }
+
+        const {data: follows} = await supabase.from("follows").select("following_id").eq("follower_id", currentUserId);
+
+        let followersCount = 0;
+        if (follows && follows.length > 0) {
+            const followingIds = follows.map((f: any) => f.following_id);
+
+            const {data: followerConvs} = await supabase
+                .from("conversation_participants")
+                .select("conversation_id, conversations!inner(message_type, is_chat_room)")
+                .in("user_id", followingIds);
+
+            const filteredFollowerConvs = followerConvs?.filter((c: any) => {
+                const isRoom = c.conversations?.is_chat_room === true;
+                const matchesType = messageType ? c.conversations?.message_type === messageType : true;
+                return !isRoom && matchesType;
+            });
+
+            followersCount = filteredFollowerConvs
+                ? [...new Set(filteredFollowerConvs.map((c: { conversation_id: string }) => c.conversation_id))].length
+                : 0;
+        }
+
+        const {data: sentMessages} = await supabase
+            .from("messages")
+            .select("conversation_id, conversations!inner(message_type, is_chat_room)")
+            .eq("sender_id", currentUserId);
+
+        const sentForType = sentMessages?.filter((m: {
+            conversations: { is_chat_room: boolean, message_type?: string },
+            conversation_id: string
+        }) => {
+            const isRoom = m.conversations?.is_chat_room === true;
+            const matchesType = messageType ? m.conversations?.message_type === messageType : true;
+            return !isRoom && matchesType;
+        });
+        const sentCount = sentForType ? [...new Set(sentForType.map((m: {
+            conversation_id: string
+        }) => m.conversation_id))].length : 0;
+
+        let archivedQuery = supabase
+            .from("conversations")
+            .select("id, message_type, is_chat_room")
+            .eq("is_archived", true)
+            .eq("archived_by", currentUserId)
+            .or("is_chat_room.is.null,is_chat_room.eq.false");
+
+        if (messageType) {
+            archivedQuery = archivedQuery.eq("message_type", messageType);
+        }
+
+        const {data: archived} = await archivedQuery;
+        const archivedCount = archived?.length || 0;
+
+        setInboxCounts({
+            all: allCount,
+            unread: unreadCount,
+            friends: friendsCount,
+            followers: followersCount,
+            sent: sentCount,
+            archived: archivedCount,
+        });
+    }, [activeTab, currentUserId, supabase]);
+
     const loadConversations = useCallback(async () => {
         if (activeTab === "rooms") {
             setFilteredConvs([]);
@@ -229,129 +351,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
         }
 
         await calculateInboxCounts();
-    }, [activeTab, activeInbox, currentUserId, supabase]);
-
-    const calculateInboxCounts = async () => {
-        const messageType = activeTab === "rooms" ? null : activeTab;
-
-        let allQuery = supabase
-            .from("conversations")
-            .select("id, conversation_participants!inner(user_id), message_type")
-            .eq("conversation_participants.user_id", currentUserId)
-            .or("is_chat_room.is.null,is_chat_room.eq.false");
-
-        if (messageType) {
-            allQuery = allQuery.eq("message_type", messageType);
-        }
-
-        const {data: allConvs} = await allQuery;
-        const allCount = allConvs?.length || 0;
-
-        const unreadQuery = supabase
-            .from("messages")
-            .select("conversation_id, conversations!inner(message_type, is_chat_room)")
-            .eq("is_read", false)
-            .neq("sender_id", currentUserId);
-
-        const {data: unreadMessages} = await unreadQuery;
-
-        const unreadForType = unreadMessages?.filter((m: any) => {
-            const isRoom = m.conversations?.is_chat_room === true;
-            const matchesType = messageType ? m.conversations?.message_type === messageType : true;
-            return !isRoom && matchesType;
-        });
-        const unreadCount = unreadForType ? [...new Set(unreadForType.map((m: {
-            conversation_id: string
-        }) => m.conversation_id))].length : 0;
-
-        const {data: friendships} = await supabase
-            .from("friendships")
-            .select("friend_id, user_id")
-            .or(`user_id.eq.${currentUserId},friend_id.eq.${currentUserId}`)
-            .eq("status", "accepted");
-
-        let friendsCount = 0;
-        if (friendships && friendships.length > 0) {
-            const friendIds = friendships.map((f: any) => (f.user_id === currentUserId ? f.friend_id : f.user_id));
-
-            const {data: friendConvs} = await supabase
-                .from("conversation_participants")
-                .select("conversation_id, conversations!inner(message_type, is_chat_room)")
-                .in("user_id", friendIds);
-
-            const filteredFriendConvs = friendConvs?.filter((c: any) => {
-                const isRoom = c.conversations?.is_chat_room === true;
-                const matchesType = messageType ? c.conversations?.message_type === messageType : true;
-                return !isRoom && matchesType;
-            });
-
-            friendsCount = filteredFriendConvs ? [...new Set(filteredFriendConvs.map((c: {
-                conversation_id: string
-            }) => c.conversation_id))].length : 0;
-        }
-
-        const {data: follows} = await supabase.from("follows").select("following_id").eq("follower_id", currentUserId);
-
-        let followersCount = 0;
-        if (follows && follows.length > 0) {
-            const followingIds = follows.map((f: any) => f.following_id);
-
-            const {data: followerConvs} = await supabase
-                .from("conversation_participants")
-                .select("conversation_id, conversations!inner(message_type, is_chat_room)")
-                .in("user_id", followingIds);
-
-            const filteredFollowerConvs = followerConvs?.filter((c: any) => {
-                const isRoom = c.conversations?.is_chat_room === true;
-                const matchesType = messageType ? c.conversations?.message_type === messageType : true;
-                return !isRoom && matchesType;
-            });
-
-            followersCount = filteredFollowerConvs
-                ? [...new Set(filteredFollowerConvs.map((c: { conversation_id: string }) => c.conversation_id))].length
-                : 0;
-        }
-
-        const {data: sentMessages} = await supabase
-            .from("messages")
-            .select("conversation_id, conversations!inner(message_type, is_chat_room)")
-            .eq("sender_id", currentUserId);
-
-        const sentForType = sentMessages?.filter((m: {
-            conversations: { is_chat_room: boolean, message_type?: string },
-            conversation_id: string
-        }) => {
-            const isRoom = m.conversations?.is_chat_room === true;
-            const matchesType = messageType ? m.conversations?.message_type === messageType : true;
-            return !isRoom && matchesType;
-        });
-        const sentCount = sentForType ? [...new Set(sentForType.map((m: {
-            conversation_id: string
-        }) => m.conversation_id))].length : 0;
-
-        let archivedQuery = supabase
-            .from("conversations")
-            .select("id, message_type, is_chat_room")
-            .eq("is_archived", true)
-            .eq("archived_by", currentUserId)
-            .or("is_chat_room.is.null,is_chat_room.eq.false");
-
-        if (messageType) {
-            archivedQuery = archivedQuery.eq("message_type", messageType);
-        }
-
-        const {data: archived} = await archivedQuery;
-        const archivedCount = archived?.length || 0;
-
-        setInboxCounts({
-            all: allCount,
-            unread: unreadCount,
-            friends: friendsCount,
-            followers: followersCount,
-            sent: sentCount,
-            archived: archivedCount,
-        });
-    };
+    }, [activeTab, activeInbox, currentUserId, supabase, calculateInboxCounts]);
 
     const loadRooms = useCallback(async () => {
         const {data} = await supabase

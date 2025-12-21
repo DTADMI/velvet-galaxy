@@ -3,7 +3,6 @@
 import {Calendar, FileText, ImageIcon, MessageSquare, Music, Search, Users, UsersRound, Video} from "lucide-react";
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
-import type {MediaItem, SearchResults} from "@/types";
 import type React from "react";
 import {useEffect, useState} from "react";
 
@@ -14,6 +13,7 @@ import {Card, CardContent} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createBrowserClient} from "@/lib/supabase/client";
+import type {MediaItem, SearchResults as SearchResultsType} from "@/types";
 
 interface SearchResultsProps {
     query: string
@@ -26,7 +26,7 @@ export function SearchResults({query: initialQuery, type: initialType, userId}: 
     const searchParams = useSearchParams();
     const [query, setQuery] = useState(initialQuery);
     const [activeTab, setActiveTab] = useState(initialType);
-    const [results, setResults] = useState<SearchResults>({
+    const [results, setResults] = useState<SearchResultsType>({
         users: [],
         pictures: [],
         videos: [],
@@ -173,18 +173,18 @@ export function SearchResults({query: initialQuery, type: initialType, userId}: 
                         </TabsList>
 
                         <TabsContent value="all" className="space-y-8">
-                            {(Object.entries(results) as [keyof SearchResults, any[]][]).map(
+                            {(Object.entries(results) as [keyof SearchResultsType, any[]][]).map(
                                 ([key, items]) =>
                                     items.length > 0 && (
-                                        <div key={key}>
+                                        <div key={key as string}>
                                             <h2 className="text-xl font-bold mb-4 text-foreground capitalize">
-                                                {key === 'pictures' ? 'Photos' :
-                                                    key === 'writings' ? 'Text Posts' :
-                                                        key.charAt(0).toUpperCase() + key.slice(1)}
+                                                {(key as string) === 'pictures' ? 'Photos' :
+                                                    (key as string) === 'writings' ? 'Text Posts' :
+                                                        (key as string).charAt(0).toUpperCase() + (key as string).slice(1)}
                                             </h2>
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {items.slice(0, 6).map((item) => (
-                                                    <ResultCard key={item.id} item={item} type={key}/>
+                                                    <ResultCard key={item.id} item={item} type={key as string}/>
                                                 ))}
                                             </div>
                                         </div>

@@ -1,10 +1,10 @@
 "use client";
 
+import type {RealtimePostgresInsertPayload} from '@supabase/supabase-js';
 import {formatDistanceToNow} from "date-fns";
 import {Send} from "lucide-react";
 import type React from "react";
 import {useEffect, useRef, useState} from "react";
-import type {RealtimePostgresInsertPayload} from '@supabase/supabase-js';
 
 import {RichTextEditor} from "@/components/rich-text-editor";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";

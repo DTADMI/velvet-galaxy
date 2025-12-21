@@ -1,10 +1,11 @@
 // Re-export all types for easier imports
-export * from './user';
-export * from './media';
-export * from './chat';
-export * from './post';
-export * from './community';
 export * from './activity';
+export * from './bookmark';
+export * from './chat';
+export * from './community';
+export * from './media';
+export * from './post';
+export * from './user';
 
 // Common utility types
 export type Nullable<T> = T | null;

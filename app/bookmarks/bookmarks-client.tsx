@@ -8,60 +8,43 @@ import {Button} from "@/components/ui/button";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Label} from "@/components/ui/label";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {Bookmark, ContentFilters, DEFAULT_CONTENT_FILTERS} from "@/types/bookmark";
+import type {Post} from "@/types/post";
 
 interface BookmarksClientProps {
-    posts: Array<{
-        id: string
-        content: string
-        created_at: string
-        content_rating: string
-        media_type: string | null
-        media_url: string | null
-        content_type?: string
-        is_promotional?: boolean
-        author_profile: {
-            id: string
-            username: string
-            display_name: string | null
-            avatar_url: string | null
-        }
-    }>
+    posts: Array<Bookmark | Post>;
 }
 
 export function BookmarksClient({posts}: BookmarksClientProps) {
-    const [contentFilters, setContentFilters] = useState({
-        image: true,
-        video: true,
-        audio: true,
-        writing: true,
-        text: true,
-        promotional: true,
-    });
+    const [contentFilters, setContentFilters] = useState<ContentFilters>(DEFAULT_CONTENT_FILTERS);
 
     const toggleFilter = (filter: keyof typeof contentFilters) => {
         setContentFilters((prev) => ({...prev, [filter]: !prev[filter]}));
     };
 
-    const filteredPosts = posts.filter((post) => {
+    const toPost = (item: Bookmark | Post): Post => ("post" in item ? item.post : item);
+
+    const filteredPosts = posts.filter((item) => {
+        const p = toPost(item);
         // Filter by content type
-        if (post.content_type === "image" && !contentFilters.image) {
+        if (p.content_type === "image" && !contentFilters.image) {
             return false;
         }
-        if (post.content_type === "video" && !contentFilters.video) {
+        if (p.content_type === "video" && !contentFilters.video) {
             return false;
         }
-        if (post.content_type === "audio" && !contentFilters.audio) {
+        if (p.content_type === "audio" && !contentFilters.audio) {
             return false;
         }
-        if (post.content_type === "writing" && !contentFilters.writing) {
+        if (p.content_type === "writing" && !contentFilters.writing) {
             return false;
         }
-        if (post.content_type === "text" && !contentFilters.text) {
+        if (p.content_type === "text" && !contentFilters.text) {
             return false;
         }
 
         // Filter by promotional status
-        if (post.is_promotional && !contentFilters.promotional) {
+        if (p.is_promotional && !contentFilters.promotional) {
             return false;
         }
 
@@ -155,9 +138,10 @@ export function BookmarksClient({posts}: BookmarksClientProps) {
                 </Popover>
             </div>
 
-            {filteredPosts.map((post) => (
-                <PostCard key={post.id} post={post}/>
-            ))}
+            {filteredPosts.map((item) => {
+                const p = toPost(item);
+                return <PostCard key={p.id} post={p}/>;
+            })}
 
             {filteredPosts.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">

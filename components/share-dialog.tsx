@@ -47,7 +47,7 @@ export function ShareDialog({open, onOpenChange, contentType, contentId, current
 
         if (connections) {
             const userIds = new Set<string>();
-            connections.forEach((conn) => {
+            connections.forEach((conn: any) => {
                 if (conn.follower_id === currentUserId) {
                     userIds.add(conn.following_id);
                 }
@@ -110,8 +110,8 @@ export function ShareDialog({open, onOpenChange, contentType, contentId, current
             let conversationId: string | null = null;
 
             if (currentUserConvs && recipientConvs) {
-                const currentConvIds = new Set(currentUserConvs.map((c) => c.conversation_id));
-                const sharedConv = recipientConvs.find((c) => currentConvIds.has(c.conversation_id));
+                const currentConvIds = new Set(currentUserConvs.map((c: any) => c.conversation_id));
+                const sharedConv = recipientConvs.find((c: any) => currentConvIds.has(c.conversation_id));
 
                 if (sharedConv) {
                     // Verify it's a normal conversation (not a group or chat room)

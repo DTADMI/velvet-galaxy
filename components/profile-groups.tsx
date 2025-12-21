@@ -46,7 +46,7 @@ export function ProfileGroups({userId}: ProfileGroupsProps) {
         if (error) {
             console.error("[v0] Error loading groups:", error);
         } else {
-            setGroups(data?.filter((m) => m.groups) || []);
+            setGroups(data?.filter((m: any) => m.groups) || []);
         }
 
         setIsLoading(false);

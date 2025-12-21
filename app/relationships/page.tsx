@@ -5,7 +5,7 @@ import {createServerClient} from "@/lib/supabase/server";
 import {RelationshipsClient} from "./relationships-client";
 
 export default async function RelationshipsPage() {
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
 
     const {
         data: {user},

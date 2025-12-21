@@ -37,7 +37,7 @@ export function UserActivityFeed({userId}: { userId: string }) {
                     table: "activities",
                     filter: `user_id=eq.${userId}`,
                 },
-                (payload) => {
+                (payload: any) => {
                     setActivities((prev) => [payload.new as Activity, ...prev]);
                 },
             )
