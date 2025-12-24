@@ -449,18 +449,22 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 const twinkle = Math.sin(timeRef.current * star.twinkleSpeed + star.twinkleOffset) * 0.3 + 0.7;
                 const opacity = star.opacity * twinkle;
 
-                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                // Create glow effect for stars
+                const size = star.size;
+                const gradient = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, size * 2.5);
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${opacity})`);
+                gradient.addColorStop(0.3, `rgba(139, 92, 246, ${opacity * 0.4})`); // Purple glow
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                ctx.fillStyle = gradient;
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, star.size, 0, Math.PI * 2);
+                ctx.arc(pos.x, pos.y, size * 2.5, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Add glow to larger stars
-                if (star.size > 1.5) {
-                    ctx.shadowBlur = 4;
-                    ctx.shadowColor = `rgba(200, 180, 255, ${opacity * 0.5})`;
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, size, 0, Math.PI * 2);
+                ctx.fill();
             });
 
             const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
@@ -565,7 +569,19 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 ctx.arc(pos.x, pos.y, size * (isHighlighted ? 3 : 2), 0, Math.PI * 2);
                 ctx.fill();
 
-                // Draw node with gradient
+                // Draw node with aura and gradient
+                if (isSelected || isHighlighted) {
+                    const auraSize = size * (isSelected ? 2.5 : 1.8);
+                    const auraGradient = ctx.createRadialGradient(pos.x, pos.y, size, pos.x, pos.y, auraSize);
+                    auraGradient.addColorStop(0, colors.glow.replace("1)", "0.4)"));
+                    auraGradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+                    ctx.fillStyle = auraGradient;
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, auraSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
                 const gradient = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, size);
                 gradient.addColorStop(0, colors.start);
                 gradient.addColorStop(0.7, colors.end);

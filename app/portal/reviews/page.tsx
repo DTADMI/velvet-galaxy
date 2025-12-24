@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {Clock, Filter, Heart, Search, Star} from "lucide-react";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
@@ -49,35 +50,37 @@ export default function ReviewsHomePage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {featuredToys.map((toy) => (
-                                <Card key={toy.id}
-                                      className="overflow-hidden group hover:border-royal-purple/40 transition-all cursor-pointer">
-                                    <div className="aspect-video bg-muted relative">
-                                        <img src={toy.image} alt={toy.name}
-                                             className="object-cover w-full h-full group-hover:scale-105 transition-transform"/>
-                                        <Badge className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm">
-                                            <Heart className="w-3 h-3 mr-1 fill-red-500 text-red-500"/>
-                                            {toy.likes}
-                                        </Badge>
-                                    </div>
-                                    <CardHeader className="p-4">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <CardTitle className="text-lg">{toy.name}</CardTitle>
-                                                <CardDescription>{toy.brand}</CardDescription>
-                                            </div>
-                                            <div className="flex items-center text-amber-500 font-bold">
-                                                <Star className="w-4 h-4 mr-1 fill-amber-500"/>
-                                                {toy.rating}
-                                            </div>
+                                <Link href={`/portal/reviews/${toy.id}`} key={toy.id}>
+                                    <Card
+                                        className="overflow-hidden group hover:border-royal-purple/40 transition-all cursor-pointer">
+                                        <div className="aspect-video bg-muted relative">
+                                            <img src={toy.image} alt={toy.name}
+                                                 className="object-cover w-full h-full group-hover:scale-105 transition-transform"/>
+                                            <Badge className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm">
+                                                <Heart className="w-3 h-3 mr-1 fill-red-500 text-red-500"/>
+                                                {toy.likes}
+                                            </Badge>
                                         </div>
-                                    </CardHeader>
-                                    <CardContent className="p-4 pt-0">
-                                        <Button variant="outline"
-                                                className="w-full border-royal-purple/20 group-hover:bg-royal-purple group-hover:text-white transition-colors">
-                                            Read Full Review
-                                        </Button>
-                                    </CardContent>
-                                </Card>
+                                        <CardHeader className="p-4">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <CardTitle className="text-lg">{toy.name}</CardTitle>
+                                                    <CardDescription>{toy.brand}</CardDescription>
+                                                </div>
+                                                <div className="flex items-center text-amber-500 font-bold">
+                                                    <Star className="w-4 h-4 mr-1 fill-amber-500"/>
+                                                    {toy.rating}
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="p-4 pt-0">
+                                            <Button variant="outline"
+                                                    className="w-full border-royal-purple/20 group-hover:bg-royal-purple group-hover:text-white transition-colors">
+                                                Read Full Review
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
                             ))}
                         </div>
                     </section>
@@ -90,27 +93,29 @@ export default function ReviewsHomePage() {
                             </h2>
                             <div className="space-y-4">
                                 {recentReviews.map((review) => (
-                                    <div key={review.id}
-                                         className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:border-royal-blue/40 transition-all">
-                                        <div className="flex gap-4 items-center">
-                                            <div className="w-12 h-12 bg-muted rounded shrink-0"/>
-                                            <div>
-                                                <h3 className="font-bold">{review.name}</h3>
-                                                <p className="text-xs text-muted-foreground">{review.brand} • {review.date}</p>
+                                    <Link href={`/portal/reviews/${review.id}`} key={review.id}>
+                                        <div
+                                            className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:border-royal-blue/40 transition-all">
+                                            <div className="flex gap-4 items-center">
+                                                <div className="w-12 h-12 bg-muted rounded shrink-0"/>
+                                                <div>
+                                                    <h3 className="font-bold">{review.name}</h3>
+                                                    <p className="text-xs text-muted-foreground">{review.brand} • {review.date}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex items-center text-sm font-medium">
+                                                    <Star className="w-3 h-3 mr-1 fill-amber-500 text-amber-500"/>
+                                                    {review.rating}
+                                                </div>
+                                                <Button variant="ghost" size="sm">View</Button>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex items-center text-sm font-medium">
-                                                <Star className="w-3 h-3 mr-1 fill-amber-500 text-amber-500"/>
-                                                {review.rating}
-                                            </div>
-                                            <Button variant="ghost" size="sm">View</Button>
-                                        </div>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
-                            <Button variant="link" className="mt-4 text-royal-purple p-0">
-                                View full catalog →
+                            <Button asChild variant="link" className="mt-4 text-royal-purple p-0">
+                                <Link href="/portal/reviews/catalog">View full catalog →</Link>
                             </Button>
                         </div>
 

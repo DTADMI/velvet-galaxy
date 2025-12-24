@@ -12,6 +12,17 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## Completed
 
+- ✅ Implement Velvet Reviews Extensions:
+  - Created individual toy detail pages with 3D viewer support.
+  - Built catalog page with grid/list views and search/filter logic.
+- ✅ Implement Co-authorship System:
+  - Added `post_authors` table and invitations flow.
+  - Updated post creation and detail views for co-authors.
+- ✅ Enhance Media Management:
+  - Implemented secure media viewing (anti-download, right-click protection).
+  - Developed `MediaUploader` with drag & drop and progress tracking.
+- ✅ Finalize 3D Network Visualization:
+  - Enhanced galaxy aesthetics with star glows and node auras.
 - ✅ Fixed TypeScript/ESLint issues already addressed:
   - Resolved parser error in `components/search-bar.tsx` and closed hooks correctly.
     - TS7006 fix: typed callbacks in `app/activity/activity-feed.tsx`.
@@ -42,34 +53,20 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## In Progress
 
-- 🟡 Lint to zero warnings (no suppressions):
-    - Wrap loaders/checkers in `useCallback` and include them in dependency arrays.
-    - Remove or wire unused variables; prefix intentionally-unused with `_`.
-  - Current status: clean (warnings: 0).
-- 🟡 Media Management:
-    - Implementing secure media viewing (prevent downloads).
-    - Developing media gallery with keyboard navigation and carousel.
-    - Adding drag & drop and multiple file upload support.
-- 🟡 3D Network Visualization:
-    - Developing galaxy-themed visualization.
-    - Implementing node interaction and connection filtering.
+- 🟡 Monitoring and optimization:
+  - Fine-tuning 3D performance on mobile devices.
+  - Setting up Sentry error monitoring for new portal routes.
 
 ## Next
 
-- 🔜 **Velvet Reviews Extensions**:
-  - [ ] Implement individual toy detail pages with 3D viewer support.
-  - [ ] Build catalog page with grid view and search/filter logic.
-- 🔜 **Co-authorship system**:
-  - [ ] Implement co-author invitation and notification flow.
+- 🔜 **Velvet Portal Extensions**:
+  - [ ] **Velvet Market**: Merchandise store and digital product listings.
+  - [ ] **Velvet Games**: Initial development of "The Keymaster's Dungeon".
 
 ## Backlog
 
-- 🗂️ **Velvet Portal Extensions**:
-  - [ ] **Velvet Market**: Merchandise store and digital product listings.
-  - [ ] **Velvet Games**: Initial development of "The Keymaster's Dungeon" or "Pleasure Island Mystery".
 - 🗂️ **Advanced Features**:
   - [ ] AI-powered content recommendations.
-  - [ ] Advanced analytics dashboard.
   - [ ] VR support for 3D visualization.
 - 🗂️ **Core Functionality Improvements**:
   - [ ] Live capture functionality (camera/mic).
@@ -81,6 +78,10 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## Changelog (recent)
 
+- Implemented Velvet Reviews extensions (Toy Detail Pages, 3D Viewer, Catalog).
+- Implemented Co-authorship system with invitations and notifications.
+- Enhanced media management with secure viewing and drag-and-drop uploader.
+- Finalized 3D Network Visualization aesthetics.
 - Added database relational schema (Mermaid diagram) to README.md.
 - Updated README and action-plan.md with "Velvet Portal" structure and detailed project architecture.
 - Reorganized action-plan.md tasks with new legend (✅, 🟡, 🔜, 🗂️).

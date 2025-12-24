@@ -25,9 +25,10 @@ export async function createPost(formData: FormData) {
     }
 
     const content = formData.get("content") as string;
-    const contentRating = formData.get("content_rating") as string; // Declare the variable here
+    const contentRating = formData.get("content_rating") as string;
     const mediaUrl = formData.get("media_url") as string | null;
     const mediaType = formData.get("media_type") as string | null;
+    const coAuthors = formData.get("co_authors") as string | null; // JSON string of user IDs
 
     const {data, error} = await supabase
         .from("posts")
@@ -43,6 +44,39 @@ export async function createPost(formData: FormData) {
 
     if (error) {
         return {error: error.message};
+    }
+
+    // Handle co-authors
+    if (coAuthors) {
+        const authorIds = JSON.parse(coAuthors) as string[];
+        if (authorIds.length > 0) {
+            const coAuthorInserts = authorIds.map(id => ({
+                post_id: data.id,
+                user_id: id,
+                status: 'pending'
+            }));
+
+            const {error: coAuthorError} = await supabase
+                .from("post_authors")
+                .insert(coAuthorInserts);
+
+            if (coAuthorError) {
+                console.error("Co-author invitation error:", coAuthorError);
+            }
+
+            // Create notifications for co-authors
+            for (const coAuthorId of authorIds) {
+                await supabase.from("notifications").insert({
+                    user_id: coAuthorId,
+                    from_user_id: user.id,
+                    type: "co_author_invitation",
+                    title: "Co-authorship Invitation",
+                    message: `${user.user_metadata.display_name || user.email} invited you to be a co-author on their post.`,
+                    link: `/posts/${data.id}`,
+                    read: false
+                });
+            }
+        }
     }
 
     revalidatePath("/feed");

@@ -154,15 +154,22 @@ export function MediaViewer({
                         style={{cursor: hasMultipleMedia ? "pointer" : "default"}}
                     >
                         {mediaType === "image" ? (
-                            <img
-                                src={mediaUrl || "/placeholder.svg"}
-                                alt={title || "Media content"}
-                                className="max-w-full max-h-full object-contain select-none"
-                                draggable={false}
-                                onLoad={() => setIsLoading(false)}
-                                onContextMenu={(e) => e.preventDefault()}
-                                style={{display: isLoading ? "none" : "block", userSelect: "none"}}
-                            />
+                            <div className="relative group">
+                                <img
+                                    src={mediaUrl || "/placeholder.svg"}
+                                    alt={title || "Media content"}
+                                    className="max-w-full max-h-full object-contain select-none pointer-events-none"
+                                    draggable={false}
+                                    onLoad={() => setIsLoading(false)}
+                                    onContextMenu={(e) => e.preventDefault()}
+                                    style={{display: isLoading ? "none" : "block", userSelect: "none"}}
+                                />
+                                {/* Secure invisible overlay to block screen capture/right-click */}
+                                <div className="absolute inset-0 opacity-0 z-10 select-none pointer-events-none"
+                                     aria-hidden="true">
+                                    Secured by Velvet Galaxy
+                                </div>
+                            </div>
                         ) : (
                             <video
                                 src={mediaUrl}

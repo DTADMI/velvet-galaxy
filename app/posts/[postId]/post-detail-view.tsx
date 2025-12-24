@@ -9,6 +9,7 @@ import {useCallback, useEffect, useState} from "react";
 import {ImageCarousel} from "@/components/image-carousel";
 import {PollDisplay} from "@/components/poll-display";
 import {ReportDialog} from "@/components/report-dialog";
+import {CoAuthorInvitation} from "@/components/co-author-invitation";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
@@ -58,6 +59,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
     const [comments, setComments] = useState<Comment[]>([]);
+    const [coAuthors, setCoAuthors] = useState<any[]>([]);
     const [newComment, setNewComment] = useState("");
     const [showNSFW, setShowNSFW] = useState(false);
     const router = useRouter();
@@ -103,6 +105,21 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
         }
     }, [post.id, supabase]);
 
+    const loadCoAuthors = useCallback(async () => {
+        const {data} = await supabase
+            .from("post_authors")
+            .select(`
+                status,
+                profiles:user_id (id, username, display_name, avatar_url)
+            `)
+            .eq("post_id", post.id)
+            .eq("status", "accepted");
+
+        if (data) {
+            setCoAuthors(data);
+        }
+    }, [post.id, supabase]);
+
     const toggleLike = useCallback(async () => {
         if (liked) {
             await supabase.from("post_likes").delete().eq("post_id", post.id).eq("user_id", currentUserId);
@@ -119,16 +136,18 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
         const handlePopState = () => {
             loadPostStats();
             loadComments();
+            loadCoAuthors();
         };
 
         window.addEventListener("popstate", handlePopState);
         loadPostStats();
         loadComments();
+        loadCoAuthors();
 
         return () => {
             window.removeEventListener("popstate", handlePopState);
         };
-    }, [loadPostStats, loadComments]);
+    }, [loadPostStats, loadComments, loadCoAuthors]);
 
     const deletePost = async () => {
         if (!confirm("Are you sure you want to delete this post?")) {
@@ -185,6 +204,11 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content */}
                 <div className="lg:col-span-2">
+                    <CoAuthorInvitation
+                        postId={post.id}
+                        currentUserId={currentUserId}
+                        onStatusChange={loadCoAuthors}
+                    />
                     <Card className="overflow-hidden border-royal-purple/20 bg-card/50 backdrop-blur-sm">
                         <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
@@ -200,7 +224,26 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <p className="font-semibold">{post.profiles.display_name || post.profiles.username}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-semibold">{post.profiles.display_name || post.profiles.username}</p>
+                                            {coAuthors.length > 0 && (
+                                                <div className="flex items-center gap-1 text-muted-foreground">
+                                                    <span className="text-xs">&</span>
+                                                    <div className="flex -space-x-2">
+                                                        {coAuthors.map((ca, i) => (
+                                                            <Avatar key={ca.profiles.id}
+                                                                    className="h-6 w-6 border-2 border-background ring-1 ring-royal-purple/20">
+                                                                <AvatarImage src={ca.profiles.avatar_url || undefined}/>
+                                                                <AvatarFallback
+                                                                    className="text-[8px] bg-royal-purple text-white">
+                                                                    {ca.profiles.display_name?.[0] || ca.profiles.username[0]}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                         <p className="text-sm text-muted-foreground">
                                             {formatDistanceToNow(new Date(post.created_at), {addSuffix: true})}
                                         </p>
@@ -410,13 +453,24 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <p className="text-sm text-muted-foreground">Posted by</p>
-                                <Link
-                                    href={`/profile/${post.profiles.id}`}
-                                    className="font-semibold hover:text-royal-purple transition-colors"
-                                >
-                                    {post.profiles.display_name || post.profiles.username}
-                                </Link>
+                                <p className="text-sm text-muted-foreground">Authors</p>
+                                <div className="space-y-2 mt-1">
+                                    <Link
+                                        href={`/profile/${post.profiles.id}`}
+                                        className="font-semibold hover:text-royal-purple transition-colors block"
+                                    >
+                                        {post.profiles.display_name || post.profiles.username} (Owner)
+                                    </Link>
+                                    {coAuthors.map(ca => (
+                                        <Link
+                                            key={ca.profiles.id}
+                                            href={`/profile/${ca.profiles.id}`}
+                                            className="font-semibold hover:text-royal-purple transition-colors block"
+                                        >
+                                            {ca.profiles.display_name || ca.profiles.username}
+                                        </Link>
+                                    ))}
+                                </div>
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground">Posted</p>
