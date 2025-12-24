@@ -814,7 +814,8 @@ export function NetworkVisualization({userId}: { userId: string }) {
     const visibleCount = visibleNodes.length;
     const linkCount = Math.max(0, Math.floor(nodes.reduce((sum, node) => sum + node.connections.length, 0) / 2));
     useEffect(() => {
-        const starCount = 300;
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+        const starCount = isMobile ? 100 : 300;
         const newStars: Star[] = [];
         for (let i = 0; i < starCount; i++) {
             newStars.push({

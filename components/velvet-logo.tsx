@@ -29,7 +29,7 @@ export function VelvetLogo({size = "md", className, showText = false}: VelvetLog
     };
 
     return (
-        <div className={cn("flex items-center gap-3", className)}>
+        <div className={cn("flex items-center gap-3", className)} role="img" aria-label="Velvet Galaxy Logo">
             <div
                 className={cn(
                     "flex items-center justify-center rounded-xl bg-gradient-to-br from-red-900 via-purple-900 to-black shadow-lg shadow-red-900/50 relative overflow-hidden border border-red-800/30",
