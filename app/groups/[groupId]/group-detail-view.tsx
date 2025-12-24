@@ -1,6 +1,6 @@
 "use client";
 
-import {Calendar, Edit, Globe, Lock, Trash2, Users} from "lucide-react";
+import {Calendar, ChevronLeft, Edit, Globe, Lock, Trash2, Users} from "lucide-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import {useCallback, useEffect, useState} from "react";
@@ -174,6 +174,13 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
             <Navigation/>
             <div className="min-h-screen bg-background pt-20">
                 <div className="max-w-6xl mx-auto p-6">
+                    <Button asChild variant="ghost" className="mb-4 gap-2 hover:bg-royal-green/10 text-royal-green"
+                            onClick={() => router.push("/groups")}>
+                        <Link href="/groups">
+                            <ChevronLeft className="h-4 w-4"/>
+                            Back to groups
+                        </Link>
+                    </Button>
                     <div className="bg-card rounded-xl border border-royal-green/20 overflow-hidden mb-6">
                         <div
                             className="h-48 bg-linear-to-br from-royal-green to-emerald-600 flex items-center justify-center relative">

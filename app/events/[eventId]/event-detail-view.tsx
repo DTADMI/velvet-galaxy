@@ -1,7 +1,7 @@
 "use client";
 
 import {format} from "date-fns";
-import {Calendar, Clock, MapPin, MessageSquare, Plus, Share2, Video} from "lucide-react";
+import {Calendar, ChevronLeft, Clock, MapPin, MessageSquare, Plus, Share2, Video} from "lucide-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import {useCallback, useEffect, useState} from "react";
@@ -131,6 +131,13 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
             <Navigation/>
             <div className="min-h-screen bg-background pt-20">
                 <div className="container mx-auto max-w-350 px-4 py-6">
+                    <Button asChild variant="ghost" className="mb-4 gap-2 hover:bg-royal-orange/10 text-royal-orange"
+                            onClick={() => router.push("/events")}>
+                        <Link href="/events">
+                            <ChevronLeft className="h-4 w-4"/>
+                            Back to events
+                        </Link>
+                    </Button>
                     {/* Main Content */}
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
                         {/* Event Header Card */}

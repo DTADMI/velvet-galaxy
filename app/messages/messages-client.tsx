@@ -83,9 +83,21 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
         archived: 0,
     });
     const [rooms, setRooms] = useState<any[]>([]);
+    const [userGroups, setUserGroups] = useState<any[]>([]);
     const [hoveredConvId, setHoveredConvId] = useState<string | null>(null);
     const router = useRouter();
     const supabase = createBrowserClient();
+
+    const fetchUserGroups = useCallback(async () => {
+        const {data} = await supabase
+            .from("group_members")
+            .select("group_id, groups(id, name, description)")
+            .eq("user_id", currentUserId);
+
+        if (data) {
+            setUserGroups(data.map(d => d.groups));
+        }
+    }, [currentUserId, supabase]);
 
     const calculateInboxCounts = useCallback(async () => {
         const messageType = activeTab === "rooms" ? null : activeTab;
@@ -487,10 +499,10 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                             className="w-full bg-linear-to-r from-royal-purple to-royal-blue mb-4"
                         >
                             <Plus className="h-4 w-4 mr-2"/>
-                            New Message
+                            New {activeTab === "group" ? "Group Post" : activeTab === "rooms" ? "Room" : "Conversation"}
                         </Button>
 
-                        {(activeTab === "normal" || activeTab === "dating" || activeTab === "group") && (
+                        {(activeTab === "normal" || activeTab === "dating") && (
                             <div className="space-y-1">
                                 <InboxButton
                                     icon={<Inbox className="h-4 w-4"/>}
@@ -529,13 +541,6 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                                     onClick={() => setActiveInbox("sent")}
                                 />
                                 <InboxButton
-                                    icon={<UserPlus className="h-4 w-4"/>}
-                                    label="Friend Requests"
-                                    count={0}
-                                    active={activeInbox === "requests"}
-                                    onClick={() => setActiveInbox("requests")}
-                                />
-                                <InboxButton
                                     icon={<Archive className="h-4 w-4"/>}
                                     label="Archived"
                                     count={counts.archived}
@@ -545,26 +550,52 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                             </div>
                         )}
 
+                        {activeTab === "group" && (
+                            <div className="space-y-2">
+                                <p className="text-sm font-semibold text-muted-foreground px-3 py-2 uppercase tracking-wider">My
+                                    Groups</p>
+                                {userGroups.map((group) => (
+                                    <Card
+                                        key={group.id}
+                                        className="p-3 hover:border-royal-green/40 transition-all cursor-pointer bg-card/50"
+                                        onClick={() => router.push(`/groups/${group.id}`)}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <Users className="h-4 w-4 text-royal-green"/>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-semibold text-sm truncate">{group.name}</p>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                                {userGroups.length === 0 &&
+                                    <p className="text-xs text-muted-foreground px-3 py-2 italic">You haven't joined any
+                                        groups yet</p>}
+                            </div>
+                        )}
+
                         {activeTab === "rooms" && (
                             <div className="space-y-2">
-                                <p className="text-sm font-semibold text-muted-foreground px-3 py-2">Available Rooms</p>
+                                <p className="text-sm font-semibold text-muted-foreground px-3 py-2 uppercase tracking-wider">Available
+                                    Rooms</p>
                                 {rooms.map((room) => (
                                     <Card
                                         key={room.id}
-                                        className="p-3 hover:border-royal-purple/40 transition-all cursor-pointer"
+                                        className="p-3 hover:border-royal-purple/40 transition-all cursor-pointer bg-card/50"
                                         onClick={() => router.push(`/chat-rooms/${room.id}`)}
                                     >
                                         <div className="flex items-center gap-2">
                                             <Radio className="h-4 w-4 text-royal-purple"/>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-semibold text-sm truncate">{room.name || "Unnamed Room"}</p>
-                                                <p className="text-xs text-muted-foreground">{room.participant_count} participants</p>
+                                                <p className="text-[10px] text-muted-foreground">{room.participant_count} participants</p>
                                             </div>
                                         </div>
                                     </Card>
                                 ))}
                                 {rooms.length === 0 &&
-                                    <p className="text-sm text-muted-foreground px-3 py-2">No rooms available</p>}
+                                    <p className="text-xs text-muted-foreground px-3 py-2 italic">No public rooms
+                                        available</p>}
                             </div>
                         )}
 

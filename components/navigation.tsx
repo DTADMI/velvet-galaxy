@@ -63,7 +63,7 @@ export function Navigation() {
 
     const navItems = [
         {href: "/feed", icon: Home, label: "Feed", color: "royal-purple"},
-        {href: "/discovery", icon: Compass, label: "Discovery", color: "royal-pink"},
+        {href: "/discovery", icon: Compass, label: "Discovery", color: "pink-600"},
         {href: "/messages", icon: MessageSquare, label: "Messages", color: "royal-blue"},
         {href: "/marketplace", icon: ShoppingBag, label: "Marketplace", color: "royal-green"},
     ];
@@ -75,9 +75,6 @@ export function Navigation() {
         if (href === "/feed") {
             return pathname === "/feed" || pathname === "/";
         }
-        if (href === "/discover") {
-            return pathname === "/discover" || pathname.startsWith("/discover/");
-        }
         return pathname.startsWith(href);
     };
 
@@ -88,21 +85,19 @@ export function Navigation() {
 
         switch (color) {
             case "royal-purple":
-                return "bg-royal-purple text-white hover:bg-royal-purple/90";
-            case "royal-pink":
-                return "bg-royal-pink text-white hover:bg-royal-pink/90";
+                return "bg-royal-purple text-white shadow-lg shadow-royal-purple/20";
+            case "pink-600":
+                return "bg-pink-600 text-white shadow-lg shadow-pink-600/20";
             case "royal-blue":
-                return "bg-royal-blue text-white hover:bg-royal-blue/90";
+                return "bg-royal-blue text-white shadow-lg shadow-royal-blue/20";
             case "royal-green":
-                return "bg-royal-green text-white hover:bg-royal-green/90";
+                return "bg-royal-green text-white shadow-lg shadow-royal-green/20";
             case "royal-orange":
-                return "bg-royal-orange text-white hover:bg-royal-orange/90";
+                return "bg-royal-orange text-white shadow-lg shadow-royal-orange/20";
             case "royal-auburn":
-                return "bg-royal-auburn text-white hover:bg-royal-auburn/90";
-            case "royal-pink":
-                return "bg-pink-600 text-white hover:bg-pink-700";
+                return "bg-royal-auburn text-white shadow-lg shadow-royal-auburn/20";
             default:
-                return "bg-royal-purple text-white hover:bg-royal-purple/90";
+                return "bg-primary text-primary-foreground";
         }
     };
 

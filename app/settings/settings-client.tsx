@@ -20,6 +20,9 @@ export function SettingsClient() {
         message_privacy_scope: "everyone",
         dating_messages_enabled: true,
         allow_dating_messages: true,
+        allow_group_messages: true,
+        allow_organization_messages: true,
+        allow_promotional_messages: false,
         profile_visibility: "public",
         show_online_status: true,
         show_activity_status: true,
@@ -46,7 +49,7 @@ export function SettingsClient() {
         const {data} = await supabase
             .from("profiles")
             .select(
-                "message_privacy, message_privacy_scope, dating_messages_enabled, allow_dating_messages, profile_visibility, show_online_status, show_activity_status, allow_comments_on_posts, who_can_comment, comment_scope",
+                "message_privacy, message_privacy_scope, dating_messages_enabled, allow_dating_messages, allow_group_messages, allow_organization_messages, allow_promotional_messages, profile_visibility, show_online_status, show_activity_status, allow_comments_on_posts, who_can_comment, comment_scope",
             )
             .eq("id", user.id)
             .single();
@@ -57,6 +60,9 @@ export function SettingsClient() {
                 message_privacy_scope: data.message_privacy_scope || data.message_privacy || "everyone",
                 dating_messages_enabled: data.dating_messages_enabled ?? true,
                 allow_dating_messages: data.allow_dating_messages ?? data.dating_messages_enabled ?? true,
+                allow_group_messages: data.allow_group_messages ?? true,
+                allow_organization_messages: data.allow_organization_messages ?? true,
+                allow_promotional_messages: data.allow_promotional_messages ?? false,
                 profile_visibility: data.profile_visibility || "public",
                 show_online_status: data.show_online_status ?? true,
                 show_activity_status: data.show_activity_status ?? true,
@@ -79,6 +85,9 @@ export function SettingsClient() {
         const {error} = await supabase.from("profiles").update({
             message_privacy_scope: settings.message_privacy_scope,
             allow_dating_messages: settings.allow_dating_messages,
+            allow_group_messages: settings.allow_group_messages,
+            allow_organization_messages: settings.allow_organization_messages,
+            allow_promotional_messages: settings.allow_promotional_messages,
             profile_visibility: settings.profile_visibility,
             show_online_status: settings.show_online_status,
             show_activity_status: settings.show_activity_status,
@@ -107,10 +116,14 @@ export function SettingsClient() {
 
     return (
         <Tabs defaultValue="privacy" className="space-y-6">
-            <TabsList className="grid grid-cols-2 md:grid-cols-5 bg-background/50">
+            <TabsList className="grid grid-cols-3 md:grid-cols-6 bg-background/50">
                 <TabsTrigger value="privacy">
                     <Shield className="h-4 w-4 mr-2"/>
                     <span className="hidden sm:inline">Privacy</span>
+                </TabsTrigger>
+                <TabsTrigger value="messaging">
+                    <MessageSquare className="h-4 w-4 mr-2"/>
+                    <span className="hidden sm:inline">Messaging</span>
                 </TabsTrigger>
                 <TabsTrigger value="comments">
                     <MessageSquare className="h-4 w-4 mr-2"/>
@@ -156,41 +169,6 @@ export function SettingsClient() {
                                 </Select>
                             </div>
 
-                            <div>
-                                <Label className="text-base font-semibold mb-2 block">Who Can Message You</Label>
-                                <Select
-                                    value={settings.message_privacy_scope}
-                                    onValueChange={(value) => setSettings({
-                                        ...settings,
-                                        message_privacy_scope: value as "everyone" | "friends" | "followers"
-                                    })}
-                                >
-                                    <SelectTrigger className="bg-background">
-                                        <SelectValue/>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="everyone">Everyone</SelectItem>
-                                        <SelectItem value="followers">Followers Only</SelectItem>
-                                        <SelectItem value="friends">Friends Only</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="flex items-center justify-between p-4 rounded-lg bg-background/50">
-                                <div>
-                                    <p className="font-medium">Allow Dating Messages</p>
-                                    <p className="text-sm text-muted-foreground">Let others send you dating-specific
-                                        messages</p>
-                                </div>
-                                <Switch
-                                    checked={settings.allow_dating_messages}
-                                    onCheckedChange={(checked) => setSettings({
-                                        ...settings,
-                                        allow_dating_messages: checked
-                                    })}
-                                />
-                            </div>
-
                             <div className="flex items-center justify-between p-4 rounded-lg bg-background/50">
                                 <div>
                                     <p className="font-medium">Show Online Status</p>
@@ -227,6 +205,104 @@ export function SettingsClient() {
                             className="w-full bg-gradient-to-r from-royal-purple to-royal-blue"
                         >
                             {isSaving ? "Saving..." : "Save Privacy Settings"}
+                        </Button>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            <TabsContent value="messaging">
+                <Card className="border-royal-blue/20 bg-card/50">
+                    <CardHeader>
+                        <CardTitle className="text-gradient">Messaging Authorizations</CardTitle>
+                        <CardDescription>Define who can send you different types of messages</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-4">
+                            <div>
+                                <Label className="text-base font-semibold mb-2 block">General Messaging Scope</Label>
+                                <Select
+                                    value={settings.message_privacy_scope}
+                                    onValueChange={(value) => setSettings({
+                                        ...settings,
+                                        message_privacy_scope: value as "everyone" | "friends" | "followers"
+                                    })}
+                                >
+                                    <SelectTrigger className="bg-background">
+                                        <SelectValue/>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="everyone">Everyone</SelectItem>
+                                        <SelectItem value="followers">Followers Only</SelectItem>
+                                        <SelectItem value="friends">Friends Only</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div
+                                className="flex items-center justify-between p-4 rounded-lg bg-background/50 border border-royal-orange/10">
+                                <div>
+                                    <p className="font-medium">Allow Dating Messages</p>
+                                    <p className="text-xs text-muted-foreground">Enable dating-specific outreach</p>
+                                </div>
+                                <Switch
+                                    checked={settings.allow_dating_messages}
+                                    onCheckedChange={(checked) => setSettings({
+                                        ...settings,
+                                        allow_dating_messages: checked
+                                    })}
+                                />
+                            </div>
+
+                            <div
+                                className="flex items-center justify-between p-4 rounded-lg bg-background/50 border border-royal-green/10">
+                                <div>
+                                    <p className="font-medium">Allow Group Invites/Messages</p>
+                                    <p className="text-xs text-muted-foreground">Receive messages from groups you
+                                        join</p>
+                                </div>
+                                <Switch
+                                    checked={settings.allow_group_messages}
+                                    onCheckedChange={(checked) => setSettings({
+                                        ...settings,
+                                        allow_group_messages: checked
+                                    })}
+                                />
+                            </div>
+
+                            <div
+                                className="flex items-center justify-between p-4 rounded-lg bg-background/50 border border-royal-blue/10">
+                                <div>
+                                    <p className="font-medium">Allow Organization Messages</p>
+                                    <p className="text-xs text-muted-foreground">Receive messages from Houses or
+                                        Companies</p>
+                                </div>
+                                <Switch
+                                    checked={settings.allow_organization_messages}
+                                    onCheckedChange={(checked) => setSettings({
+                                        ...settings,
+                                        allow_organization_messages: checked
+                                    })}
+                                />
+                            </div>
+
+                            <div
+                                className="flex items-center justify-between p-4 rounded-lg bg-background/50 border border-royal-auburn/10">
+                                <div>
+                                    <p className="font-medium">Allow Promotional Content</p>
+                                    <p className="text-xs text-muted-foreground">Receive messages from verified
+                                        promotional accounts</p>
+                                </div>
+                                <Switch
+                                    checked={settings.allow_promotional_messages}
+                                    onCheckedChange={(checked) => setSettings({
+                                        ...settings,
+                                        allow_promotional_messages: checked
+                                    })}
+                                />
+                            </div>
+                        </div>
+                        <Button onClick={saveSettings} disabled={isSaving} className="w-full bg-royal-blue">
+                            {isSaving ? "Saving..." : "Save Messaging Settings"}
                         </Button>
                     </CardContent>
                 </Card>

@@ -936,7 +936,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                     className="border-amber-500/20 text-amber-500 hover:bg-amber-500/10 bg-transparent"
                                 >
                                     <LogOut className="h-4 w-4 mr-2"/>
-                                    Leave Room
+                                    {roomType === "text" ? "Leave Room" : "Disconnect"}
                                 </Button>
                                 {roomType !== "text" && (
                                     <>

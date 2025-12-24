@@ -297,6 +297,7 @@ create table if not exists public.groups
 ) on delete cascade,
     name text not null,
     description text,
+    allow_messages boolean not null default true,
     created_at timestamptz not null default now
 (
 )

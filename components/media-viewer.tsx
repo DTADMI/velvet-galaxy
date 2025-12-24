@@ -177,17 +177,41 @@ export function MediaViewer({
                                 </div>
                             </div>
                         ) : (
-                            <video
-                                src={mediaUrl}
-                                controls
-                                controlsList="nodownload"
-                                autoPlay
-                                className="max-w-full max-h-full"
-                                onLoadedData={() => setIsLoading(false)}
-                                onContextMenu={(e) => e.preventDefault()}
-                                style={{display: isLoading ? "none" : "block", userSelect: "none"}}
-                                onClick={(e) => e.stopPropagation()}
-                            />
+                            <div className="relative w-full h-full flex items-center justify-center">
+                                <video
+                                    src={mediaUrl}
+                                    controls
+                                    controlsList="nodownload"
+                                    autoPlay
+                                    className="max-w-full max-h-full"
+                                    onLoadedData={(e) => {
+                                        setIsLoading(false);
+                                        // Set default speed/volume if needed
+                                        e.currentTarget.playbackRate = 1.0;
+                                    }}
+                                    onContextMenu={(e) => e.preventDefault()}
+                                    style={{display: isLoading ? "none" : "block", userSelect: "none"}}
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                                {!isLoading && (
+                                    <div
+                                        className="absolute bottom-16 right-4 flex flex-col gap-2 bg-black/40 backdrop-blur-sm p-2 rounded-lg border border-white/10 opacity-0 hover:opacity-100 transition-opacity z-20">
+                                        <p className="text-[10px] text-white font-bold uppercase text-center mb-1">Controls</p>
+                                        <select
+                                            className="bg-transparent text-white text-xs border border-white/20 rounded px-1"
+                                            onChange={(e) => {
+                                                const v = document.querySelector('video');
+                                                if (v) v.playbackRate = parseFloat(e.target.value);
+                                            }}
+                                        >
+                                            <option value="0.5" className="bg-black">0.5x</option>
+                                            <option value="1.0" className="bg-black" selected>1.0x</option>
+                                            <option value="1.5" className="bg-black">1.5x</option>
+                                            <option value="2.0" className="bg-black">2.0x</option>
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
                         )}
 
                         {isLoading && (

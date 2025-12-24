@@ -40,6 +40,15 @@ export function NewConversationDialog({
     const supabase = createBrowserClient();
 
     useEffect(() => {
+        // Reset state on open
+        if (open) {
+            setRecipients([]);
+            setSubject("");
+            setMessage("");
+        }
+    }, [open]);
+
+    useEffect(() => {
         // Check if user is subscribed for higher recipient limit
         const checkSubscription = async () => {
             const {data} = await supabase
@@ -54,7 +63,7 @@ export function NewConversationDialog({
             }
         };
         checkSubscription();
-    }, [currentUserId]);
+    }, [currentUserId, supabase]);
 
     useEffect(() => {
         if (searchQuery.length < 2) {
@@ -211,10 +220,10 @@ export function NewConversationDialog({
                 <div className="space-y-4">
                     {/* Recipients */}
                     <div>
-                        <Label>To: (Max {maxRecipients} recipients)</Label>
+                        <Label>To: ({recipients.length}/{maxRecipients} recipients)</Label>
                         <div className="flex flex-wrap gap-2 mb-2">
                             {recipients.map((recipient) => (
-                                <Badge key={recipient.id} variant="secondary" className="gap-1">
+                                <Badge key={recipient.id} variant="secondary" className="gap-1 py-1 px-2">
                                     {recipient.display_name || recipient.username}
                                     <button onClick={() => removeRecipient(recipient.id)}
                                             className="ml-1 hover:text-destructive">
@@ -226,30 +235,35 @@ export function NewConversationDialog({
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
                             <Input
-                                placeholder="Search for users..."
+                                placeholder="Search friends, followers, or organizations..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-9"
                             />
                             {searchResults.length > 0 && (
                                 <div
-                                    className="absolute z-10 w-full mt-1 bg-card border border-royal-purple/20 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                                    className="absolute z-50 w-full mt-1 bg-card border border-royal-purple/20 rounded-md shadow-xl max-h-48 overflow-y-auto">
                                     {searchResults.map((user) => (
                                         <button
                                             key={user.id}
                                             onClick={() => addRecipient(user)}
-                                            className="w-full px-4 py-2 text-left hover:bg-royal-purple/10 flex items-center gap-2"
+                                            className="w-full px-4 py-2 text-left hover:bg-royal-purple/10 flex items-center gap-2 transition-colors"
                                         >
-                                            {user.avatar_url && (
-                                                <img
-                                                    src={user.avatar_url || "/placeholder.svg"}
-                                                    alt=""
-                                                    className="h-8 w-8 rounded-full object-cover"
-                                                />
-                                            )}
-                                            <div>
-                                                <p className="font-medium">{user.display_name || user.username}</p>
-                                                <p className="text-xs text-muted-foreground">@{user.username}</p>
+                                            <div
+                                                className="h-8 w-8 rounded-full bg-royal-purple/20 flex items-center justify-center text-[10px] font-bold text-royal-purple overflow-hidden">
+                                                {user.avatar_url ? (
+                                                    <img
+                                                        src={user.avatar_url}
+                                                        alt=""
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    (user.display_name || user.username)[0].toUpperCase()
+                                                )}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-medium text-sm truncate">{user.display_name || user.username}</p>
+                                                <p className="text-xs text-muted-foreground truncate">@{user.username}</p>
                                             </div>
                                         </button>
                                     ))}
@@ -273,7 +287,12 @@ export function NewConversationDialog({
                     <div>
                         <Label>Message</Label>
                         <div className="mt-2">
-                            <RichTextEditor value={message} onChange={setMessage} placeholder="Write your message..."/>
+                            <RichTextEditor
+                                value={message}
+                                onChange={setMessage}
+                                placeholder={`Write your ${messageType} message...`}
+                                minHeight="120px"
+                            />
                         </div>
                     </div>
 
@@ -285,9 +304,16 @@ export function NewConversationDialog({
                         <Button
                             onClick={createConversation}
                             disabled={isCreating || recipients.length === 0 || !message.trim()}
-                            className="bg-gradient-to-r from-royal-purple to-royal-blue"
+                            className="bg-gradient-to-r from-royal-purple to-royal-blue min-w-[140px]"
                         >
-                            {isCreating ? "Sending..." : "Start Conversation"}
+                            {isCreating ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin"/>
+                                    Starting...
+                                </>
+                            ) : (
+                                "Start Conversation"
+                            )}
                         </Button>
                     </div>
                 </div>

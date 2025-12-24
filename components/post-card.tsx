@@ -248,7 +248,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                                     </div>
                                 ) : post.media_type === "video" && post.media_url ? (
                                     <div
-                                        className="relative w-full rounded-lg overflow-hidden bg-black/5 flex items-center justify-center"
+                                        className="relative w-full rounded-lg overflow-hidden bg-black/5 flex items-center justify-center group/video"
                                         style={{maxHeight: maxMediaHeight}}
                                     >
                                         <video
@@ -259,15 +259,31 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                                             playsInline
                                             controlsList="nodownload"
                                             onContextMenu={(e) => e.preventDefault()}
-                                            onMouseEnter={(e) => e.currentTarget.play()}
+                                            onMouseEnter={(e) => {
+                                                // Preview clips on hover logic
+                                                const v = e.currentTarget;
+                                                v.play();
+                                                // Simple Fetlife-like preview: seek to 25% then 50% then 75%
+                                                let step = 0;
+                                                const previewInterval = setInterval(() => {
+                                                    if (v.paused) {
+                                                        clearInterval(previewInterval);
+                                                        return;
+                                                    }
+                                                    step = (step + 1) % 4;
+                                                    v.currentTime = (v.duration / 4) * step;
+                                                }, 1500);
+                                                (v as any)._previewInterval = previewInterval;
+                                            }}
                                             onMouseLeave={(e) => {
                                                 e.currentTarget.pause();
+                                                clearInterval((e.currentTarget as any)._previewInterval);
                                                 e.currentTarget.currentTime = 0;
                                             }}
                                             style={{userSelect: "none"}}
                                         />
                                         <Play
-                                            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${displaySize === "compact" ? "h-8 w-8" : "h-12 w-12"} text-white opacity-80 pointer-events-none`}
+                                            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${displaySize === "compact" ? "h-8 w-8" : "h-12 w-12"} text-white opacity-80 pointer-events-none group-hover/video:opacity-0 transition-opacity`}
                                         />
                                     </div>
                                 ) : post.audio_url ? (

@@ -68,8 +68,7 @@ recommended) or Docker deploy. Strict linting and type safety.
   - Social Feed with support for posts, statuses, pictures, gifs, videos, audios, and writings.
   - Multimedia sharing with multi-album support (Pictures, Videos, Audio, Writings).
   - Following/Follower system and basic Friend requests.
-  - Notifications system for interactions (friend requests, follows, groups, events) with icon badges showing pending
-    counts.
+  - Notifications system for interactions (friend requests, follows, groups, events) with icon badges.
   - Bookmark functionality for posts and media.
   - Post editing with 24-hour time limit.
   - Interactive profile pages showing personal description, recent activity, groups, and media.
@@ -78,6 +77,8 @@ recommended) or Docker deploy. Strict linting and type safety.
   - 3D/2D Network Visualization accessible via main navigation.
   - Recent activity feed in profile (likes, follows, friendings, joins, RSVPs).
   - Localization support with city/country autocompletion in all forms.
+  - Discovery Hub with curated, popular local, and liked content tabs.
+  - Tag-based onboarding system for personalizing feeds.
 - ✅ **Messaging & Communication**:
   - Triple-categorized messaging: Normal, Dating, and Group messages.
   - Real-time Chat Rooms with Text, Audio, and Video chat support (Discord-like).
@@ -85,11 +86,13 @@ recommended) or Docker deploy. Strict linting and type safety.
   - Ephemeral media (view-once) and Spoiler functionality (blur/overlay).
   - Rich text formatting and emoji support in messages and rooms.
   - Retractable side-chat in rooms and Discord-like media settings.
+  - Recipient filtering based on privacy settings (Dating, Organizations, etc.).
 - ✅ **Community & Discovery**:
   - Group and Event management with dedicated, interactable pages (Fetlife-style).
   - Multi-tab search system: Results categorized by Users, Media, Posts, Events, and Groups.
   - Paginated search results and dropdown menu for additional navigation links.
   - Galaxy-themed 3D/2D Network Visualization of user connections (central node view).
+  - Infinite Scroll with performance-optimized fetching caps (200 items).
 - ✅ **Velvet Portal**:
   - **Velvet Reviews**: Comprehensive review platform with 3D toy viewers, detail pages, carousels, and catalog.
   - **Velvet Market**: Merchandise and digital product storefront with Stripe scaffolding.
@@ -103,7 +106,24 @@ recommended) or Docker deploy. Strict linting and type safety.
   - Dark/Light mode toggle and multi-language support.
   - Rate limiting and persistent login status.
   - Persistent login status and rate limiting.
-  - Fetlife-inspired dark color palette (Royal Auburn, Blue, Green, Orange, etc.).
+  - Fetlife-inspired dark color palette.
+  - Automated location-based content filtering for local relevance.
+
+## Completed
+
+- ✅ **Final Project Refinement & Completion**:
+  - Implemented Fetlife-style messaging hierarchy with tab-scoping and unread counts.
+  - Enhanced New Conversation dialog with subjects, multiple recipients, and privacy filtering.
+  - Added multi-image Drag & Drop, miniature grid, and album auto-creation to uploads.
+  - Implemented muted video hover-previews and full player controls (speed/volume).
+  - Created granular Messaging Authorization settings for Group/Moral Person/Promotional messages.
+  - Applied unique color highlights to all Navbar links for active feedback.
+  - Integrated SFW/NSFW and Promotional filters into the Discovery Hub.
+  - Added creator controls (Edit/Delete) and "Back" navigation for all Community objects.
+  - Implemented "Moral Person" account types and live verification badges.
+  - Refined 3D Network Visualization with expanded node types and connection filtering.
+- ✅ Core social infrastructure, messaging, and portal verticals.
+- ✅ Full architecture, security, and performance optimizations.
 
 ## In Progress
 
@@ -166,11 +186,10 @@ recommended) or Docker deploy. Strict linting and type safety.
   - [ ] Full accessibility compliance certification.
   - [ ] Load testing for real-time messaging.
 - 🗂️ **Platform Extensions**:
-  - [ ] "Already Connected" session management (warning/account switching logic).
-  - [ ] Full Subscription Model implementation (Weekly, Monthly, Yearly, Lifetime tiers) for premium features.
-  - [ ] Extended VR support for 3D visualization tools and toy viewers.
-  - [ ] Live capture functionality (camera/mic) for web-based recording from device.
-  - [ ] Nested comments (comments on comments) with liking functionality.
+  - [ ] "Already Connected" session management placeholder.
+  - [ ] Full Subscription Model implementation.
+  - [ ] Extended VR support and live capture.
+  - [ ] Nested comments and advanced moderation.
   - [ ] Advanced community moderation tools for group owners.
   - [ ] Mobile PWA enhancements for native-like push notifications.
   - [ ] Contact forms and Help page integration.
@@ -191,6 +210,10 @@ recommended) or Docker deploy. Strict linting and type safety.
 - Implemented Co-authorship system with invitations and notifications.
 - Enhanced media management with secure viewing and drag-and-drop uploader.
 - Finalized 3D Network Visualization aesthetics.
+- Implemented Fetlife-style UI/UX refinements across messaging and media.
+- Added link-specific navbar colors and specialized discovery filters.
+- Optimized 3D visualization and accessibility compliance.
+- Finalized account verification and organization account flows.
 - Added database relational schema (Mermaid diagram) to README.md.
 - Updated README and action-plan.md with "Velvet Portal" structure and detailed project architecture.
 - Reorganized action-plan.md tasks with new legend (✅, 🟡, 🔜, 🗂️).

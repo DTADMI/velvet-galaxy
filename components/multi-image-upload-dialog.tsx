@@ -34,12 +34,64 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
     const [uploadedImages, setUploadedImages] = useState<{ file: File; url: string; size: string }[]>([]);
     const [albums, setAlbums] = useState<any[]>([]);
     const [selectedAlbumId, setSelectedAlbumId] = useState<string>("none");
+    const [albumQuery, setAlbumQuery] = useState("");
     const [newAlbumTitle, setNewAlbumTitle] = useState("");
     const [isUploading, setIsUploading] = useState(false);
     const [isPosting, setIsPosting] = useState(false);
     const [fileError, setFileError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const onDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const onDragLeave = () => {
+        setIsDragging(false);
+    };
+
+    const onDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+            handleFiles(files);
+        }
+    };
+
+    const handleFiles = async (files: File[]) => {
+        const imageFiles = files.filter(f => f.type.startsWith("image/"));
+        if (imageFiles.length === 0) {
+            setFileError("Please select image files only.");
+            return;
+        }
+
+        setIsUploading(true);
+        const supabase = createClient();
+
+        for (const file of imageFiles) {
+            const fileExt = file.name.split(".").pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `post-images/${fileName}`;
+
+            const {error: uploadError} = await supabase.storage.from("media").upload(filePath, file);
+
+            if (uploadError) {
+                console.error("Upload error:", uploadError);
+                continue;
+            }
+
+            const {data: {publicUrl}} = supabase.storage.from("media").getPublicUrl(filePath);
+
+            setUploadedImages(prev => [...prev, {
+                file,
+                url: publicUrl,
+                size: (file.size / 1024 / 1024).toFixed(2) + " MB"
+            }]);
+        }
+        setIsUploading(false);
+    };
 
     const validateImageFile = (file: File): boolean => {
         const validExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"];
@@ -351,6 +403,120 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                         </div>
                     )}
 
+                    {/* Drag and Drop Zone */}
+                    <div
+                        onDragOver={onDragOver}
+                        onDragLeave={onDragLeave}
+                        onDrop={onDrop}
+                        className={cn(
+                            "border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer relative",
+                            isDragging ? "border-royal-purple bg-royal-purple/10 scale-[1.02]" : "border-royal-purple/20 hover:border-royal-purple/40",
+                            uploadedImages.length > 0 && "p-4"
+                        )}
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => {
+                                const files = Array.from(e.target.files || []);
+                                if (files.length > 0) handleFiles(files);
+                            }}
+                        />
+                        {uploadedImages.length === 0 ? (
+                            <div className="space-y-4">
+                                <div
+                                    className="h-16 w-16 bg-royal-purple/10 rounded-full flex items-center justify-center mx-auto">
+                                    <ImageIcon className="h-8 w-8 text-royal-purple"/>
+                                </div>
+                                <div>
+                                    <p className="text-lg font-semibold">Click or drag & drop images</p>
+                                    <p className="text-sm text-muted-foreground">Upload up to 10 images at once</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+                                {uploadedImages.map((image, index) => (
+                                    <div key={index}
+                                         className="relative aspect-square rounded-lg overflow-hidden group">
+                                        <img src={image.url} alt="" className="h-full w-full object-cover"/>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeImage(index);
+                                            }}
+                                            className="absolute top-1 right-1 h-6 w-6 bg-black/60 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <X className="h-3 w-3"/>
+                                        </button>
+                                    </div>
+                                ))}
+                                {uploadedImages.length < 10 && (
+                                    <div
+                                        className="aspect-square rounded-lg border-2 border-dashed border-royal-purple/20 flex items-center justify-center hover:border-royal-purple/40 transition-colors">
+                                        <Plus className="h-6 w-6 text-muted-foreground"/>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Album Selection with Autocomplete Logic */}
+                    <div className="space-y-2">
+                        <Label>Album</Label>
+                        <div className="relative">
+                            <Input
+                                placeholder="Search or create album..."
+                                value={albumQuery}
+                                onChange={(e) => setAlbumQuery(e.target.value)}
+                                onFocus={() => setIsAlbumListOpen(true)}
+                            />
+                            {isAlbumListOpen && (
+                                <div
+                                    className="absolute z-50 w-full mt-1 bg-card border border-royal-purple/20 rounded-md shadow-xl max-h-48 overflow-y-auto">
+                                    <button
+                                        onClick={() => {
+                                            setSelectedAlbumId("none");
+                                            setAlbumQuery("");
+                                            setIsAlbumListOpen(false);
+                                        }}
+                                        className="w-full px-4 py-2 text-left hover:bg-royal-purple/10 text-sm"
+                                    >
+                                        No Album
+                                    </button>
+                                    {albums.filter(a => a.title.toLowerCase().includes(albumQuery.toLowerCase())).map((album) => (
+                                        <button
+                                            key={album.id}
+                                            onClick={() => {
+                                                setSelectedAlbumId(album.id);
+                                                setAlbumQuery(album.title);
+                                                setIsAlbumListOpen(false);
+                                            }}
+                                            className="w-full px-4 py-2 text-left hover:bg-royal-purple/10 text-sm"
+                                        >
+                                            {album.title}
+                                        </button>
+                                    ))}
+                                    {albumQuery && !albums.some(a => a.title.toLowerCase() === albumQuery.toLowerCase()) && (
+                                        <button
+                                            onClick={() => {
+                                                setSelectedAlbumId("new");
+                                                setNewAlbumTitle(albumQuery);
+                                                setIsAlbumListOpen(false);
+                                            }}
+                                            className="w-full px-4 py-2 text-left hover:bg-royal-purple/10 text-sm text-royal-purple font-semibold"
+                                        >
+                                            + Create "{albumQuery}"
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Title */}
                     <div className="space-y-2">
                         <Label htmlFor="title">Title *</Label>
@@ -373,32 +539,12 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                         />
                     </div>
 
-                    {/* Albums */}
-                    <div className="space-y-2">
-                        <Label>Add to Album</Label>
-                        <Select value={selectedAlbumId} onValueChange={setSelectedAlbumId}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select an album"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">No Album</SelectItem>
-                                <SelectItem value="new">+ Create New Album</SelectItem>
-                                {albums.map((album) => (
-                                    <SelectItem key={album.id} value={album.id}>
-                                        {album.title}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {selectedAlbumId === "new" && (
-                            <Input
-                                placeholder="New album title..."
-                                value={newAlbumTitle}
-                                onChange={(e) => setNewAlbumTitle(e.target.value)}
-                                className="mt-2"
-                            />
-                        )}
-                    </div>
+                    {uploadedImages.length === 1 && (
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="use-as-profile"/>
+                            <Label htmlFor="use-as-profile">Use as profile picture</Label>
+                        </div>
+                    )}
 
                     {/* Soundtrack Selection */}
                     {uploadedImages.length > 0 && (
