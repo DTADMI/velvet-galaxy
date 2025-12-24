@@ -83,6 +83,54 @@ export async function createPost(formData: FormData) {
     return {success: true, post: data};
 }
 
+export async function updatePost(postId: string, content: string) {
+    const supabase = await createServerClient();
+    const {
+        data: {user},
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        return {error: "Not authenticated"};
+    }
+
+    // Check if post exists and user is owner
+    const {data: post, error: fetchError} = await supabase
+        .from("posts")
+        .select("created_at, author_id")
+        .eq("id", postId)
+        .single();
+
+    if (fetchError || !post) {
+        return {error: "Post not found"};
+    }
+
+    if (post.author_id !== user.id) {
+        return {error: "Unauthorized"};
+    }
+
+    // Check edit time limit (e.g., 24 hours)
+    const createdAt = new Date(post.created_at);
+    const now = new Date();
+    const limit = 24 * 60 * 60 * 1000; // 24 hours in ms
+
+    if (now.getTime() - createdAt.getTime() > limit) {
+        return {error: "Edit time limit exceeded (24 hours)"};
+    }
+
+    const {error: updateError} = await supabase
+        .from("posts")
+        .update({content, updated_at: now.toISOString()})
+        .eq("id", postId);
+
+    if (updateError) {
+        return {error: updateError.message};
+    }
+
+    revalidatePath("/feed");
+    revalidatePath(`/posts/${postId}`);
+    return {success: true};
+}
+
 export async function likePost(postId: string) {
     const supabase = await createServerClient();
     const {

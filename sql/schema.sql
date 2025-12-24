@@ -44,7 +44,13 @@ create table if not exists public.posts
     id
 ) on delete cascade,
     content text,
+    content_rating text default 'sfw',
+    media_url text,
+    media_type text,
     created_at timestamptz not null default now
+(
+),
+    updated_at timestamptz not null default now
 (
 )
     );

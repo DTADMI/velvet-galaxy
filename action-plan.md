@@ -12,6 +12,13 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## Completed
 
+- ✅ Velvet Portal Extensions:
+  - **Velvet Market**: Implemented merchandise store and digital product listings with `sql/market.sql` schema and
+    `app/portal/market/page.tsx`.
+  - **Velvet Games**: Created the Velvet Games hub (`app/portal/games/page.tsx`) with point & click adventure roadmap.
+- ✅ Core Functionality Improvements:
+  - Integrated rich text formatting and emoji support in messages using `RichTextEditor`.
+  - Implemented 24-hour edit time limit for posts in `app/actions/posts.ts`.
 - ✅ Implement Velvet Reviews Extensions:
   - Created individual toy detail pages with 3D viewer support.
   - Built catalog page with grid/list views and search/filter logic.
@@ -59,25 +66,23 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## Next
 
-- 🔜 **Velvet Portal Extensions**:
-  - [ ] **Velvet Market**: Merchandise store and digital product listings.
-  - [ ] **Velvet Games**: Initial development of "The Keymaster's Dungeon".
+- 🔜 **Maintenance and Extensions**:
+  - [ ] AI-powered content recommendations.
+  - [ ] VR support for 3D visualization.
+  - [ ] E2E tests for core user flows.
 
 ## Backlog
 
-- 🗂️ **Advanced Features**:
-  - [ ] AI-powered content recommendations.
-  - [ ] VR support for 3D visualization.
-- 🗂️ **Core Functionality Improvements**:
-  - [ ] Live capture functionality (camera/mic).
-  - [ ] Rich text formatting and emoji support in messages.
-  - [ ] Edit time limit for posts.
 - 🗂️ **Technical & Testing**:
-  - [ ] E2E tests for core user flows.
   - [ ] Accessibility audit and compliance (ARIA, contrast).
+  - [ ] Live capture functionality (camera/mic).
 
 ## Changelog (recent)
 
+- Implemented Velvet Market core (Schema, Storefront).
+- Implemented Velvet Games hub and roadmap.
+- Integrated rich text and emoji support in messaging.
+- Implemented post edit time limit (24h).
 - Implemented Velvet Reviews extensions (Toy Detail Pages, 3D Viewer, Catalog).
 - Implemented Co-authorship system with invitations and notifications.
 - Enhanced media management with secure viewing and drag-and-drop uploader.

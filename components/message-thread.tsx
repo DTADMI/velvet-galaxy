@@ -216,6 +216,10 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
         }
     };
 
+    const handleRichTextChange = (value: string) => {
+        setNewMessage(value);
+    };
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -312,7 +316,7 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                         <div className="flex-1">
                             <RichTextEditor
                                 value={newMessage}
-                                onChange={setNewMessage}
+                                onChange={handleRichTextChange}
                                 placeholder={isEphemeral ? "Send a view-once message..." : "Type your message..."}
                                 minHeight="60px"
                                 disabled={isLoading}
