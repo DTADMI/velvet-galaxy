@@ -75,15 +75,18 @@ recommended) or Docker deploy. Strict linting and type safety.
   - Interactive profile pages showing personal description, recent activity, groups, and media.
   - Clickable user names/pics on likes and posts for easy profile access.
   - Separate pages for detailed post/media interaction with comments and like lists.
+  - 3D/2D Network Visualization accessible via main navigation.
+  - Recent activity feed in profile (likes, follows, friendings, joins, RSVPs).
+  - Localization support with city/country autocompletion in all forms.
 - ✅ **Messaging & Communication**:
   - Triple-categorized messaging: Normal, Dating, and Group messages.
   - Real-time Chat Rooms with Text, Audio, and Video chat support (Discord-like).
   - Multimedia support in direct messages.
   - Ephemeral media (view-once) and Spoiler functionality (blur/overlay).
-  - Rich text formatting and emoji support in messages.
+  - Rich text formatting and emoji support in messages and rooms.
+  - Retractable side-chat in rooms and Discord-like media settings.
 - ✅ **Community & Discovery**:
-  - Group creation and joining with dedicated group interaction pages and searchable group lists.
-  - Event management: creation, RSVP (Going/Interested), and event interaction pages with searchable event lists.
+  - Group and Event management with dedicated, interactable pages (Fetlife-style).
   - Multi-tab search system: Results categorized by Users, Media, Posts, Events, and Groups.
   - Paginated search results and dropdown menu for additional navigation links.
   - Galaxy-themed 3D/2D Network Visualization of user connections (central node view).
@@ -99,6 +102,7 @@ recommended) or Docker deploy. Strict linting and type safety.
   - Performance optimization for 3D visualizations on mobile.
   - Dark/Light mode toggle and multi-language support.
   - Rate limiting and persistent login status.
+  - Persistent login status and rate limiting.
   - Fetlife-inspired dark color palette (Royal Auburn, Blue, Green, Orange, etc.).
 
 ## In Progress
@@ -110,6 +114,21 @@ recommended) or Docker deploy. Strict linting and type safety.
   - [ ] Implementing default localized filtering for Feed, Search, and Marketplace based on user location.
   - [ ] Developing a feed mode toggle: Neutral (SFW) and Kinky (NSFW) with content-rating filtering.
   - [ ] Refining the "Discover Hub" to prioritize local content and community events.
+
+- 🟡 **Social & Profile Extensions**:
+  - [ ] Implementing "Moral Person" (Organization/House/Company) account types with specialized interactions (no
+    friending, only following).
+  - [ ] Live picture verification flow and "Verified" profile badges.
+  - [ ] Post scoping: "Who can comment" restrictions (Everyone, Friends, Followers) at creation and post-creation.
+- 🟡 **Discovery & Feed Enhancements**:
+  - [ ] Developing the "Discovery Hub" with curated (interest-based), popular (location-based), and "Liked Content"
+    tabs.
+  - [ ] Implementing Infinite Scroll with performance-optimized fetching caps.
+  - [ ] Refined localized filtering for Feed, Marketplace, and Search.
+- 🟡 **Advanced Messaging**:
+  - [ ] Granular message privacy settings (Everyone, Friends, Followers).
+  - [ ] Receiver filtering in message creation based on user restrictions (e.g., "No Dating Messages").
+  - [ ] Report functionality for messages and posts.
 
 ## Next
 
@@ -126,6 +145,20 @@ recommended) or Docker deploy. Strict linting and type safety.
 - 🔜 **Event System Polish**:
   - [ ] Refining the event creation form: validation (end date > start date), online checkbox logic (greying out
     location), and auto-close on success.
+
+- 🔜 **Media & Content Polish**:
+  - [ ] Batch image/video uploads with simultaneous album creation/selection.
+  - [ ] Sequential media navigation (Next/Prev buttons) in detail views (Fetlife-style).
+  - [ ] Marketplace enhancements: Support for videos and audio in listings.
+- 🔜 **Navigation & UI/UX**:
+  - [ ] Expanding top-right Profile Dropdown: Friends/Followers list, Bookmarks, Events, FAQ, Parameters, and Account
+    Switching.
+  - [ ] Navbar links for Help/Support forms, Policies (ToS), and About pages.
+  - [ ] Fast-path "Upload" button in navbar for all media types.
+- 🔜 **Relationship Refinements**:
+  - [ ] Advanced relationship labels (Dom/Sub, etc.) with mutual consent flow.
+  - [ ] "Not follow" option for friends (connection without feed clutter).
+  - [ ] Immediate UI counter updates for social interactions.
 
 ## Backlog
 

@@ -101,6 +101,24 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
         }
     };
 
+    const reportPost = async () => {
+        const reason = prompt("Why are you reporting this post?");
+        if (!reason) return;
+
+        const {error} = await supabase.from("reports").insert({
+            reporter_id: currentUserId,
+            target_type: "post",
+            target_id: post.id,
+            reason: reason,
+        });
+
+        if (!error) {
+            toast.success("Post reported. Thank you for keeping Velvet Galaxy safe.");
+        } else {
+            toast.error("Failed to report post.");
+        }
+    };
+
     const isNSFW = post.content_rating === "nsfw";
     const shouldBlur = isNSFW && !showNSFW;
 
@@ -163,9 +181,15 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={deletePost} className="text-destructive">
-                                        Delete Post
-                                    </DropdownMenuItem>
+                                    {currentUserId === (post.author_profile?.id || post.author_id) ? (
+                                        <DropdownMenuItem onClick={deletePost} className="text-destructive">
+                                            Delete Post
+                                        </DropdownMenuItem>
+                                    ) : (
+                                        <DropdownMenuItem onClick={reportPost}>
+                                            Report Post
+                                        </DropdownMenuItem>
+                                    )}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         )}

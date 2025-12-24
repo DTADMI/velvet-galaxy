@@ -72,13 +72,27 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
     const [showChat, setShowChat] = useState(true);
+    const [isChatRetracted, setIsChatRetracted] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [userDisplayName, setUserDisplayName] = useState("");
+    const [userPronouns, setUserPronouns] = useState("");
     const [roomSettings, setRoomSettings] = useState({
         name: roomName,
         type: roomType,
         maxParticipants: 10,
         requiresApproval: false,
     });
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            const {data} = await supabase.from("profiles").select("display_name, pronouns").eq("id", userId).single();
+            if (data) {
+                setUserDisplayName(data.display_name || "");
+                setUserPronouns(data.pronouns || "");
+            }
+        };
+        fetchUserProfile();
+    }, [userId]);
 
     const [waitingParticipants, setWaitingParticipants] = useState<WaitingParticipant[]>([]);
     const [isInWaitingRoom, setIsInWaitingRoom] = useState(false);
@@ -606,14 +620,28 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                     </Card>
                 </div>
             ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
-                <Card className="lg:col-span-3 border-royal-purple/20 flex flex-col overflow-hidden">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-8rem)]">
+                    <Card className={cn(
+                        "border-royal-purple/20 flex flex-col overflow-hidden transition-all duration-300",
+                        isChatRetracted ? "lg:col-span-4" : "lg:col-span-3"
+                    )}>
                     <div
                         className="p-4 border-b border-royal-purple/20 bg-linear-to-r from-royal-purple/10 to-royal-blue/10">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <h2 className="text-xl font-bold text-gradient">{roomName}</h2>
-                                <p className="text-sm text-muted-foreground">{participants.length} participants</p>
+                            <div className="flex items-center gap-3">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gradient">{roomName}</h2>
+                                    <p className="text-sm text-muted-foreground">{participants.length} participants</p>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setIsChatRetracted(!isChatRetracted)}
+                                    className="hidden lg:flex gap-2 text-muted-foreground"
+                                >
+                                    {isChatRetracted ? <MessageSquare className="h-4 w-4"/> : <X className="h-4 w-4"/>}
+                                    {isChatRetracted ? "Show Chat" : "Retract Chat"}
+                                </Button>
                             </div>
                             <div className="flex gap-2">
                                 {isCreator && (
@@ -711,6 +739,24 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                             />
                                                         </div>
                                                         <div>
+                                                            <Label>My Display Name in Call</Label>
+                                                            <Input
+                                                                value={userDisplayName}
+                                                                onChange={(e) => setUserDisplayName(e.target.value)}
+                                                                placeholder="How you appear to others"
+                                                                className="mt-2 border-royal-blue/30"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>My Pronouns</Label>
+                                                            <Input
+                                                                value={userPronouns}
+                                                                onChange={(e) => setUserPronouns(e.target.value)}
+                                                                placeholder="e.g. they/them"
+                                                                className="mt-2"
+                                                            />
+                                                        </div>
+                                                        <div>
                                                             <Label>Room Type</Label>
                                                             <Select
                                                                 value={roomSettings.type}
@@ -804,23 +850,41 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                             <div>
                                                                 <Label>Microphone</Label>
                                                                 {selectedAudioInput ? (
-                                                                    <Select
-                                                                        value={selectedAudioInput}
-                                                                        onValueChange={(v) => changeMediaDevice("audio", v)}
-                                                                    >
-                                                                        <SelectTrigger className="mt-2">
-                                                                            <SelectValue
-                                                                                placeholder="Select microphone"/>
-                                                                        </SelectTrigger>
-                                                                        <SelectContent>
-                                                                            {audioDevices.map((device) => (
-                                                                                <SelectItem key={device.deviceId}
-                                                                                            value={device.deviceId}>
-                                                                                    {device.label || `Microphone ${device.deviceId.slice(0, 5)}`}
-                                                                                </SelectItem>
-                                                                            ))}
-                                                                        </SelectContent>
-                                                                    </Select>
+                                                                    <div className="space-y-3">
+                                                                        <Select
+                                                                            value={selectedAudioInput}
+                                                                            onValueChange={(v) => changeMediaDevice("audio", v)}
+                                                                        >
+                                                                            <SelectTrigger className="mt-2">
+                                                                                <SelectValue
+                                                                                    placeholder="Select microphone"/>
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {audioDevices.map((device) => (
+                                                                                    <SelectItem key={device.deviceId}
+                                                                                                value={device.deviceId}>
+                                                                                        {device.label || `Microphone ${device.deviceId.slice(0, 5)}`}
+                                                                                    </SelectItem>
+                                                                                ))}
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                        {/* Volume Visualizer Mock */}
+                                                                        <div className="space-y-1">
+                                                                            <div
+                                                                                className="flex justify-between text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
+                                                                                <span>Input Level</span>
+                                                                                <span>Testing...</span>
+                                                                            </div>
+                                                                            <div
+                                                                                className="h-2 w-full bg-muted rounded-full overflow-hidden flex gap-0.5">
+                                                                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (
+                                                                                    <div key={i}
+                                                                                         className={cn("flex-1 h-full bg-royal-green/20 animate-pulse", i < 5 && "bg-royal-green/60")}
+                                                                                         style={{animationDelay: `${i * 100}ms`}}/>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 ) : (
                                                                     <p className="text-sm text-muted-foreground mt-2">No
                                                                         microphone detected</p>
@@ -1005,37 +1069,41 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                     )}
                 </Card>
 
-                <Card className="border-royal-purple/20 overflow-hidden">
-                    <div
-                        className="p-4 border-b border-royal-purple/20 bg-linear-to-r from-royal-purple/10 to-royal-blue/10">
-                        <h3 className="font-semibold flex items-center gap-2">
-                            <Users className="h-4 w-4"/>
-                            Participants ({participants.length})
-                        </h3>
-                    </div>
-                    <div className="p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-12rem)]">
-                        {participants.map((participant: any) => (
-                            <div key={participant.user_id}
-                                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-card/50">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarFallback
-                                        className="bg-linear-to-br from-royal-purple to-royal-blue text-xs">
-                                        {participant.profiles?.display_name?.[0]?.toUpperCase() || "?"}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">{participant.profiles?.display_name}</p>
-                                    <p className="text-xs text-muted-foreground truncate">@{participant.profiles?.username}</p>
-                                </div>
-                                {participant.user_id === userId && (
-                                    <Badge variant="secondary" className="text-xs bg-royal-purple/20">
-                                        You
-                                    </Badge>
-                                )}
+                    {!isChatRetracted && (
+                        <Card className="border-royal-purple/20 overflow-hidden">
+                            <div
+                                className="p-4 border-b border-royal-purple/20 bg-linear-to-r from-royal-purple/10 to-royal-blue/10">
+                                <h3 className="font-semibold flex items-center gap-2">
+                                    <Users className="h-4 w-4"/>
+                                    Participants ({participants.length})
+                                </h3>
                             </div>
-                        ))}
-                    </div>
-                </Card>
+                            <div className="p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-12rem)]">
+                                {participants.map((participant: any) => (
+                                    <div key={participant.user_id}
+                                         className="flex items-center gap-3 p-2 rounded-lg hover:bg-card/50">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarFallback
+                                                className="bg-linear-to-br from-royal-purple to-royal-blue text-xs">
+                                                {participant.profiles?.display_name?.[0]?.toUpperCase() || "?"}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium truncate">{participant.profiles?.display_name}</p>
+                                            <p className="text-xs text-muted-foreground truncate">
+                                                {participant.profiles?.pronouns ? `(${participant.profiles.pronouns})` : `@${participant.profiles?.username}`}
+                                            </p>
+                                        </div>
+                                        {participant.user_id === userId && (
+                                            <Badge variant="secondary" className="text-xs bg-royal-purple/20">
+                                                You
+                                            </Badge>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+                    )}
             </div>
             )}
         </div>

@@ -17,12 +17,15 @@ export function SettingsClient() {
     const [language, setLanguage] = useState("en");
     const [settings, setSettings] = useState({
         message_privacy: "everyone",
+        message_privacy_scope: "everyone",
         dating_messages_enabled: true,
+        allow_dating_messages: true,
         profile_visibility: "public",
         show_online_status: true,
         show_activity_status: true,
         allow_comments_on_posts: true,
         who_can_comment: "everyone",
+        comment_scope: "everyone",
     });
     const [isSaving, setIsSaving] = useState(false);
     const supabase = createClient();
@@ -43,7 +46,7 @@ export function SettingsClient() {
         const {data} = await supabase
             .from("profiles")
             .select(
-                "message_privacy, dating_messages_enabled, profile_visibility, show_online_status, show_activity_status, allow_comments_on_posts, who_can_comment",
+                "message_privacy, message_privacy_scope, dating_messages_enabled, allow_dating_messages, profile_visibility, show_online_status, show_activity_status, allow_comments_on_posts, who_can_comment, comment_scope",
             )
             .eq("id", user.id)
             .single();
@@ -51,12 +54,15 @@ export function SettingsClient() {
         if (data) {
             setSettings({
                 message_privacy: data.message_privacy || "everyone",
+                message_privacy_scope: data.message_privacy_scope || data.message_privacy || "everyone",
                 dating_messages_enabled: data.dating_messages_enabled ?? true,
+                allow_dating_messages: data.allow_dating_messages ?? data.dating_messages_enabled ?? true,
                 profile_visibility: data.profile_visibility || "public",
                 show_online_status: data.show_online_status ?? true,
                 show_activity_status: data.show_activity_status ?? true,
                 allow_comments_on_posts: data.allow_comments_on_posts ?? true,
                 who_can_comment: data.who_can_comment || "everyone",
+                comment_scope: data.comment_scope || data.who_can_comment || "everyone",
             });
         }
     };
@@ -70,7 +76,15 @@ export function SettingsClient() {
             return;
         }
 
-        const {error} = await supabase.from("profiles").update(settings).eq("id", user.id);
+        const {error} = await supabase.from("profiles").update({
+            message_privacy_scope: settings.message_privacy_scope,
+            allow_dating_messages: settings.allow_dating_messages,
+            profile_visibility: settings.profile_visibility,
+            show_online_status: settings.show_online_status,
+            show_activity_status: settings.show_activity_status,
+            allow_comments_on_posts: settings.allow_comments_on_posts,
+            comment_scope: settings.comment_scope,
+        }).eq("id", user.id);
 
         if (error) {
             alert("Failed to save settings. Please try again.");
@@ -145,8 +159,11 @@ export function SettingsClient() {
                             <div>
                                 <Label className="text-base font-semibold mb-2 block">Who Can Message You</Label>
                                 <Select
-                                    value={settings.message_privacy}
-                                    onValueChange={(value) => setSettings({...settings, message_privacy: value})}
+                                    value={settings.message_privacy_scope}
+                                    onValueChange={(value) => setSettings({
+                                        ...settings,
+                                        message_privacy_scope: value as "everyone" | "friends" | "followers"
+                                    })}
                                 >
                                     <SelectTrigger className="bg-background">
                                         <SelectValue/>
@@ -155,7 +172,6 @@ export function SettingsClient() {
                                         <SelectItem value="everyone">Everyone</SelectItem>
                                         <SelectItem value="followers">Followers Only</SelectItem>
                                         <SelectItem value="friends">Friends Only</SelectItem>
-                                        <SelectItem value="nobody">Nobody</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -167,10 +183,10 @@ export function SettingsClient() {
                                         messages</p>
                                 </div>
                                 <Switch
-                                    checked={settings.dating_messages_enabled}
+                                    checked={settings.allow_dating_messages}
                                     onCheckedChange={(checked) => setSettings({
                                         ...settings,
-                                        dating_messages_enabled: checked
+                                        allow_dating_messages: checked
                                     })}
                                 />
                             </div>

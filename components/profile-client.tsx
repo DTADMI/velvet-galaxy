@@ -92,8 +92,16 @@ export function ProfileClient({
                                             {subscription.tier}
                                         </Badge>
                                     )}
+                                    {profile.account_type === "moral" && (
+                                        <Badge variant="outline" className="border-royal-blue text-royal-blue">
+                                            Organization
+                                        </Badge>
+                                    )}
                                 </div>
                             </div>
+                            {profile.pronouns && (
+                                <p className="text-sm font-medium text-royal-purple">{profile.pronouns}</p>
+                            )}
                             {profile.bio && <p className="text-muted-foreground leading-relaxed">{profile.bio}</p>}
                             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                                 {profile.location && (

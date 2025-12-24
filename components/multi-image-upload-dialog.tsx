@@ -32,6 +32,9 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
     const [tagInput, setTagInput] = useState("");
     const [selectedSoundtrack, setSelectedSoundtrack] = useState<string | null>(null);
     const [uploadedImages, setUploadedImages] = useState<{ file: File; url: string; size: string }[]>([]);
+    const [albums, setAlbums] = useState<any[]>([]);
+    const [selectedAlbumId, setSelectedAlbumId] = useState<string>("none");
+    const [newAlbumTitle, setNewAlbumTitle] = useState("");
     const [isUploading, setIsUploading] = useState(false);
     const [isPosting, setIsPosting] = useState(false);
     const [fileError, setFileError] = useState<string | null>(null);
@@ -152,6 +155,19 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
         setUploadedImages((prev) => prev.filter((_, i) => i !== index));
     };
 
+    const fetchAlbums = useCallback(async () => {
+        const supabase = createClient();
+        const {data: {user}} = await supabase.auth.getUser();
+        if (user) {
+            const {data} = await supabase.from("albums").select("*").eq("user_id", user.id);
+            if (data) setAlbums(data);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (open) fetchAlbums();
+    }, [open, fetchAlbums]);
+
     const addTag = () => {
         if (tagInput.trim() && !tags.includes(tagInput.trim())) {
             setTags([...tags, tagInput.trim()]);
@@ -180,22 +196,56 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                 throw new Error("Not authenticated");
             }
 
+            let albumId = selectedAlbumId === "none" ? null : selectedAlbumId;
+
+            if (selectedAlbumId === "new" && newAlbumTitle.trim()) {
+                const {data: newAlbum, error: albumError} = await supabase
+                    .from("albums")
+                    .insert({
+                        user_id: user.id,
+                        title: newAlbumTitle.trim(),
+                        media_type: "picture",
+                    })
+                    .select()
+                    .single();
+
+                if (albumError) throw albumError;
+                albumId = newAlbum.id;
+            }
+
             const imageUrls = uploadedImages.map((img) => img.url);
 
-            const {error: postError} = await supabase.from("posts").insert({
-                author_id: user.id,
-                content: description.trim() || title.trim(),
-                media_type: "picture",
-                images: imageUrls,
-                image_url: imageUrls[0],
-                content_rating: contentRating,
-                is_promotional: isPromotional,
-                audio_url: selectedSoundtrack,
-            });
+            const {data: post, error: postError} = await supabase
+                .from("posts")
+                .insert({
+                    author_id: user.id,
+                    content: description.trim() || title.trim(),
+                    media_type: "picture",
+                    images: imageUrls,
+                    image_url: imageUrls[0],
+                    content_rating: contentRating,
+                    is_promotional: isPromotional,
+                    audio_url: selectedSoundtrack,
+                })
+                .select()
+                .single();
 
             if (postError) {
                 throw postError;
             }
+
+            // Link these media items to individual tracking and albums
+            const mediaInserts = uploadedImages.map((img) => ({
+                user_id: user.id,
+                post_id: post.id,
+                album_id: albumId,
+                url: img.url,
+                type: "picture",
+                title: title,
+            }));
+
+            const {error: mediaError} = await supabase.from("media").insert(mediaInserts);
+            if (mediaError) throw mediaError;
 
             // Reset form
             setTitle("");
@@ -206,6 +256,8 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
             setContentRating("sfw");
             setIsPromotional(false);
             setSelectedSoundtrack(null);
+            setSelectedAlbumId("none");
+            setNewAlbumTitle("");
             onOpenChange(false);
             toast.success("Post created successfully!");
             onPostCreated();
@@ -319,6 +371,33 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                             placeholder="Describe your images..."
                             minHeight="100px"
                         />
+                    </div>
+
+                    {/* Albums */}
+                    <div className="space-y-2">
+                        <Label>Add to Album</Label>
+                        <Select value={selectedAlbumId} onValueChange={setSelectedAlbumId}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select an album"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">No Album</SelectItem>
+                                <SelectItem value="new">+ Create New Album</SelectItem>
+                                {albums.map((album) => (
+                                    <SelectItem key={album.id} value={album.id}>
+                                        {album.title}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        {selectedAlbumId === "new" && (
+                            <Input
+                                placeholder="New album title..."
+                                value={newAlbumTitle}
+                                onChange={(e) => setNewAlbumTitle(e.target.value)}
+                                className="mt-2"
+                            />
+                        )}
                     </div>
 
                     {/* Soundtrack Selection */}

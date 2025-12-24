@@ -143,6 +143,7 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
 
     const loadMorePosts = async () => {
         if (isLoadingMore || !hasMore || posts.length >= MAX_POSTS) {
+            if (posts.length >= MAX_POSTS) setHasMore(false);
             return;
         }
 

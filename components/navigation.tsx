@@ -41,6 +41,20 @@ export function Navigation() {
     const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    const [userProfile, setUserProfile] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const supabase = createClient();
+            const {data: {user}} = await supabase.auth.getUser();
+            if (user) {
+                const {data} = await supabase.from("profiles").select("*").eq("id", user.id).single();
+                setUserProfile(data);
+            }
+        };
+        fetchProfile();
+    }, []);
+
     const handleSignOut = async () => {
         const supabase = createClient();
         await supabase.auth.signOut();
@@ -49,7 +63,7 @@ export function Navigation() {
 
     const navItems = [
         {href: "/feed", icon: Home, label: "Feed", color: "royal-purple"},
-        {href: "/discover", icon: Compass, label: "Discover", color: "royal-pink"},
+        {href: "/discovery", icon: Compass, label: "Discovery", color: "royal-pink"},
         {href: "/messages", icon: MessageSquare, label: "Messages", color: "royal-blue"},
         {href: "/marketplace", icon: ShoppingBag, label: "Marketplace", color: "royal-green"},
     ];
@@ -85,6 +99,8 @@ export function Navigation() {
                 return "bg-royal-orange text-white hover:bg-royal-orange/90";
             case "royal-auburn":
                 return "bg-royal-auburn text-white hover:bg-royal-auburn/90";
+            case "royal-pink":
+                return "bg-pink-600 text-white hover:bg-pink-700";
             default:
                 return "bg-royal-purple text-white hover:bg-royal-purple/90";
         }
@@ -168,32 +184,67 @@ export function Navigation() {
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="gap-1">
-                                <User className="h-4 w-4"/>
-                                <ChevronDown className="h-3 w-3"/>
+                            <Button variant="ghost" size="sm"
+                                    className="gap-1 p-0 h-10 w-10 rounded-full border-2 border-royal-purple/20">
+                                <Avatar className="h-full w-full">
+                                    <AvatarImage src={userProfile?.avatar_url || undefined}/>
+                                    <AvatarFallback
+                                        className="bg-gradient-to-br from-royal-auburn to-royal-purple text-white">
+                                        {userProfile?.display_name?.[0] || "?"}
+                                    </AvatarFallback>
+                                </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuContent align="end" className="w-56 bg-card border-royal-purple/20 shadow-xl">
+                            <div className="px-4 py-3 border-b border-royal-purple/10">
+                                <p className="text-sm font-bold text-gradient truncate">{userProfile?.display_name || userProfile?.username}</p>
+                                <p className="text-xs text-muted-foreground truncate">@{userProfile?.username}</p>
+                            </div>
                             <DropdownMenuItem asChild>
-                                <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
-                                    <User className="h-4 w-4"/>
+                                <Link href="/profile" className="flex items-center gap-2 cursor-pointer py-2">
+                                    <User className="h-4 w-4 text-royal-blue"/>
                                     My Profile
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href="/settings/messages" className="flex items-center gap-2 cursor-pointer">
-                                    <Settings className="h-4 w-4"/>
-                                    Settings
+                                <Link href="/friends" className="flex items-center gap-2 cursor-pointer py-2">
+                                    <Users className="h-4 w-4 text-royal-green"/>
+                                    Friends & Followers
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href="/help" className="flex items-center gap-2 cursor-pointer">
-                                    <HelpCircle className="h-4 w-4"/>
-                                    Help
+                                <Link href="/bookmarks" className="flex items-center gap-2 cursor-pointer py-2">
+                                    <Bookmark className="h-4 w-4 text-royal-orange"/>
+                                    Bookmarks
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator/>
-                            <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
+                            <DropdownMenuItem asChild>
+                                <Link href="/events/my-events" className="flex items-center gap-2 cursor-pointer py-2">
+                                    <Calendar className="h-4 w-4 text-royal-auburn"/>
+                                    Upcoming Events
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-royal-purple/10"/>
+                            <DropdownMenuItem asChild>
+                                <Link href="/help" className="flex items-center gap-2 cursor-pointer py-2">
+                                    <HelpCircle className="h-4 w-4"/>
+                                    FAQ & Help
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings" className="flex items-center gap-2 cursor-pointer py-2">
+                                    <Settings className="h-4 w-4"/>
+                                    Parameters
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-royal-purple/10"/>
+                            <DropdownMenuItem
+                                className="flex items-center gap-2 cursor-pointer py-2 text-royal-purple font-medium">
+                                <UserPlus className="h-4 w-4"/>
+                                Add/Switch Account
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-royal-purple/10"/>
+                            <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer py-2">
                                 <LogOut className="h-4 w-4 mr-2"/>
                                 Sign Out
                             </DropdownMenuItem>

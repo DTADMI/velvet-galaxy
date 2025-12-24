@@ -65,12 +65,54 @@ export function NewConversationDialog({
         const searchUsers = async () => {
             const {data} = await supabase
                 .from("profiles")
-                .select("id, username, display_name, avatar_url")
+                .select("id, username, display_name, avatar_url, message_privacy_scope, allow_dating_messages")
                 .or(`username.ilike.%${searchQuery}%,display_name.ilike.%${searchQuery}%`)
                 .neq("id", currentUserId)
-                .limit(10);
+                .limit(20);
 
-            setSearchResults(data || []);
+            if (!data) {
+                setSearchResults([]);
+                return;
+            }
+
+            // Filter results based on privacy settings and intended message type
+            const filtered = await Promise.all(data.map(async (profile) => {
+                // Dating restriction check
+                if (messageType === "dating" && profile.allow_dating_messages === false) {
+                    return null;
+                }
+
+                // Privacy scope check (Friends/Followers)
+                if (profile.message_privacy_scope === "friends") {
+                    const {data: friend} = await supabase
+                        .from("friendships")
+                        .select("id")
+                        .or(`and(user_id.eq.${currentUserId},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${currentUserId})`)
+                        .eq("status", "accepted")
+                        .maybeSingle();
+                    if (!friend) return null;
+                } else if (profile.message_privacy_scope === "followers") {
+                    const {data: follow} = await supabase
+                        .from("follows")
+                        .select("id")
+                        .eq("follower_id", currentUserId)
+                        .eq("following_id", profile.id)
+                        .maybeSingle();
+                    if (!follow) {
+                        const {data: friend} = await supabase
+                            .from("friendships")
+                            .select("id")
+                            .or(`and(user_id.eq.${currentUserId},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${currentUserId})`)
+                            .eq("status", "accepted")
+                            .maybeSingle();
+                        if (!friend) return null;
+                    }
+                }
+
+                return profile;
+            }));
+
+            setSearchResults(filtered.filter(p => p !== null));
         };
 
         const debounce = setTimeout(searchUsers, 300);

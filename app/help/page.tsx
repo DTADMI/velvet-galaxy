@@ -17,6 +17,17 @@ export default function HelpPage() {
                         <HelpCircle className="h-16 w-16 mx-auto mb-4 text-royal-purple"/>
                         <h1 className="text-3xl font-bold text-gradient mb-2">Help & Support</h1>
                         <p className="text-muted-foreground">We're here to help you with any questions or issues</p>
+                        <div className="flex justify-center gap-4 mt-6">
+                            <Button asChild variant="outline" className="border-royal-purple/20">
+                                <Link href="/policies/terms">Terms of Service</Link>
+                            </Button>
+                            <Button asChild variant="outline" className="border-royal-purple/20">
+                                <Link href="/policies/privacy">Privacy Policy</Link>
+                            </Button>
+                            <Button asChild variant="outline" className="border-royal-purple/20">
+                                <Link href="/about">About Us</Link>
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="grid gap-6 mb-8">

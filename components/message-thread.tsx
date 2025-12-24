@@ -220,6 +220,23 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
         setNewMessage(value);
     };
 
+    const reportMessage = async (messageId: string) => {
+        const reason = prompt("Why are you reporting this message?");
+        if (!reason) return;
+
+        const supabase = createClient();
+        const {error} = await supabase.from("reports").insert({
+            reporter_id: currentUserId,
+            target_type: "message",
+            target_id: messageId,
+            reason: reason,
+        });
+
+        if (!error) {
+            alert("Message reported. Thank you.");
+        }
+    };
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -247,6 +264,12 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                                     <span className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(message.created_at), {addSuffix: true})}
                   </span>
+                                    {!isOwn && (
+                                        <button onClick={() => reportMessage(message.id)}
+                                                className="text-[10px] text-muted-foreground hover:text-destructive">
+                                            Report
+                                        </button>
+                                    )}
                                 </div>
                                 <Card
                                     className={cn("border-royal-blue/20 overflow-hidden", isOwn && "bg-royal-auburn text-white border-royal-auburn")}>

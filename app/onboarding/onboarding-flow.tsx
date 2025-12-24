@@ -23,7 +23,9 @@ interface OnboardingFlowProps {
 
 export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
     const [step, setStep] = useState(1);
+    const [accountType, setAccountType] = useState<"physical" | "moral">("physical");
     const [displayName, setDisplayName] = useState(existingProfile?.display_name || "");
+    const [pronouns, setPronouns] = useState(existingProfile?.pronouns || "");
     const [bio, setBio] = useState(existingProfile?.bio || "");
     const [location, setLocation] = useState(existingProfile?.location || "");
     const [avatarUrl, setAvatarUrl] = useState(existingProfile?.avatar_url || "");
@@ -33,7 +35,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
     const router = useRouter();
     const supabase = createBrowserClient();
 
-    const totalSteps = 4;
+    const totalSteps = 5;
     const progress = (step / totalSteps) * 100;
 
     useEffect(() => {
@@ -68,7 +70,9 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
         const {error: profileError} = await supabase
             .from("profiles")
             .update({
+                account_type: accountType,
                 display_name: displayName,
+                pronouns: pronouns,
                 bio: bio,
                 location: location,
                 avatar_url: avatarUrl,
@@ -140,31 +144,78 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                 <Card className="border-royal-purple/20">
                     <CardHeader>
                         <CardTitle>
-                            {step === 1 && "Basic Information"}
-                            {step === 2 && "Profile Picture"}
-                            {step === 3 && "About You"}
-                            {step === 4 && "Interests"}
+                            {step === 1 && "Account Type"}
+                            {step === 2 && "Basic Information"}
+                            {step === 3 && "Profile Picture"}
+                            {step === 4 && "About You"}
+                            {step === 5 && "Interests"}
                         </CardTitle>
                         <CardDescription>
-                            {step === 1 && "Tell us your name and where you're from"}
-                            {step === 2 && "Add a profile picture to help others recognize you"}
-                            {step === 3 && "Share a bit about yourself"}
-                            {step === 4 && "Select at least 5 tags to personalize your feed"}
+                            {step === 1 && "Are you joining as an individual or an organization?"}
+                            {step === 2 && "Tell us your name and where you're from"}
+                            {step === 3 && "Add a profile picture to help others recognize you"}
+                            {step === 4 && "Share a bit about yourself"}
+                            {step === 5 && "Select at least 5 tags to personalize your feed"}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {step === 1 && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <Button
+                                    variant={accountType === "physical" ? "default" : "outline"}
+                                    onClick={() => setAccountType("physical")}
+                                    className={cn(
+                                        "h-auto py-6 flex-col gap-2",
+                                        accountType === "physical" && "bg-royal-blue hover:bg-royal-blue/90"
+                                    )}
+                                >
+                                    <Users className="h-8 w-8"/>
+                                    <div className="text-left">
+                                        <div className="font-bold">Physical Person</div>
+                                        <div className="text-xs opacity-80">Individual account for personal use</div>
+                                    </div>
+                                </Button>
+                                <Button
+                                    variant={accountType === "moral" ? "default" : "outline"}
+                                    onClick={() => setAccountType("moral")}
+                                    className={cn(
+                                        "h-auto py-6 flex-col gap-2",
+                                        accountType === "moral" && "bg-royal-purple hover:bg-royal-purple/90"
+                                    )}
+                                >
+                                    <Shield className="h-8 w-8"/>
+                                    <div className="text-left">
+                                        <div className="font-bold">Moral Person</div>
+                                        <div className="text-xs opacity-80">Organization, House, or Company</div>
+                                    </div>
+                                </Button>
+                            </div>
+                        )}
+
+                        {step === 2 && (
                             <>
                                 <div className="space-y-2">
-                                    <Label htmlFor="displayName">Display Name *</Label>
+                                    <Label
+                                        htmlFor="displayName">{accountType === "physical" ? "Display Name *" : "Organization Name *"}</Label>
                                     <Input
                                         id="displayName"
-                                        placeholder="How should we call you?"
+                                        placeholder={accountType === "physical" ? "How should we call you?" : "Name of your organization"}
                                         value={displayName}
                                         onChange={(e) => setDisplayName(e.target.value)}
                                         required
                                     />
                                 </div>
+                                {accountType === "physical" && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="pronouns">Pronouns</Label>
+                                        <Input
+                                            id="pronouns"
+                                            placeholder="e.g. they/them, she/her, he/him"
+                                            value={pronouns}
+                                            onChange={(e) => setPronouns(e.target.value)}
+                                        />
+                                    </div>
+                                )}
                                 <div className="space-y-2">
                                     <Label htmlFor="location">Location</Label>
                                     <LocationAutocomplete
@@ -177,7 +228,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                             </>
                         )}
 
-                        {step === 2 && (
+                        {step === 3 && (
                             <div className="flex flex-col items-center space-y-4">
                                 <Avatar className="h-32 w-32 border-4 border-royal-purple/20">
                                     <AvatarImage src={avatarUrl || undefined}/>
@@ -207,12 +258,12 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                             </div>
                         )}
 
-                        {step === 3 && (
+                        {step === 4 && (
                             <div className="space-y-2">
                                 <Label htmlFor="bio">Bio</Label>
                                 <Textarea
                                     id="bio"
-                                    placeholder="Tell us about yourself, your interests, what you're looking for..."
+                                    placeholder={accountType === "physical" ? "Tell us about yourself..." : "Tell us about your organization..."}
                                     rows={6}
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
@@ -221,7 +272,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                             </div>
                         )}
 
-                        {step === 4 && (
+                        {step === 5 && (
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                     {interestTags.map((tag) => (
@@ -251,7 +302,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                             {step < totalSteps ? (
                                 <Button
                                     onClick={handleNext}
-                                    disabled={(step === 1 && !displayName) || (step === 4 && selectedTags.length < 5)}
+                                    disabled={(step === 2 && !displayName) || (step === 5 && selectedTags.length < 5)}
                                     className="bg-gradient-to-r from-royal-blue to-royal-purple"
                                 >
                                     Next

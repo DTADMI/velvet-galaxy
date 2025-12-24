@@ -78,12 +78,18 @@ export function MediaViewer({
     const handlePrevious = () => {
         if (allMedia && onNavigate && currentIndex > 0) {
             onNavigate(currentIndex - 1);
+        } else if (onNavigate && currentIndex === 0) {
+            // Close or trigger callback when reaching beginning
+            onOpenChange(false);
         }
     };
 
     const handleNext = () => {
         if (allMedia && onNavigate && currentIndex < allMedia.length - 1) {
             onNavigate(currentIndex + 1);
+        } else if (allMedia && onNavigate && currentIndex === allMedia.length - 1) {
+            // Close or trigger callback when reaching end
+            onOpenChange(false);
         }
     };
 

@@ -58,6 +58,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
     const [mediaUrl, setMediaUrl] = useState("");
     const [contentRating, setContentRating] = useState<"sfw" | "nsfw">("sfw");
     const [visibility, setVisibility] = useState<"everyone" | "friends_only">("everyone");
+    const [commentScope, setCommentScope] = useState<"everyone" | "friends" | "followers">("everyone");
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -65,6 +66,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isPromotional, setIsPromotional] = useState(false);
     const [fileError, setFileError] = useState<string | null>(null);
+    const [isScopeDialogOpen, setIsScopeDialogOpen] = useState(false);
     const [selectedSoundtrack, setSelectedSoundtrack] = useState<string | null>(null);
     const [multiImageDialogOpen, setMultiImageDialogOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,6 +117,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                 content_rating: contentRating,
                 is_promotional: isPromotional,
                 visibility: visibility,
+                comment_scope: commentScope,
                 image_url: mediaUrl || null,
                 media_url: mediaUrl || null,
                 audio_url: selectedSoundtrack || null,
@@ -195,6 +198,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                 image_url: mediaType === "picture" ? mediaUrl.trim() : null,
                 content_rating: contentRating,
                 visibility: visibility,
+                comment_scope: commentScope,
                 audio_url: mediaType === "picture" ? selectedSoundtrack : null,
             });
 
@@ -515,6 +519,64 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                         className="hidden"
                                         onChange={handleStatusFileInputChange}
                                     />
+
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className={cn(
+                                            "text-muted-foreground hover:bg-royal-purple/10",
+                                            isScopeDialogOpen && "text-royal-purple bg-royal-purple/10"
+                                        )}
+                                        onClick={() => setIsScopeDialogOpen(true)}
+                                    >
+                                        <Lock className="h-4 w-4 mr-2"/>
+                                        {commentScope === "everyone" ? "Everyone" : commentScope === "friends" ? "Friends" : "Followers"} can
+                                        comment
+                                    </Button>
+
+                                    <Dialog open={isScopeDialogOpen} onOpenChange={setIsScopeDialogOpen}>
+                                        <DialogContent className="max-w-sm">
+                                            <DialogHeader>
+                                                <DialogTitle>Who can comment?</DialogTitle>
+                                            </DialogHeader>
+                                            <div className="space-y-2 mt-4">
+                                                <Button
+                                                    variant={commentScope === "everyone" ? "default" : "outline"}
+                                                    className="w-full justify-start"
+                                                    onClick={() => {
+                                                        setCommentScope("everyone");
+                                                        setIsScopeDialogOpen(false);
+                                                    }}
+                                                >
+                                                    <Globe className="h-4 w-4 mr-2"/>
+                                                    Everyone
+                                                </Button>
+                                                <Button
+                                                    variant={commentScope === "friends" ? "default" : "outline"}
+                                                    className="w-full justify-start"
+                                                    onClick={() => {
+                                                        setCommentScope("friends");
+                                                        setIsScopeDialogOpen(false);
+                                                    }}
+                                                >
+                                                    <Users className="h-4 w-4 mr-2"/>
+                                                    Friends Only
+                                                </Button>
+                                                <Button
+                                                    variant={commentScope === "followers" ? "default" : "outline"}
+                                                    className="w-full justify-start"
+                                                    onClick={() => {
+                                                        setCommentScope("followers");
+                                                        setIsScopeDialogOpen(false);
+                                                    }}
+                                                >
+                                                    <Megaphone className="h-4 w-4 mr-2"/>
+                                                    Followers Only
+                                                </Button>
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
 
                                     <Dialog open={isPollDialogOpen} onOpenChange={setIsPollDialogOpen}>
                                         <DialogTrigger asChild>
