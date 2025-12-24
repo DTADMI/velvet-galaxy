@@ -73,6 +73,11 @@ recommended) or Docker deploy. Strict linting and type safety.
     - [ ] Message archiving/unarchiving.
     - [ ] Rich text formatting and emoji support.
     - [ ] Message filtering (Unread, Friends, etc.).
+   - [ ] Ephemeral media in private messages:
+       - [ ] Send temporary pictures and videos.
+       - [ ] Implement spoiler functionality (blur/overlay) for sensitive media.
+       - [ ] Support for view-once or time-limited media visibility.
+       - [ ] UI indicators for temporary/spoiler media status.
    - [ ] Marco Polo-style video messaging:
        - [ ] Record and send short video messages
        - [ ] View videos in chat interface
@@ -133,8 +138,24 @@ recommended) or Docker deploy. Strict linting and type safety.
     - [ ] Advanced analytics.
     - [ ] Additional third-party integrations.
 
+3. **New Verticals**:
+    - [ ] **Velvet Reviews**:
+        - [ ] Toy reviews
+        - [ ] Gear guides
+        - [ ] Educational content
+    - [ ] **Velvet Market**:
+        - [ ] Merchandise store
+        - [ ] Digital products
+        - [ ] Affiliate products
+    - [ ] **Velvet Games**:
+        - [ ] Point & click adventures
+        - [ ] Interactive stories
+        - [ ] Educational games
+
 ## Changelog (recent)
 
+- Updated README with the actual website structure (Social, Discovery, Communication, Community, Market).
+- Added ephemeral media and spoiler functionality to messaging system plan.
 - Added comprehensive action plan with detailed task breakdown.
 - Updated media management and 3D visualization requirements.
 - Enhanced security and accessibility considerations.

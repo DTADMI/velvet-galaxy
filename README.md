@@ -38,14 +38,54 @@ Velvet Galaxy aims to:
 Key features present in the codebase include:
 
 - Auth (Supabase: email/password)
-- Profiles and relationships (follow, friends)
-- Posts, comments, likes
-- Notifications feed (with pagination)
+- Profiles and relationships (follow, friends, relationship management)
+- Posts, comments, likes, and co-authorship support
+- Notifications feed (with pagination and real-time updates)
 - Activity feed (live updates via Supabase real‑time)
-- Search UI
+- 3D/2D Network Visualization (galaxy-themed connection graph)
+- Real-time Messaging: DMs, chat rooms (WebRTC), ephemeral media (view-once/spoilers)
+- Communities: Groups, events (with RSVP), and bookmarks
+- Marketplace: Stripe integration, listings, and subscriptions
+- Media Management: Uploads, galleries, viewer, live capture, and multi-image support
+- Search UI and Discovery
 - Theming (dark/light/system)
-- Client‑side caching (IndexedDB) and a Service Worker for better UX
-- Stripe scaffold (client and secret keys; can be extended)
+- Performance: Client‑side caching (IndexedDB) and a Service Worker for offline support/UX
+- Stripe scaffold (client and secret keys; can be extended for payments and subscriptions)
+
+### Website structure
+
+```text
+Velvet Galaxy
+├── Feed & Social
+│   ├── Main Feed
+│   ├── Profiles & Relationships
+│   ├── Post Details & Editing
+│   └── Activity Feed
+├── Discovery & Network
+│   ├── Galaxy Network (3D/2D)
+│   ├── Search & Results
+│   └── Discovery Hub
+├── Communication
+│   ├── Direct Messages
+│   ├── Chat Rooms (WebRTC)
+│   └── Notifications
+├── Community
+│   ├── Groups
+│   ├── Events (RSVP)
+│   └── Bookmarks
+├── Market & Economy
+│   ├── Marketplace Listings
+│   └── Subscriptions (Stripe)
+├── Account & Settings
+│   ├── Auth (Login/Sign-up)
+│   ├── Onboarding
+│   ├── Settings & Verification
+│   └── Help & About
+└── Future Verticals (Planned)
+    ├── Velvet Reviews (Toy reviews, Gear guides)
+    ├── Velvet Market (Merchandise, Digital products)
+    └── Velvet Games (Adventures, Interactive stories)
+```
 
 ---
 
@@ -55,9 +95,18 @@ This is a Next.js App Router project. Major directories at project root:
 
 - `app/` — Next.js route handlers and pages (App Router). Client/server components live here. Examples:
     - `app/layout.tsx` — global layout, metadata, providers, service worker registration.
-    - `app/activity/` — activity feed page/components.
+  - `app/activity/` — activity feed page.
     - `app/notifications/` — notifications UI and client logic.
-    - Other feature routes: `app/groups`, `app/events`, `app/media`, `app/posts`, `app/profile`, etc.
+  - `app/messages/` — direct messaging and conversation threads.
+  - `app/chat-rooms/` — real-time chat rooms with WebRTC support.
+  - `app/network/` — 3D and 2D galaxy-themed network visualization.
+  - `app/marketplace/` — commerce listings and Stripe integration.
+  - `app/groups/` and `app/events/` — community features.
+  - `app/profile/[userId]` and `app/gallery/[userId]` — user-centric views.
+  - `app/posts/` and `app/post/` — post feed, details, and creation/editing.
+  - `app/search/` and `app/discover/` — content and user discovery.
+  - `app/auth/` — login, sign-up, and session management.
+  - `app/api/` — backend route handlers (e.g., Stripe webhooks, config).
 - `components/` — Reusable UI components, including shadcn/radix‑based primitives under `components/ui/` and
   higher‑level feature components (e.g., `search-bar`, `message-thread`, `media-viewer`).
 - `hooks/` — Custom React hooks.

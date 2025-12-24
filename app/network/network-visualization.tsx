@@ -602,7 +602,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
         };
 
         animate();
-    }, [nodes, zoom, relationshipFilters, stars, autoRotate, cameraOffset.x, cameraOffset.y, hiddenNodes, searchQuery, showGroups, userId, selectedNode.id, highlightedNodes, project3DTo2D]);
+    }, [nodes, zoom, relationshipFilters, stars, autoRotate, cameraOffset.x, cameraOffset.y, hiddenNodes, searchQuery, showGroups, userId, selectedNode?.id, highlightedNodes, project3DTo2D]);
 
     const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (isPanning || isDraggingNode) {
