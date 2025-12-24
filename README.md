@@ -393,20 +393,67 @@ A collection of adult-themed games developed specifically for the platform.
 
 ---
 
-### Website Improvement Suggestions
+### Website Improvement Suggestions & Cost Analysis
 
-To make Velvet Galaxy the ultimate platform for community and lifestyle:
+To make Velvet Galaxy the ultimate platform for community and lifestyle, the following improvements are suggested. The
+table below compares them based on implementation effort, operational cost, and overall cost‑effectiveness.
+
+#### Comparison Table
+
+| Suggestion                | Implementation Effort | Operational Cost          | Cost‑Effectiveness | Recommendation                                                       |
+|:--------------------------|:----------------------|:--------------------------|:-------------------|:---------------------------------------------------------------------|
+| **AI-Powered Discovery**  | High (ML Models)      | Variable (API/GPU)        | Medium             | Start with heuristic-based rules (Low cost) before moving to LLM/ML. |
+| **Interactive Workshops** | Medium (WebRTC/HLS)   | Variable (Bandwidth)      | High               | Use daily.co or Mux for scaling; high engagement value.              |
+| **Advanced Privacy**      | Medium (Logic/UI)     | None                      | High               | High value for user trust with zero ongoing costs.                   |
+| **In-App VR Support**     | High (Three.js/WebXR) | None                      | Low                | Niche audience; implement only after core features are polished.     |
+| **Moderation Tools**      | Low/Medium            | None                      | High               | Essential for scaling; low operational overhead.                     |
+| **PWA Enhancements**      | Low                   | None                      | High               | Improves mobile retention with minimal effort.                       |
+| **Premium TTS**           | Medium                | Variable (If using Cloud) | Medium             | Use **Web Speech API** first for a $0 operational cost solution.     |
+
+---
+
+#### Detailed Suggestions
 
 1. **AI-Powered Discovery**: Implement a recommendation engine that suggests groups, events, and reviews based on user
    interests.
+    - **Cost-Effective Path**: Start by using PostgreSQL similarity searches or tag-based intersections (already
+      supported in schema) rather than expensive external LLM embeddings.
+
 2. **Interactive Workshops**: Add a live-streaming component for educational sessions in the "Velvet Reviews" or "
    Community" sections.
+    - **Cost-Effective Path**: Leverage peer-to-peer WebRTC for small groups to keep server costs at zero.
+
 3. **Advanced Privacy Controls**: Fine-grained visibility settings for profile attributes and activity feed items.
+
 4. **In-App Virtual Reality (VR)**: Support for VR headsets in the 3D Galaxy Network and 3D Toy Viewer.
+
 5. **Community Moderation Tools**: Empower group owners with advanced logging, automated filters, and role-based
    permissions.
+
 6. **Progressive Web App (PWA) Enhancements**: Improve offline capabilities and native-like push notifications for a
    seamless mobile experience.
+
+7. **Premium Text-to-Speech (TTS) for Messages**: A subscription‑based feature allowing users to listen to their
+   messages hands‑free.
+    - **Cost Comparison**:
+        - **Option A (Web Speech API)**: **$0/mo**. Built-in browser support. Good for basic use, but voices vary by OS.
+        - **Option B (OpenAI/Cloud TTS)**: **Variable/mo** ($0.015 per 1k characters). High-quality, consistent voices.
+    - **Recommendation**: Implement **Option A** as the baseline to maximize profit margins on subscriptions, and offer
+      **Option B** as a "Ultra-Premium" tier.
+    - **Requirements**:
+        - Ability to read a specific message or an entire inbox sequentially.
+        - Playback controls: Play/Pause, skip sentence, go back, and "Auto‑read next message" toggle.
+        - Integration with the subscription model (Stripe) to gate access.
+    - **Recommended Stack**:
+        - **Engine**: Web Speech API (browser‑native) for low latency, or **OpenAI TTS / Amazon Polly** for
+          high‑quality, natural voices.
+        - **State Management**: A dedicated `useTTS` hook to manage the message queue and playback status.
+        - **UI**: A floating player component integrated into the messaging interface.
+    - **Implementation Steps**:
+        1. Verify user subscription status via `stripe.ts` server actions.
+        2. Implement a queue manager that fetches message content (handling rich text to plain text conversion).
+        3. Integrate the TTS engine (passing text to `speechSynthesis` or a cloud API).
+        4. Build the `TTSPlayer` component with controls for navigation and speed.
 
 ---
 

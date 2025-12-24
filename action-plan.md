@@ -186,6 +186,12 @@ recommended) or Docker deploy. Strict linting and type safety.
   - [ ] Full accessibility compliance certification.
   - [ ] Load testing for real-time messaging.
 - 🗂️ **Platform Extensions**:
+  - [ ] **Paid Text-to-Speech (TTS) for messages** (Premium - Cost-effective approach):
+    - [ ] Implement queue manager with fallback to free **Web Speech API** for $0 operational cost.
+    - [ ] Evaluate premium cloud TTS (OpenAI/Polly) for ultra-premium tiers.
+    - [ ] Reading individual messages or whole inbox.
+    - [ ] Player controls (skip, back, auto-play next).
+    - [ ] Subscription gating logic.
   - [ ] "Already Connected" session management placeholder.
   - [ ] Full Subscription Model implementation.
   - [ ] Extended VR support and live capture.
