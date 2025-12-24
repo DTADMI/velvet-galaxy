@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import type React from "react";
 import {useState} from "react";
 
-import {LinkNetLogo} from "@/components/linknet-logo";
+import {VelvetLogo} from "@/components/velvet-logo";
 import {LocationAutocomplete} from "@/components/location-autocomplete";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Button} from "@/components/ui/button";
@@ -96,7 +96,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
             <div className="w-full max-w-2xl">
                 <div className="mb-8 text-center">
                     <div className="flex justify-center mb-4">
-                        <LinkNetLogo size="lg"/>
+                        <VelvetLogo size="lg"/>
                     </div>
                     <h1 className="text-3xl font-bold text-gradient mb-2">Welcome to Velvet Galaxy</h1>
                     <p className="text-muted-foreground">Let's set up your profile</p>

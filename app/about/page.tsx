@@ -1,6 +1,6 @@
 import {Heart, Shield, Users, Zap} from "lucide-react";
 
-import {LinkNetLogo} from "@/components/linknet-logo";
+import {VelvetLogo} from "@/components/velvet-logo";
 import {Navigation} from "@/components/navigation";
 import {Card, CardContent} from "@/components/ui/card";
 
@@ -12,7 +12,7 @@ export default function AboutPage() {
                 <div className="container mx-auto px-4 max-w-4xl">
                     <div className="mb-12 text-center">
                         <div className="flex justify-center mb-6">
-                            <LinkNetLogo size="xl"/>
+                            <VelvetLogo size="xl"/>
                         </div>
                         <h1 className="text-4xl font-bold text-gradient mb-4">About Velvet Galaxy</h1>
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">

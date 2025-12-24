@@ -21,7 +21,7 @@ import {usePathname, useRouter} from "next/navigation";
 import {useState} from "react";
 
 import {LanguageSelector} from "@/components/language-selector";
-import {LinkNetLogo} from "@/components/linknet-logo";
+import {VelvetLogo} from "@/components/velvet-logo";
 import {NotificationsDropdown} from "@/components/notifications-dropdown";
 import {QuickUploadDropdown} from "@/components/quick-upload-dropdown";
 import {SimpleSearch} from "@/components/simple-search";
@@ -95,7 +95,7 @@ export function Navigation() {
             className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-gradient-to-r from-card/95 via-card/98 to-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <Link href="/feed" className="flex items-center gap-2">
-                    <LinkNetLogo size="sm" showText/>
+                    <VelvetLogo size="sm" showText/>
                 </Link>
 
                 <div className="hidden md:flex items-center gap-1">

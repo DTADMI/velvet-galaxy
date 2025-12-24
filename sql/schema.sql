@@ -69,6 +69,11 @@ create table if not exists public.media
     id
 )
   on delete set null,
+    message_id uuid references public.messages
+(
+    id
+)
+  on delete cascade,
     url text not null,
     type text check
 (
@@ -261,6 +266,9 @@ create table if not exists public.messages
 )
   on delete cascade,
     content text not null,
+    is_ephemeral boolean not null default false,
+    is_spoiler boolean not null default false,
+    viewed_at timestamptz,
     created_at timestamptz not null default now
 (
 )

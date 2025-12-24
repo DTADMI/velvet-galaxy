@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
 
-import {LinkNetLogo} from "@/components/linknet-logo";
+import {VelvetLogo} from "@/components/velvet-logo";
 import {Button} from "@/components/ui/button";
 import {createClient} from "@/lib/supabase/server";
 
@@ -21,7 +21,7 @@ export default async function HomePage() {
             <div className="max-w-2xl w-full text-center space-y-8">
                 <div className="space-y-4">
                     <div className="flex justify-center">
-                        <LinkNetLogo size="xl"/>
+                        <VelvetLogo size="xl"/>
                     </div>
                     <h1 className="text-5xl font-bold bg-gradient-to-r from-royal-auburn via-royal-purple to-royal-blue bg-clip-text text-transparent">
                         Welcome to Velvet Galaxy

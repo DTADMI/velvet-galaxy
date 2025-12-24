@@ -9,6 +9,9 @@ export interface Message {
     content: string;
     sender_id: string;
     conversation_id: string;
+    is_ephemeral?: boolean;
+    is_spoiler?: boolean;
+    viewed_at?: string | null;
     created_at: string;
     updated_at: string;
     sender?: UserProfile;

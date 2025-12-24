@@ -16,6 +16,7 @@ export interface MediaItem {
     description: string | null;
     media_type: MediaType;
     media_url: string | null;
+    message_id?: string | null; // UUID, optional
     content: string | null;  // For text/writing content
     thumbnail_url: string | null;
     created_at: string;  // ISO date string

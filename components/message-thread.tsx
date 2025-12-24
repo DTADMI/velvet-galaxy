@@ -2,7 +2,7 @@
 
 import type {RealtimePostgresInsertPayload} from '@supabase/supabase-js';
 import {formatDistanceToNow} from "date-fns";
-import {Send} from "lucide-react";
+import {EyeOff, Paperclip, Send, Timer} from "lucide-react";
 import type React from "react";
 import {useEffect, useRef, useState} from "react";
 
@@ -12,12 +12,17 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import {MediaSpoiler} from "@/components/media-spoiler";
+import {EphemeralMedia} from "@/components/ephemeral-media";
 
 interface Message {
     id: string
     content: string
     created_at: string
     sender_id: string
+    is_ephemeral?: boolean
+    is_spoiler?: boolean
+    viewed_at?: string | null
     profiles: {
         username: string
         display_name: string | null
@@ -33,6 +38,8 @@ interface MessageThreadProps {
 export function MessageThread({conversationId, currentUserId, conversationType}: MessageThreadProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
+    const [isEphemeral, setIsEphemeral] = useState(false);
+    const [isSpoiler, setIsSpoiler] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -120,6 +127,9 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
         content,
         created_at,
         sender_id,
+        is_ephemeral,
+        is_spoiler,
+        viewed_at,
         profiles (
           username,
           display_name
@@ -131,6 +141,22 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
 
         if (data) {
             setMessages(data);
+        }
+    };
+
+    const handleViewEphemeral = async (messageId: string) => {
+        const supabase = createClient();
+        const viewedAt = new Date().toISOString();
+
+        const {error} = await supabase
+            .from("messages")
+            .update({viewed_at: viewedAt})
+            .eq("id", messageId);
+
+        if (!error) {
+            setMessages(prev => prev.map(m =>
+                m.id === messageId ? {...m, viewed_at: viewedAt} : m
+            ));
         }
     };
 
@@ -151,12 +177,17 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                     conversation_id: conversationId,
                     sender_id: currentUserId,
                     content: newMessage.trim(),
+                    is_ephemeral: isEphemeral,
+                    is_spoiler: isSpoiler,
                 })
                 .select(`
         id,
         content,
         created_at,
         sender_id,
+        is_ephemeral,
+        is_spoiler,
+        viewed_at,
         profiles (
           username,
           display_name
@@ -175,6 +206,8 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
             }
 
             setNewMessage("");
+            setIsEphemeral(false);
+            setIsSpoiler(false);
         } catch (error) {
             console.error("[v0] Error sending message:", error);
             alert("Failed to send message. Please try again.");
@@ -212,12 +245,20 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                   </span>
                                 </div>
                                 <Card
-                                    className={cn("border-royal-blue/20", isOwn && "bg-royal-auburn text-white border-royal-auburn")}>
-                                    <CardContent className="p-3">
-                                        <div
-                                            className="text-sm leading-relaxed prose prose-sm max-w-none"
-                                            dangerouslySetInnerHTML={{__html: message.content}}
-                                        />
+                                    className={cn("border-royal-blue/20 overflow-hidden", isOwn && "bg-royal-auburn text-white border-royal-auburn")}>
+                                    <CardContent className="p-0">
+                                        <EphemeralMedia
+                                            isViewed={!!message.viewed_at}
+                                            onView={() => handleViewEphemeral(message.id)}
+                                            className={cn(!message.is_ephemeral && "contents")}
+                                        >
+                                            <MediaSpoiler isSpoiler={message.is_spoiler}>
+                                                <div
+                                                    className="text-sm p-3 leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                                                    dangerouslySetInnerHTML={{__html: message.content}}
+                                                />
+                                            </MediaSpoiler>
+                                        </EphemeralMedia>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -227,24 +268,68 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                 <div ref={messagesEndRef}/>
             </div>
 
-            <div className="border-t border-border p-4">
-                <form onSubmit={handleSend} className="flex gap-2 items-end">
-                    <div className="flex-1">
-                        <RichTextEditor
-                            value={newMessage}
-                            onChange={setNewMessage}
-                            placeholder="Type your message..."
-                            minHeight="60px"
-                            disabled={isLoading}
-                        />
+            <div className="border-t border-border p-4 bg-muted/20">
+                <form onSubmit={handleSend} className="space-y-3">
+                    <div className="flex items-center gap-2 px-1">
+                        <Button
+                            type="button"
+                            variant={isEphemeral ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setIsEphemeral(!isEphemeral)}
+                            className={cn(
+                                "h-8 gap-1.5 text-[10px] font-bold uppercase tracking-tight transition-all",
+                                isEphemeral && "bg-amber-500 hover:bg-amber-600 text-white border-amber-500 shadow-md scale-105"
+                            )}
+                        >
+                            <Timer className="h-3.5 w-3.5"/>
+                            {isEphemeral ? "Ephemeral ON" : "View Once"}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant={isSpoiler ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setIsSpoiler(!isSpoiler)}
+                            className={cn(
+                                "h-8 gap-1.5 text-[10px] font-bold uppercase tracking-tight transition-all",
+                                isSpoiler && "bg-purple-600 hover:bg-purple-700 text-white border-purple-600 shadow-md scale-105"
+                            )}
+                        >
+                            <EyeOff className="h-3.5 w-3.5"/>
+                            {isSpoiler ? "Spoiler ON" : "Spoiler"}
+                        </Button>
+                        <div className="flex-1"/>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            title="Attach media (coming soon)"
+                        >
+                            <Paperclip className="h-4 w-4"/>
+                        </Button>
                     </div>
-                    <Button
-                        type="submit"
-                        disabled={!newMessage.trim() || isLoading}
-                        className="bg-royal-auburn hover:bg-royal-auburn-dark"
-                    >
-                        <Send className="h-4 w-4"/>
-                    </Button>
+                    <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                            <RichTextEditor
+                                value={newMessage}
+                                onChange={setNewMessage}
+                                placeholder={isEphemeral ? "Send a view-once message..." : "Type your message..."}
+                                minHeight="60px"
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <Button
+                            type="submit"
+                            disabled={!newMessage.trim() || isLoading}
+                            className={cn(
+                                "bg-royal-auburn hover:bg-royal-auburn-dark h-[62px] w-[62px] rounded-lg shrink-0 transition-all",
+                                isEphemeral && "bg-amber-500 hover:bg-amber-600",
+                                isSpoiler && !isEphemeral && "bg-purple-600 hover:bg-purple-700"
+                            )}
+                        >
+                            <Send className="h-5 w-5"/>
+                        </Button>
+                    </div>
                 </form>
             </div>
         </div>

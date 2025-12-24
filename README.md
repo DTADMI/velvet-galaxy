@@ -81,93 +81,332 @@ Velvet Galaxy
 │   ├── Onboarding
 │   ├── Settings & Verification
 │   └── Help & About
-└── Future Verticals (Planned)
-    ├── Velvet Reviews (Toy reviews, Gear guides)
-    ├── Velvet Market (Merchandise, Digital products)
-    └── Velvet Games (Adventures, Interactive stories)
+└── Velvet Portal
+    ├── Velvet Reviews (New)
+    │   ├── Toy reviews
+    │   ├── Gear guides
+    │   └── Educational content
+    ├── Velvet Market (New)
+    │   ├── Merchandise store
+    │   ├── Digital products
+    │   └── Affiliate products
+    └── Velvet Games (New)
+        ├── Point & click adventures
+        ├── Interactive stories
+        └── Educational games
 ```
 
 ---
 
 ### Architecture and folder structure
 
+Velvet Galaxy follows a modern, modular architecture designed for scalability, real-time interactivity, and high
+performance.
+
+#### Core Architecture
+
+The system is built as a **Full-stack Next.js application** utilizing the **App Router** pattern. It leverages *
+*Supabase** for the backend-as-a-service (BaaS) layer, providing PostgreSQL, Authentication, Real-time subscriptions,
+and Edge Functions.
+
+- **Frontend**: Next.js 16 (React 19) with Tailwind CSS 4.
+- **Backend**: Next.js Route Handlers (API routes) and Supabase Edge Functions.
+- **Database**: PostgreSQL (via Supabase) with Row Level Security (RLS).
+- **Real-time**: Supabase Realtime (WebSockets) for feeds, notifications, and chat.
+- **Media**: Supabase Storage with custom optimization and CDN delivery.
+- **Payments**: Stripe integration for marketplace and subscriptions.
+
+#### Folder Structure
 This is a Next.js App Router project. Major directories at project root:
 
-- `app/` — Next.js route handlers and pages (App Router). Client/server components live here. Examples:
-    - `app/layout.tsx` — global layout, metadata, providers, service worker registration.
-  - `app/activity/` — activity feed page.
-    - `app/notifications/` — notifications UI and client logic.
-  - `app/messages/` — direct messaging and conversation threads.
-  - `app/chat-rooms/` — real-time chat rooms with WebRTC support.
-  - `app/network/` — 3D and 2D galaxy-themed network visualization.
-  - `app/marketplace/` — commerce listings and Stripe integration.
-  - `app/groups/` and `app/events/` — community features.
-  - `app/profile/[userId]` and `app/gallery/[userId]` — user-centric views.
-  - `app/posts/` and `app/post/` — post feed, details, and creation/editing.
-  - `app/search/` and `app/discover/` — content and user discovery.
-  - `app/auth/` — login, sign-up, and session management.
-  - `app/api/` — backend route handlers (e.g., Stripe webhooks, config).
-- `components/` — Reusable UI components, including shadcn/radix‑based primitives under `components/ui/` and
-  higher‑level feature components (e.g., `search-bar`, `message-thread`, `media-viewer`).
-- `hooks/` — Custom React hooks.
-- `lib/` — Shared libraries and utilities. Notable:
-    - `lib/supabase/` — Supabase client helpers (SSR/client usage).
-    - `lib/cache/` — An IndexedDB cache (`lib/cache/storage.ts`).
-- `public/` — Static assets and the Service Worker (`public/sw.js`) using Velvet Galaxy cache names.
-- `styles/` — Global styles (Tailwind CSS).
-- `scripts/` — Utility scripts (if any).
-- Config files: `next.config.mjs`, `eslint.config.mjs`, `postcss.config.mjs`, `tsconfig.json`, etc.
-
-Data and integrations:
-
-- Supabase hosts Postgres, Auth, and real‑time. The app uses both SSR/edge‑friendly clients and browser clients where
-  appropriate.
-- Stripe is integrated for commerce use‑cases (keys are configured via env). Extend with webhooks and server actions as
-  needed.
-
-Notes on patterns found in code:
-
-- React hooks are written with strict linting for dependency arrays (`useCallback` to stabilize functions used in
-  `useEffect`).
-- State management is primarily React state and hooks. SWR is available for optional data fetching patterns.
-- Client caching uses IndexedDB via `idb` with a simple API (`cacheStorage`).
+- `app/` — Next.js route handlers and pages.
+  - `app/(auth)/` — Auth flows (login, signup, callback).
+  - `app/activity/` — Live activity feed.
+  - `app/notifications/` — Real-time notification system.
+  - `app/messages/` — DM system with ephemeral media support.
+  - `app/chat-rooms/` — WebRTC-enabled group chat rooms.
+  - `app/network/` — 3D/2D Galaxy Network visualization.
+  - `app/marketplace/` — Stripe-integrated commerce hub.
+  - `app/portal/` — **Velvet Portal** (Reviews, Market, Games).
+  - `app/api/` — Backend logic, webhooks, and integrations.
+- `components/` — Reusable UI library.
+  - `components/ui/` — Atomic design primitives (shadcn/radix).
+  - `components/portal/` — Specific components for the Velvet Portal (3D toy viewers, carousels).
+  - `components/network/` — Visualization logic for the Galaxy graph.
+- `hooks/` — Shared logic for data fetching, auth, and device sensors.
+- `lib/` — Core utilities, Supabase clients, and client-side cache (IndexedDB).
+- `types/` — Project-wide TypeScript definitions.
+- `sql/` — Database schema, migrations, and seed data.
 
 ---
 
 ### Technical stack — choices, pros/cons, rationale
 
-- Next.js 16 (App Router)
-    - Pros: Hybrid SSR/SSG, file‑based routing, metadata API, great DX, Vercel‑ready. App Router encourages server
-      components and reduces client JS.
-    - Cons: Learning curve around server/client components and edge runtimes; SSR and “use client” boundaries require
-      care.
-    - Why: Best‑in‑class DX and deployment story; aligns with modern React 19 conventions.
+#### Frontend Architecture
 
-- React 19
-    - Pros: Latest concurrent features, strict mode improvements, ecosystem momentum.
-    - Cons: Some libraries still catching up.
-    - Why: Future‑proof and supported by Next 16.
+- **Framework**: Next.js 16 (React 19).
+  - **Rationale**: Server Components minimize client-side JS; optimized image/font loading; standard-compliant routing.
+- **Styling**: Tailwind CSS 4.
+  - **Rationale**: Atomic CSS for performance and design consistency.
+- **State Management**: React Context + SWR + IndexedDB.
+  - **Rationale**: Local state for UI, SWR for server cache, IndexedDB for offline persistence.
+- **Visualization**: Three.js / React Three Fiber (for 3D Galaxy and 3D Toy Models).
+  - **Rationale**: High-performance GPU-accelerated rendering.
 
-- Supabase (Auth + Postgres + Realtime)
-    - Pros: Fully managed Postgres with batteries (Auth, Storage, Edge Functions, Realtime). First‑class JS SDK;
-      generous free tier.
-    - Cons: Vendor lock‑in vs. self‑host; advanced RLS requires thoughtful policy design.
-    - Why: Rapid development with secure auth and realtime features suited for social apps.
+#### Database Design & Architecture
 
-- Tailwind CSS 4 + Radix UI + shadcn components
-    - Pros: Fast styling, consistent theming, accessible primitives.
-    - Cons: Utility classes can feel verbose; design tokens should be curated.
-    - Why: Speed and consistency across a broad component set.
+- **Engine**: PostgreSQL.
+- **Schema Strategy**: Relational with JSONB for flexible metadata.
+- **Security**: Strict **Row Level Security (RLS)** ensuring users only access data they are authorized to see.
+- **Indexes**: GIN and B-Tree indexes for fast search and filtering.
 
-- Stripe
-    - Pros: Reliable payments, subscriptions, webhook ecosystem, great docs.
-    - Cons: Requires PCI‑aware setup; live mode requires legit business setup.
-    - Why: Common commerce use‑cases and monetization features.
+#### Relational Schema
 
-- Tooling: TypeScript, ESLint (strict, React Hooks), Prettier, Vitest (+ Playwright optional)
-    - Pros: Type safety, consistent code quality, predictable formatting, test coverage.
-    - Cons: Initial setup overhead; strict linting may require refactors.
-    - Why: Maintainability and onboarding ease.
+```mermaid
+erDiagram
+    profiles ||--o{ posts : "author_id"
+    profiles ||--o{ media : "user_id"
+    profiles ||--o{ follows : "follower_id"
+    profiles ||--o{ follows : "following_id"
+    profiles ||--o{ friendships : "user_id"
+    profiles ||--o{ friendships : "friend_id"
+    profiles ||--o{ activities : "user_id"
+    profiles ||--o{ notifications : "user_id"
+    profiles ||--o{ notifications : "from_user_id"
+    profiles ||--o{ conversation_participants : "user_id"
+    profiles ||--o{ messages : "sender_id"
+    profiles ||--o{ groups : "creator_id"
+    profiles ||--o{ group_members : "user_id"
+    profiles ||--o{ events : "creator_id"
+    profiles ||--o{ event_attendees : "user_id"
+    profiles ||--o{ likes : "user_id"
+
+    posts ||--o{ media : "post_id"
+    posts ||--o{ likes : "post_id"
+    
+    media ||--o{ likes : "media_id"
+
+    conversations ||--o{ conversation_participants : "conversation_id"
+    conversations ||--o{ messages : "conversation_id"
+
+    groups ||--o{ group_members : "group_id"
+    groups ||--o{ events : "group_id"
+
+    events ||--o{ event_attendees : "event_id"
+
+    profiles {
+        uuid id PK
+        text username
+        text display_name
+        text avatar_url
+        text bio
+        timestamptz created_at
+    }
+
+    posts {
+        uuid id PK
+        uuid author_id FK
+        text content
+        timestamptz created_at
+    }
+
+    media {
+        uuid id PK
+        uuid user_id FK
+        uuid post_id FK
+        text url
+        text type
+        timestamptz created_at
+    }
+
+    follows {
+        uuid follower_id PK, FK
+        uuid following_id PK, FK
+        timestamptz created_at
+    }
+
+    friendships {
+        uuid user_id PK, FK
+        uuid friend_id PK, FK
+        friendship_status status
+        timestamptz created_at
+    }
+
+    activities {
+        uuid id PK
+        uuid user_id FK
+        text activity_type
+        uuid target_id
+        text target_type
+        text content
+        timestamptz created_at
+    }
+
+    notifications {
+        uuid id PK
+        uuid user_id FK
+        uuid from_user_id FK
+        text type
+        text title
+        text message
+        text link
+        boolean read
+        timestamptz created_at
+    }
+
+    conversations {
+        uuid id PK
+        timestamptz created_at
+    }
+
+    conversation_participants {
+        uuid conversation_id PK, FK
+        uuid user_id PK, FK
+        timestamptz joined_at
+    }
+
+    messages {
+        uuid id PK
+        uuid conversation_id FK
+        uuid sender_id FK
+        text content
+        timestamptz created_at
+    }
+
+    groups {
+        uuid id PK
+        uuid creator_id FK
+        text name
+        text description
+        timestamptz created_at
+    }
+
+    group_members {
+        uuid group_id PK, FK
+        uuid user_id PK, FK
+        group_role role
+        timestamptz joined_at
+    }
+
+    events {
+        uuid id PK
+        uuid creator_id FK
+        uuid group_id FK
+        text title
+        text description
+        timestamptz starts_at
+        timestamptz ends_at
+        text location
+        timestamptz created_at
+    }
+
+    event_attendees {
+        uuid event_id PK, FK
+        uuid user_id PK, FK
+        event_response response
+        timestamptz responded_at
+    }
+
+    likes {
+        uuid user_id PK, FK
+        uuid post_id PK, FK
+        uuid media_id PK, FK
+        timestamptz created_at
+    }
+```
+
+#### API Design
+
+- **Type**: RESTful Route Handlers + Supabase Realtime.
+- **Safety**: Fully typed with TypeScript; validation via Zod.
+- **Performance**: Edge-runtime compatibility for low-latency responses.
+
+#### Media Handling
+
+- **Storage**: Supabase Storage Buckets.
+- **Optimization**: Automatic resizing and WebP conversion.
+- **Features**: View-once ephemeral media, spoiler blurring (CSS/Canvas), and secure private delivery.
+
+---
+
+### Velvet Portal
+
+The **Velvet Portal** is the central hub for exclusive Velvet Galaxy content and services. It is designed to be a highly
+interactive space for users to explore toys, games, and merchandise.
+
+#### 1. Velvet Reviews
+
+A comprehensive platform for sex toy reviews, providing both educational and entertainment value.
+
+- **Features**:
+  - **Interactive Media**: High-quality pictures, videos, and **3D Models** of toys.
+  - **Detailed Pages**: Each toy has its own page with descriptions, technical specs, tags, and user comments/likes.
+  - **Discovery**: Home page with a section description and carousels for "Newly Added" and "Most Liked" toys.
+  - **Catalog**: A visual grid of toy cards with advanced search and tag filtering.
+  - **Engagement**: Users can like and comment to share their experiences.
+
+#### 2. Velvet Market
+
+The official store for Velvet Galaxy merchandise and digital offerings.
+
+- **Merchandise store**: Physical items produced to support the platform.
+- **Digital products**: Exclusive digital content, presets, or guides.
+- **Affiliate products**: Curated recommendations from trusted partners.
+
+#### 3. Velvet Games
+
+A collection of adult-themed games developed specifically for the platform.
+
+- **Current Roadmap (Kinky Point & Click Ideas)**:
+  - **The Keymaster's Dungeon**: Solve puzzles to progress through a BDSM dungeon using toys as tools.
+  - **Pleasure Island Mystery**: A whodunit mystery with adult themes and sensual mini-games.
+  - **The Toymaker's Workshop**: Craft and customize adult toys, managing resources and customer requests.
+  - **Velvet Dreams**: Explore a surreal world using "pleasure energy" to transform the environment.
+  - **The Forbidden Manor**: Gothic horror with kinky twists and multiple romance paths.
+  - **Kink & Consequences**: A choice-driven story focusing on consent, safety, and education.
+  - **The Red Room Riddle**: An immersive escape room experience with atmospheric puzzles.
+  - **Sensual Spells Academy**: A magical school setting focused on intimacy and relationship building.
+
+---
+
+### Deployment & Operations
+
+#### Deployment Strategy
+
+- **Primary**: Vercel (Production & Preview environments).
+- **Secondary**: Dockerized setup for self-hosting on a custom VPS or Kubernetes.
+
+#### CI/CD Pipeline
+
+- **Provider**: GitHub Actions.
+- **Flow**:
+  1. **Linting & Type Check**: Triggered on every push.
+  2. **Testing**: Vitest for unit/integration tests; Playwright for E2E.
+  3. **Preview**: Automatic Vercel previews for Pull Requests.
+  4. **Production**: Auto-deploy to main branch after passing all checks.
+
+#### Monitoring & Analytics
+
+- **Performance**: Vercel Speed Insights and Core Web Vitals.
+- **Errors**: Sentry for real-time error tracking and reporting.
+- **Database**: Supabase Dashboard for query performance and health.
+
+---
+
+### Website Improvement Suggestions
+
+To make Velvet Galaxy the ultimate platform for community and lifestyle:
+
+1. **AI-Powered Discovery**: Implement a recommendation engine that suggests groups, events, and reviews based on user
+   interests.
+2. **Interactive Workshops**: Add a live-streaming component for educational sessions in the "Velvet Reviews" or "
+   Community" sections.
+3. **Advanced Privacy Controls**: Fine-grained visibility settings for profile attributes and activity feed items.
+4. **In-App Virtual Reality (VR)**: Support for VR headsets in the 3D Galaxy Network and 3D Toy Viewer.
+5. **Community Moderation Tools**: Empower group owners with advanced logging, automated filters, and role-based
+   permissions.
+6. **Progressive Web App (PWA) Enhancements**: Improve offline capabilities and native-like push notifications for a
+   seamless mobile experience.
 
 ---
 

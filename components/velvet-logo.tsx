@@ -1,12 +1,12 @@
 import {cn} from "@/lib/utils";
 
-interface LinkNetLogoProps {
+interface VelvetLogoProps {
     size?: "sm" | "md" | "lg" | "xl"
     className?: string
     showText?: boolean
 }
 
-export function LinkNetLogo({size = "md", className, showText = false}: LinkNetLogoProps) {
+export function VelvetLogo({size = "md", className, showText = false}: VelvetLogoProps) {
     const sizeClasses = {
         sm: "h-8 w-8",
         md: "h-12 w-12",
