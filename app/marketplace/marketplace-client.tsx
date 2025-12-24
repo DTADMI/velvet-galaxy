@@ -27,14 +27,28 @@ interface MarketplaceClientProps {
 }
 
 export function MarketplaceClient({items: initialItems}: MarketplaceClientProps) {
-    const [setItems] = useState(initialItems);
+    const [items, setItems] = useState<MarketplaceItem[]>(initialItems);
     const [searchQuery, setSearchQuery] = useState("");
+    const [localOnly, setLocalOnly] = useState(false);
+    const [userLocation, setUserLocation] = useState<{ lat: number, lon: number } | null>(null);
 
-    const [mappedItems, setMappedItems] = useState<MarketplaceItem[]>([]);
+    useEffect(() => {
+        const fetchUserLocation = async () => {
+            const supabase = createClient();
+            const {data: {user}} = await supabase.auth.getUser();
+            if (user) {
+                const {data} = await supabase.from("profiles").select("latitude, longitude").eq("id", user.id).single();
+                if (data?.latitude && data?.longitude) {
+                    setUserLocation({lat: Number(data.latitude), lon: Number(data.longitude)});
+                }
+            }
+        };
+        fetchUserLocation();
+    }, []);
 
     const refreshItems = async () => {
         const supabase = createClient();
-        const {data} = await supabase
+        let query = supabase
             .from("marketplace_items")
             .select(
                 `
@@ -46,25 +60,39 @@ export function MarketplaceClient({items: initialItems}: MarketplaceClientProps)
         image_url,
         status,
         created_at,
+        latitude,
+        longitude,
         author_profile:profiles!inner (
           username,
           display_name
         )
       `,
-            )
-            .order("created_at", {ascending: false});
+            );
+
+        if (localOnly && userLocation) {
+            query = query
+                .gte("latitude", userLocation.lat - 1)
+                .lte("latitude", userLocation.lat + 1)
+                .gte("longitude", userLocation.lon - 1)
+                .lte("longitude", userLocation.lon + 1);
+        }
+
+        const {data} = await query.order("created_at", {ascending: false});
 
         if (data) {
-            // Map the posts to ensure author_profile is a single object
-            setMappedItems((data as MarketplaceItem[] || []).map(item => ({
+            const mapped = (data as any[]).map(item => ({
                 ...item,
                 author_profile: Array.isArray(item.author_profile) ? item.author_profile[0] : item.author_profile,
-            })));
-            setItems(data);
+            }));
+            setItems(mapped);
         }
     };
 
-    const filteredItems = (mappedItems || []).filter(
+    useEffect(() => {
+        refreshItems();
+    }, [localOnly, userLocation]);
+
+    const filteredItems = (items || []).filter(
         (item) =>
             item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||

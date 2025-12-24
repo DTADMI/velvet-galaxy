@@ -11,7 +11,7 @@ interface FriendButtonProps {
     userId: string
 }
 
-export function FriendButton({userId}: FriendButtonProps) {
+export function FriendButton({userId, onStatusChange}: { userId: string; onStatusChange?: () => void }) {
     const [friendshipStatus, setFriendshipStatus] = useState<"none" | "pending" | "accepted" | "sent">("none");
     const [isLoading, setIsLoading] = useState(false);
     const supabase = createBrowserClient();
@@ -34,7 +34,7 @@ export function FriendButton({userId}: FriendButtonProps) {
             .select("status")
             .eq("user_id", user.id)
             .eq("friend_id", userId)
-            .single();
+            .maybeSingle();
 
         if (sentRequest) {
             setFriendshipStatus(sentRequest.status === "accepted" ? "accepted" : "sent");
@@ -47,7 +47,7 @@ export function FriendButton({userId}: FriendButtonProps) {
             .select("status")
             .eq("user_id", userId)
             .eq("friend_id", user.id)
-            .single();
+            .maybeSingle();
 
         if (receivedRequest) {
             setFriendshipStatus(receivedRequest.status === "accepted" ? "accepted" : "pending");
@@ -71,6 +71,7 @@ export function FriendButton({userId}: FriendButtonProps) {
 
         if (!error) {
             setFriendshipStatus("sent");
+            if (onStatusChange) onStatusChange();
 
             await supabase.from("notifications").insert({
                 user_id: userId,
@@ -101,6 +102,7 @@ export function FriendButton({userId}: FriendButtonProps) {
 
         if (!error) {
             setFriendshipStatus("accepted");
+            if (onStatusChange) onStatusChange();
 
             await supabase.from("notifications").insert({
                 user_id: userId,
@@ -129,6 +131,7 @@ export function FriendButton({userId}: FriendButtonProps) {
             .or(`and(user_id.eq.${user.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${user.id})`);
 
         setFriendshipStatus("none");
+        if (onStatusChange) onStatusChange();
         setIsLoading(false);
     };
 
@@ -144,6 +147,7 @@ export function FriendButton({userId}: FriendButtonProps) {
         await supabase.from("friendships").delete().eq("user_id", user.id).eq("friend_id", userId);
 
         setFriendshipStatus("none");
+        if (onStatusChange) onStatusChange();
         setIsLoading(false);
     };
 

@@ -294,7 +294,7 @@ export function ProfileClient({
                             <h2 className="text-xl font-semibold text-gradient">Recent Activity</h2>
                         </CardHeader>
                         <CardContent>
-                            <ActivityFeed userId={userId}/>
+                            <ActivityFeed userId={userId} mode="profile"/>
                         </CardContent>
                     </Card>
                 </TabsContent>

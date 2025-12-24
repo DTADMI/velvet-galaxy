@@ -6,7 +6,7 @@ import {useCallback, useEffect, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {createBrowserClient} from "@/lib/supabase/client";
 
-export function FollowButton({userId}: { userId: string }) {
+export function FollowButton({userId, onStatusChange}: { userId: string; onStatusChange?: () => void }) {
     const [isFollowing, setIsFollowing] = useState(false);
     const [loading, setLoading] = useState(false);
     const supabase = createBrowserClient();
@@ -24,7 +24,7 @@ export function FollowButton({userId}: { userId: string }) {
             .select("id")
             .eq("follower_id", user.id)
             .eq("following_id", userId)
-            .single();
+            .maybeSingle();
 
         setIsFollowing(!!data);
     }, [supabase, userId]);
@@ -49,6 +49,7 @@ export function FollowButton({userId}: { userId: string }) {
         }
 
         setIsFollowing(!isFollowing);
+        if (onStatusChange) onStatusChange();
         setLoading(false);
     };
 

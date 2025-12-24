@@ -51,6 +51,8 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
     const {data: cachedPosts, mutate: mutatePosts} = usePosts();
     const [posts, setPosts] = useState(initialPosts);
     const [feedMode, setFeedMode] = useState<"sfw" | "all">("sfw");
+    const [localOnly, setLocalOnly] = useState(false);
+    const [userLocation, setUserLocation] = useState<{ lat: number, lon: number } | null>(null);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(initialPosts.length === POSTS_PER_PAGE);
     const [offset, setOffset] = useState(POSTS_PER_PAGE);
@@ -78,7 +80,61 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
         if (savedSize) {
             setDisplaySize(savedSize);
         }
-    }, []);
+
+        // Fetch user location for localized filtering
+        const fetchLocation = async () => {
+            const supabase = createClient();
+            const {data} = await supabase.from("profiles").select("latitude, longitude").eq("id", profile.id).single();
+            if (data?.latitude && data?.longitude) {
+                setUserLocation({lat: Number(data.latitude), lon: Number(data.longitude)});
+            }
+        };
+        fetchLocation();
+    }, [profile.id]);
+
+    useEffect(() => {
+        // Reset posts and reload when toggles change
+        const reloadPosts = async () => {
+            if (!mounted) return;
+            setIsLoadingMore(true);
+            const supabase = createClient();
+
+            let query = supabase
+                .from("posts")
+                .select(`
+                    id, content, created_at, content_rating, media_type, media_url, images, audio_url, visibility, is_promotional,
+                    author_profile:profiles!inner (id, username, display_name, avatar_url, latitude, longitude)
+                `);
+
+            if (feedMode === "sfw") {
+                query = query.eq("content_rating", "sfw");
+            }
+
+            if (localOnly && userLocation) {
+                // Simplified localized filter: within approx 1 degree (~111km)
+                query = query
+                    .gte("author_profile.latitude", userLocation.lat - 1)
+                    .lte("author_profile.latitude", userLocation.lat + 1)
+                    .gte("author_profile.longitude", userLocation.lon - 1)
+                    .lte("author_profile.longitude", userLocation.lon + 1);
+            }
+
+            const {data} = await query.order("created_at", {ascending: false}).limit(POSTS_PER_PAGE);
+
+            if (data) {
+                const mapped = (data as any[]).map(p => ({
+                    ...p,
+                    author_profile: Array.isArray(p.author_profile) ? p.author_profile[0] : p.author_profile
+                }));
+                setPosts(mapped);
+                setOffset(POSTS_PER_PAGE);
+                setHasMore(data.length === POSTS_PER_PAGE);
+            }
+            setIsLoadingMore(false);
+        };
+
+        reloadPosts();
+    }, [feedMode, localOnly, userLocation, mounted]);
 
     const handleDisplaySizeChange = (size: PostDisplaySize) => {
         setDisplaySize(size);
@@ -93,7 +149,7 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
         setIsLoadingMore(true);
         const supabase = createClient();
 
-        const {data} = await supabase
+        let query = supabase
             .from("posts")
             .select(
                 `
@@ -110,22 +166,41 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
           id,
           username,
           display_name,
-          avatar_url
+          avatar_url,
+          latitude,
+          longitude
         ),
         is_promotional
       `,
-            )
+            );
+
+        if (feedMode === "sfw") {
+            query = query.eq("content_rating", "sfw");
+        }
+
+        if (localOnly && userLocation) {
+            query = query
+                .gte("author_profile.latitude", userLocation.lat - 1)
+                .lte("author_profile.latitude", userLocation.lat + 1)
+                .gte("author_profile.longitude", userLocation.lon - 1)
+                .lte("author_profile.longitude", userLocation.lon + 1);
+        }
+
+        const {data} = await query
             .order("created_at", {ascending: false})
             .range(offset, offset + POSTS_PER_PAGE - 1);
 
         if (data) {
-            const newPosts = [...posts, ...data];
+            const mapped = (data as any[]).map(p => ({
+                ...p,
+                author_profile: Array.isArray(p.author_profile) ? p.author_profile[0] : p.author_profile
+            }));
+            const newPosts = [...posts, ...mapped];
             setPosts(newPosts);
             mutatePosts(newPosts, false);
             setOffset((prev) => prev + POSTS_PER_PAGE);
             setHasMore(data.length === POSTS_PER_PAGE && newPosts.length < MAX_POSTS);
         }
-
         setIsLoadingMore(false);
     };
 
@@ -137,7 +212,7 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
 
     const refreshPosts = async () => {
         const supabase = createClient();
-        const {data} = await supabase
+        let query = supabase
             .from("posts")
             .select(
                 `
@@ -154,17 +229,37 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
           id,
           username,
           display_name,
-          avatar_url
+          avatar_url,
+          latitude,
+          longitude
         ),
         is_promotional
       `,
-            )
+            );
+
+        if (feedMode === "sfw") {
+            query = query.eq("content_rating", "sfw");
+        }
+
+        if (localOnly && userLocation) {
+            query = query
+                .gte("author_profile.latitude", userLocation.lat - 1)
+                .lte("author_profile.latitude", userLocation.lat + 1)
+                .gte("author_profile.longitude", userLocation.lon - 1)
+                .lte("author_profile.longitude", userLocation.lon + 1);
+        }
+
+        const {data} = await query
             .order("created_at", {ascending: false})
             .limit(POSTS_PER_PAGE);
 
         if (data) {
-            setPosts(data);
-            mutatePosts(data, false);
+            const mapped = (data as any[]).map(p => ({
+                ...p,
+                author_profile: Array.isArray(p.author_profile) ? p.author_profile[0] : p.author_profile
+            }));
+            setPosts(mapped);
+            mutatePosts(mapped, false);
             cacheUtils.invalidatePosts();
             setOffset(POSTS_PER_PAGE);
             setHasMore(data.length === POSTS_PER_PAGE);
@@ -315,8 +410,24 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
                     <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setLocalOnly(!localOnly)}
+                        className={cn(
+                            "gap-2 border-royal-purple/20 bg-transparent",
+                            localOnly && "bg-royal-purple text-white hover:bg-royal-purple/90"
+                        )}
+                    >
+                        <MapPin className="h-4 w-4"/>
+                        {localOnly ? "Local" : "Global"}
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setFeedMode(feedMode === "sfw" ? "all" : "sfw")}
-                        className="gap-2 border-royal-purple/20"
+                        className={cn(
+                            "gap-2 border-royal-purple/20 bg-transparent",
+                            feedMode === "all" && "bg-royal-auburn text-white hover:bg-royal-auburn/90"
+                        )}
                     >
                         {feedMode === "sfw" ? (
                             <>
@@ -329,6 +440,15 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
                                 All
                             </>
                         )}
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={refreshPosts}
+                        className="gap-2 border-royal-purple/20 bg-transparent"
+                    >
+                        Refresh
                     </Button>
                 </div>
 

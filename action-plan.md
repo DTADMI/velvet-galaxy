@@ -63,23 +63,85 @@ recommended) or Docker deploy. Strict linting and type safety.
 - ✅ Velvet Reviews Core:
   - Designed and implemented toy review database schema in `sql/toy-reviews.sql`.
   - Created initial Review Home page scaffolding in `app/portal/reviews/page.tsx`.
+- ✅ **Core Social Infrastructure**:
+  - Profile system with display names, bios, and profile pictures.
+  - Social Feed with support for posts, statuses, pictures, gifs, videos, audios, and writings.
+  - Multimedia sharing with multi-album support (Pictures, Videos, Audio, Writings).
+  - Following/Follower system and basic Friend requests.
+  - Notifications system for interactions (friend requests, follows, groups, events) with icon badges showing pending
+    counts.
+  - Bookmark functionality for posts and media.
+  - Post editing with 24-hour time limit.
+  - Interactive profile pages showing personal description, recent activity, groups, and media.
+  - Clickable user names/pics on likes and posts for easy profile access.
+  - Separate pages for detailed post/media interaction with comments and like lists.
+- ✅ **Messaging & Communication**:
+  - Triple-categorized messaging: Normal, Dating, and Group messages.
+  - Real-time Chat Rooms with Text, Audio, and Video chat support (Discord-like).
+  - Multimedia support in direct messages.
+  - Ephemeral media (view-once) and Spoiler functionality (blur/overlay).
+  - Rich text formatting and emoji support in messages.
+- ✅ **Community & Discovery**:
+  - Group creation and joining with dedicated group interaction pages and searchable group lists.
+  - Event management: creation, RSVP (Going/Interested), and event interaction pages with searchable event lists.
+  - Multi-tab search system: Results categorized by Users, Media, Posts, Events, and Groups.
+  - Paginated search results and dropdown menu for additional navigation links.
+  - Galaxy-themed 3D/2D Network Visualization of user connections (central node view).
+- ✅ **Velvet Portal**:
+  - **Velvet Reviews**: Comprehensive review platform with 3D toy viewers, detail pages, carousels, and catalog.
+  - **Velvet Market**: Merchandise and digital product storefront with Stripe scaffolding.
+  - **Velvet Games**: Interactive hub for point & click adventures and roadmap.
+- ✅ **Architecture & Health**:
+  - Full-stack Next.js 16 with Supabase BaaS and RLS security.
+  - AI-powered content recommendations.
+  - E2E Testing suite with Playwright.
+  - Accessibility audit and ARIA label implementation.
+  - Performance optimization for 3D visualizations on mobile.
+  - Dark/Light mode toggle and multi-language support.
+  - Rate limiting and persistent login status.
+  - Fetlife-inspired dark color palette (Royal Auburn, Blue, Green, Orange, etc.).
 
 ## In Progress
 
-(None - All core tasks completed)
+- 🟡 **Advanced Onboarding & Personalization**:
+  - [ ] Implementing initial tag selection (5-10 tags) for new users to populate their feed with local content.
+  - [ ] Setting up the "Recent Activities" feed in profile to show history of posts, likes, follows, friendings, etc.
+- 🟡 **Localized & Filtered Experience**:
+  - [ ] Implementing default localized filtering for Feed, Search, and Marketplace based on user location.
+  - [ ] Developing a feed mode toggle: Neutral (SFW) and Kinky (NSFW) with content-rating filtering.
+  - [ ] Refining the "Discover Hub" to prioritize local content and community events.
 
 ## Next
 
-- 🔜 **Maintenance and Future Extensions**:
-  - [ ] Extended VR support for 3D visualization.
-  - [ ] Enhanced AI-powered discovery hub.
-  - [ ] Live capture functionality (camera/mic).
+- 🔜 **Social & Relationship Refinements**:
+  - [ ] Implementing advanced relationship labels (Dom/Sub, Partner, etc.) with mutual consent flow.
+  - [ ] Adding the option to "not follow" friends (mute feed but keep connection).
+  - [ ] Creating/Requesting custom relationship labels with mutual permission.
+  - [ ] Immediate counter updates on profile when adding friends or following.
+  - [ ] Enhancing the 3D Network Visualization with more filters and interactive node details.
+- 🔜 **Messaging Enhancements**:
+  - [ ] Implementing "Share to Message" modal for easy content sharing with specific users.
+  - [ ] Adding search history dropdown to the search modal.
+  - [ ] Separate search results page (as specified) when clicking through from the search bar.
+- 🔜 **Event System Polish**:
+  - [ ] Refining the event creation form: validation (end date > start date), online checkbox logic (greying out
+    location), and auto-close on success.
 
 ## Backlog
 
 - 🗂️ **Technical & Testing**:
   - [ ] Full accessibility compliance certification.
   - [ ] Load testing for real-time messaging.
+- 🗂️ **Platform Extensions**:
+  - [ ] "Already Connected" session management (warning/account switching logic).
+  - [ ] Full Subscription Model implementation (Weekly, Monthly, Yearly, Lifetime tiers) for premium features.
+  - [ ] Extended VR support for 3D visualization tools and toy viewers.
+  - [ ] Live capture functionality (camera/mic) for web-based recording from device.
+  - [ ] Nested comments (comments on comments) with liking functionality.
+  - [ ] Advanced community moderation tools for group owners.
+  - [ ] Mobile PWA enhancements for native-like push notifications.
+  - [ ] Contact forms and Help page integration.
+  - [ ] Terms of Service and Policy pages (About/Policies).
 
 ## Changelog (recent)
 
@@ -108,3 +170,9 @@ recommended) or Docker deploy. Strict linting and type safety.
 - Added testing and deployment strategies.
 - Fixed multiple hook dependency warnings and unused var issues.
 - Updated logo text; maintained README accordingly.
+- Comprehensive update of the action plan to reflect initial requirements from the latest brief.
+- Categorized all tasks into Core Infrastructure, Messaging, Community, Portal, and Maintenance.
+- Moved 3D aesthetics and media security to Completed.
+- Identified and prioritized missing features like tag-based onboarding and localized discovery.
+- Added subscription tiers and advanced relationship types to the roadmap.
+- Updated legend to: ✅ Completed • 🟡 In Progress • 🔜 Next • 🗂️ Backlog.

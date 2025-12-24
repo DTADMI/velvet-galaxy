@@ -22,21 +22,27 @@ interface ActivityWithAuthor extends Activity {
 
 interface ActivityFeedProps {
     userId: string;
+    mode?: "global" | "profile";
 }
 
-export function ActivityFeed({userId}: ActivityFeedProps) {
+export function ActivityFeed({userId, mode = "global"}: ActivityFeedProps) {
     const [activities, setActivities] = useState<ActivityWithAuthor[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const supabase = createClient();
 
     const loadActivities = useCallback(async () => {
-        // Get user's following list
-        const {data: following} = await supabase.from("follows").select("following_id").eq("follower_id", userId);
+        let followingIds: string[] = [];
 
-        const followingIds = following?.map((f: { following_id: string }) => f.following_id) || [];
-        followingIds.push(userId); // Include own activities
+        if (mode === "profile") {
+            followingIds = [userId];
+        } else {
+            // Get user's following list
+            const {data: following} = await supabase.from("follows").select("following_id").eq("follower_id", userId);
+            followingIds = following?.map((f: { following_id: string }) => f.following_id) || [];
+            followingIds.push(userId); // Include own activities
+        }
 
-        // Get activities from followed users
+        // Get activities from target users
         const {data} = await supabase
             .from("activities")
             .select("*, author_profile:profiles!inner(id, username, display_name, avatar_url)")

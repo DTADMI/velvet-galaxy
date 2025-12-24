@@ -18,6 +18,10 @@ interface RelationshipManagerProps {
 const RELATIONSHIP_TYPES = [
     {value: "friend", label: "Friend", icon: Users, color: "royal-blue"},
     {value: "partner", label: "Partner", icon: Heart, color: "royal-auburn"},
+    {value: "dom", label: "Dom", icon: Star, color: "royal-purple"},
+    {value: "sub", label: "Sub", icon: Star, color: "royal-blue"},
+    {value: "master", label: "Master", icon: Star, color: "royal-purple"},
+    {value: "slave", label: "Slave", icon: Star, color: "royal-blue"},
     {value: "crush", label: "Crush", icon: Sparkles, color: "royal-purple"},
     {value: "admirer", label: "Admirer", icon: Star, color: "royal-orange"},
     {value: "mentor", label: "Mentor", icon: Users, color: "royal-green"},
@@ -31,6 +35,7 @@ const RELATIONSHIP_TYPES = [
 
 export function RelationshipManager({targetUserId, currentUserId}: RelationshipManagerProps) {
     const [relationships, setRelationships] = useState<any[]>([]);
+    const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedType, setSelectedType] = useState("");
     const [customLabel, setCustomLabel] = useState("");
@@ -38,6 +43,7 @@ export function RelationshipManager({targetUserId, currentUserId}: RelationshipM
 
     useEffect(() => {
         loadRelationships();
+        loadIncomingRequests();
     }, []);
 
     const loadRelationships = async () => {
@@ -50,6 +56,25 @@ export function RelationshipManager({targetUserId, currentUserId}: RelationshipM
         if (data) {
             setRelationships(data);
         }
+    };
+
+    const loadIncomingRequests = async () => {
+        const {data} = await supabase
+            .from("relationships")
+            .select("*, profiles:user_id(display_name, username)")
+            .eq("related_user_id", currentUserId)
+            .eq("user_id", targetUserId)
+            .eq("status", "pending");
+
+        if (data) {
+            setIncomingRequests(data);
+        }
+    };
+
+    const acceptRelationship = async (relationshipId: string) => {
+        await supabase.from("relationships").update({status: "accepted"}).eq("id", relationshipId);
+        loadRelationships();
+        loadIncomingRequests();
     };
 
     const addRelationship = async () => {
@@ -96,6 +121,31 @@ export function RelationshipManager({targetUserId, currentUserId}: RelationshipM
 
     return (
         <div className="space-y-2">
+            {incomingRequests.length > 0 && (
+                <div className="space-y-2 mb-4 p-3 bg-royal-purple/10 rounded-lg border border-royal-purple/20">
+                    <p className="text-xs font-semibold text-royal-purple uppercase tracking-wider">Pending Requests</p>
+                    {incomingRequests.map((req) => (
+                        <div key={req.id} className="flex items-center justify-between">
+                            <span className="text-sm">
+                                <strong>{req.profiles?.display_name || req.profiles?.username}</strong> wants to be your <strong>{req.custom_label || req.relationship_type}</strong>
+                            </span>
+                            <div className="flex gap-1">
+                                <Button size="sm" variant="outline"
+                                        className="h-7 px-2 bg-royal-green text-white border-none hover:bg-royal-green/90"
+                                        onClick={() => acceptRelationship(req.id)}>
+                                    <Check className="h-3.5 w-3.5"/>
+                                </Button>
+                                <Button size="sm" variant="outline"
+                                        className="h-7 px-2 bg-destructive text-white border-none hover:bg-destructive/90"
+                                        onClick={() => removeRelationship(req.id)}>
+                                    <X className="h-3.5 w-3.5"/>
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
             <div className="flex flex-wrap gap-2">
                 {relationships.map((rel) => {
                     const Icon = getRelationshipIcon(rel.relationship_type);

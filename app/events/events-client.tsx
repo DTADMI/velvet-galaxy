@@ -49,7 +49,23 @@ export function EventsClient({userId}: { userId?: string }) {
     const [events, setEvents] = useState<Event[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("upcoming");
+    const [localOnly, setLocalOnly] = useState(false);
+    const [userLocation, setUserLocation] = useState<{ lat: number, lon: number } | null>(null);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchUserLocation = async () => {
+            const supabase = createBrowserClient();
+            if (userId) {
+                const {data} = await supabase.from("profiles").select("latitude, longitude").eq("id", userId).single();
+                if (data?.latitude && data?.longitude) {
+                    setUserLocation({lat: Number(data.latitude), lon: Number(data.longitude)});
+                }
+            }
+        };
+        fetchUserLocation();
+    }, [userId]);
+
     const [newEvent, setNewEvent] = useState({
         title: "",
         description: "",
@@ -86,6 +102,14 @@ export function EventsClient({userId}: { userId?: string }) {
             }
         } else if (activeTab === "past") {
             query = query.lt("start_date", now);
+        }
+
+        if (localOnly && userLocation) {
+            query = query
+                .gte("latitude", userLocation.lat - 1)
+                .lte("latitude", userLocation.lat + 1)
+                .gte("longitude", userLocation.lon - 1)
+                .lte("longitude", userLocation.lon + 1);
         }
 
         const {data} = await query.order("start_date", {ascending: true}).limit(20);
@@ -238,7 +262,7 @@ export function EventsClient({userId}: { userId?: string }) {
 
     useEffect(() => {
         loadEvents();
-    }, [activeTab, loadEvents]);
+    }, [activeTab, localOnly, userLocation, loadEvents]);
 
     return (
         <div className="space-y-6">
@@ -353,20 +377,36 @@ export function EventsClient({userId}: { userId?: string }) {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-3 bg-card/50 border border-royal-orange/20 h-12">
-                    <TabsTrigger value="upcoming" className="text-base">
-                        <TrendingUp className="h-4 w-4 mr-2"/>
-                        Upcoming
-                    </TabsTrigger>
-                    <TabsTrigger value="my-events" className="text-base">
-                        <Calendar className="h-4 w-4 mr-2"/>
-                        My Events
-                    </TabsTrigger>
-                    <TabsTrigger value="past" className="text-base">
-                        <History className="h-4 w-4 mr-2"/>
-                        Past
-                    </TabsTrigger>
-                </TabsList>
+                <div className="flex items-center justify-between mb-4">
+                    <TabsList
+                        className="grid grid-cols-3 bg-card/50 border border-royal-orange/20 h-12 w-full max-w-md">
+                        <TabsTrigger value="upcoming" className="text-base">
+                            <TrendingUp className="h-4 w-4 mr-2"/>
+                            Upcoming
+                        </TabsTrigger>
+                        <TabsTrigger value="my-events" className="text-base">
+                            <Calendar className="h-4 w-4 mr-2"/>
+                            My Events
+                        </TabsTrigger>
+                        <TabsTrigger value="past" className="text-base">
+                            <History className="h-4 w-4 mr-2"/>
+                            Past
+                        </TabsTrigger>
+                    </TabsList>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setLocalOnly(!localOnly)}
+                        className={cn(
+                            "gap-2 border-royal-orange/20 bg-transparent h-12 px-6",
+                            localOnly && "bg-royal-orange text-white hover:bg-royal-orange/90"
+                        )}
+                    >
+                        <MapPin className="h-4 w-4"/>
+                        {localOnly ? "Local Only" : "Global"}
+                    </Button>
+                </div>
 
                 <TabsContent value={activeTab} className="mt-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

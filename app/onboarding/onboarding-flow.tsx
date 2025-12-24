@@ -27,12 +27,22 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
     const [bio, setBio] = useState(existingProfile?.bio || "");
     const [location, setLocation] = useState(existingProfile?.location || "");
     const [avatarUrl, setAvatarUrl] = useState(existingProfile?.avatar_url || "");
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [interestTags, setInterestTags] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const supabase = createBrowserClient();
 
-    const totalSteps = 3;
+    const totalSteps = 4;
     const progress = (step / totalSteps) * 100;
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            const {data} = await supabase.from("interest_tags").select("*");
+            if (data) setInterestTags(data);
+        };
+        fetchTags();
+    }, [supabase]);
 
     const handleNext = () => {
         if (step < totalSteps) {
@@ -46,10 +56,16 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
         }
     };
 
+    const toggleTag = (tagId: string) => {
+        setSelectedTags((prev) =>
+            prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+        );
+    };
+
     const handleComplete = async () => {
         setIsLoading(true);
 
-        const {error} = await supabase
+        const {error: profileError} = await supabase
             .from("profiles")
             .update({
                 display_name: displayName,
@@ -59,11 +75,28 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
             })
             .eq("id", userId);
 
-        if (!error) {
-            router.push("/feed");
-        } else {
-            console.error("Error updating profile:", error);
+        if (profileError) {
+            console.error("Error updating profile:", profileError);
+            setIsLoading(false);
+            return;
         }
+
+        if (selectedTags.length > 0) {
+            const interestInserts = selectedTags.map((tagId) => ({
+                user_id: userId,
+                tag_id: tagId,
+            }));
+
+            const {error: interestError} = await supabase
+                .from("user_interests")
+                .insert(interestInserts);
+
+            if (interestError) {
+                console.error("Error saving interests:", interestError);
+            }
+        }
+
+        router.push("/feed");
         setIsLoading(false);
     };
 
@@ -110,11 +143,13 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                             {step === 1 && "Basic Information"}
                             {step === 2 && "Profile Picture"}
                             {step === 3 && "About You"}
+                            {step === 4 && "Interests"}
                         </CardTitle>
                         <CardDescription>
                             {step === 1 && "Tell us your name and where you're from"}
                             {step === 2 && "Add a profile picture to help others recognize you"}
                             {step === 3 && "Share a bit about yourself"}
+                            {step === 4 && "Select at least 5 tags to personalize your feed"}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -186,6 +221,29 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                             </div>
                         )}
 
+                        {step === 4 && (
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    {interestTags.map((tag) => (
+                                        <Button
+                                            key={tag.id}
+                                            variant={selectedTags.includes(tag.id) ? "default" : "outline"}
+                                            onClick={() => toggleTag(tag.id)}
+                                            className={cn(
+                                                "justify-start gap-2 h-auto py-3 px-4",
+                                                selectedTags.includes(tag.id) && "bg-royal-purple hover:bg-royal-purple/90"
+                                            )}
+                                        >
+                                            <span className="truncate">{tag.name}</span>
+                                        </Button>
+                                    ))}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Selected: {selectedTags.length} tags (minimum 5 recommended)
+                                </p>
+                            </div>
+                        )}
+
                         <div className="flex justify-between pt-4">
                             <Button variant="outline" onClick={handleBack} disabled={step === 1}>
                                 Back
@@ -193,7 +251,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                             {step < totalSteps ? (
                                 <Button
                                     onClick={handleNext}
-                                    disabled={step === 1 && !displayName}
+                                    disabled={(step === 1 && !displayName) || (step === 4 && selectedTags.length < 5)}
                                     className="bg-gradient-to-r from-royal-blue to-royal-purple"
                                 >
                                     Next
@@ -201,7 +259,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                             ) : (
                                 <Button
                                     onClick={handleComplete}
-                                    disabled={isLoading || !displayName}
+                                    disabled={isLoading || !displayName || selectedTags.length < 5}
                                     className="bg-gradient-to-r from-royal-green to-emerald-600"
                                 >
                                     {isLoading ? "Completing..." : "Complete Setup"}
