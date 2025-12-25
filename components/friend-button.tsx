@@ -1,7 +1,8 @@
 "use client";
 
-import {Clock, UserCheck, UserPlus, UserX} from "lucide-react";
+import {Clock, Eye, EyeOff, UserCheck, UserPlus, UserX} from "lucide-react";
 import {useEffect, useState} from "react";
+import {toast} from "sonner";
 
 import {Button} from "@/components/ui/button";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
@@ -13,6 +14,7 @@ interface FriendButtonProps {
 
 export function FriendButton({userId, onStatusChange}: { userId: string; onStatusChange?: () => void }) {
     const [friendshipStatus, setFriendshipStatus] = useState<"none" | "pending" | "accepted" | "sent">("none");
+    const [isMuted, setIsMuted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const supabase = createBrowserClient();
 
@@ -31,27 +33,50 @@ export function FriendButton({userId, onStatusChange}: { userId: string; onStatu
         // Check if there's an existing friendship
         const {data: sentRequest} = await supabase
             .from("friendships")
-            .select("status")
+            .select("status, is_muted")
             .eq("user_id", user.id)
             .eq("friend_id", userId)
             .maybeSingle();
 
         if (sentRequest) {
             setFriendshipStatus(sentRequest.status === "accepted" ? "accepted" : "sent");
+            setIsMuted(!!sentRequest.is_muted);
             return;
         }
 
         // Check if there's a received request
         const {data: receivedRequest} = await supabase
             .from("friendships")
-            .select("status")
+            .select("status, is_muted")
             .eq("user_id", userId)
             .eq("friend_id", user.id)
             .maybeSingle();
 
         if (receivedRequest) {
             setFriendshipStatus(receivedRequest.status === "accepted" ? "accepted" : "pending");
+            // Mute status for incoming friendships is handled by the receiver's perspective in the table
+            // But if the relation is bidirectional, we should check both.
+            // In Fetlife style, you can be friends and choose not to follow.
         }
+    };
+
+    const toggleMute = async () => {
+        setIsLoading(true);
+        const {data: {user}} = await supabase.auth.getUser();
+        if (!user) return;
+
+        const newMuted = !isMuted;
+        const {error} = await supabase
+            .from("friendships")
+            .update({is_muted: newMuted})
+            .eq("user_id", user.id)
+            .eq("friend_id", userId);
+
+        if (!error) {
+            setIsMuted(newMuted);
+            toast.success(newMuted ? "Friend muted (not following in feed)" : "Following friend in feed");
+        }
+        setIsLoading(false);
     };
 
     const sendFriendRequest = async () => {
@@ -165,7 +190,20 @@ export function FriendButton({userId, onStatusChange}: { userId: string; onStatu
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={removeFriend} className="text-destructive">
+                    <DropdownMenuItem onClick={toggleMute} className="cursor-pointer">
+                        {isMuted ? (
+                            <>
+                                <Eye className="h-4 w-4 mr-2"/>
+                                Unmute (Follow in Feed)
+                            </>
+                        ) : (
+                            <>
+                                <EyeOff className="h-4 w-4 mr-2"/>
+                                Mute (Don't Follow)
+                            </>
+                        )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={removeFriend} className="text-destructive cursor-pointer">
                         <UserX className="h-4 w-4 mr-2"/>
                         Unfriend
                     </DropdownMenuItem>

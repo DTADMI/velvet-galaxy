@@ -166,19 +166,19 @@ recommended) or Docker deploy. Strict linting and type safety.
   - [ ] Refining the event creation form: validation (end date > start date), online checkbox logic (greying out
     location), and auto-close on success.
 
-- 🔜 **Media & Content Polish**:
-  - [ ] Batch image/video uploads with simultaneous album creation/selection.
-  - [ ] Sequential media navigation (Next/Prev buttons) in detail views (Fetlife-style).
-  - [ ] Marketplace enhancements: Support for videos and audio in listings.
-- 🔜 **Navigation & UI/UX**:
-  - [ ] Expanding top-right Profile Dropdown: Friends/Followers list, Bookmarks, Events, FAQ, Parameters, and Account
+- ✅ **Media & Content Polish**:
+  - ✅ Batch image/video uploads with simultaneous album creation/selection.
+  - ✅ Sequential media navigation (Next/Prev buttons) in detail views (Fetlife-style).
+  - ✅ Marketplace enhancements: Support for videos and audio in listings.
+- ✅ **Navigation & UI/UX**:
+  - ✅ Expanding top-right Profile Dropdown: Friends/Followers list, Bookmarks, Events, FAQ, Parameters, and Account
     Switching.
-  - [ ] Navbar links for Help/Support forms, Policies (ToS), and About pages.
-  - [ ] Fast-path "Upload" button in navbar for all media types.
-- 🔜 **Relationship Refinements**:
-  - [ ] Advanced relationship labels (Dom/Sub, etc.) with mutual consent flow.
-  - [ ] "Not follow" option for friends (connection without feed clutter).
-  - [ ] Immediate UI counter updates for social interactions.
+  - ✅ Navbar links for Help/Support forms, Policies (ToS), and About pages.
+  - ✅ Fast-path "Upload" button in navbar for all media types.
+- ✅ **Relationship Refinements**:
+  - ✅ Advanced relationship labels (Dom/Sub, etc.) with mutual consent flow.
+  - ✅ "Not follow" option for friends (connection without feed clutter).
+  - ✅ Immediate UI counter updates for social interactions.
 
 ## Backlog
 
@@ -192,7 +192,7 @@ recommended) or Docker deploy. Strict linting and type safety.
     - [ ] Reading individual messages or whole inbox.
     - [ ] Player controls (skip, back, auto-play next).
     - [ ] Subscription gating logic.
-  - [ ] "Already Connected" session management placeholder.
+  - ✅ **Already Connected** session management placeholder.
   - [ ] Full Subscription Model implementation.
   - [ ] Extended VR support and live capture.
   - [ ] Nested comments and advanced moderation.
@@ -203,6 +203,14 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## Changelog (recent)
 
+- Implemented "Already Connected" session warning and management in login flow.
+- Added explicit Navbar links for About and Support.
+- Implemented real-time profile stat updates using Supabase Realtime.
+- Enhanced "Friendship" logic with a "Not Follow" (Mute) option.
+- Implemented Advanced Relationship labels (Dom/Sub, etc.) with a mutual consent request system.
+- Unified Media Upload Dialog with support for batch image/video uploads.
+- Expanded Profile Dropdown with comprehensive community and account links.
+- Enhanced Marketplace listings with support for Video and Audio files.
 - Finalized project roadmap and moved all core tasks to Completed.
 - Implemented AI-powered content recommendations.
 - Added basic E2E tests with Playwright.

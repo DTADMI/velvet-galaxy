@@ -1,6 +1,6 @@
 "use client";
 
-import {AlertTriangle, ImagePlus, Loader2, Megaphone, Tag, X} from "lucide-react";
+import {AlertTriangle, Image as ImageIcon, ImagePlus, Loader2, Megaphone, Tag, X} from "lucide-react";
 import type React from "react";
 import {useCallback, useRef, useState} from "react";
 import {toast} from "sonner";
@@ -31,7 +31,12 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
     const [selectedSoundtrack, setSelectedSoundtrack] = useState<string | null>(null);
-    const [uploadedImages, setUploadedImages] = useState<{ file: File; url: string; size: string }[]>([]);
+    const [uploadedImages, setUploadedImages] = useState<{
+        file: File;
+        url: string;
+        size: string;
+        type: "picture" | "video"
+    }[]>([]);
     const [albums, setAlbums] = useState<any[]>([]);
     const [selectedAlbumId, setSelectedAlbumId] = useState<string>("none");
     const [albumQuery, setAlbumQuery] = useState("");
@@ -61,78 +66,9 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
     };
 
     const handleFiles = async (files: File[]) => {
-        const imageFiles = files.filter(f => f.type.startsWith("image/"));
-        if (imageFiles.length === 0) {
-            setFileError("Please select image files only.");
-            return;
-        }
-
-        setIsUploading(true);
-        const supabase = createClient();
-
-        for (const file of imageFiles) {
-            const fileExt = file.name.split(".").pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `post-images/${fileName}`;
-
-            const {error: uploadError} = await supabase.storage.from("media").upload(filePath, file);
-
-            if (uploadError) {
-                console.error("Upload error:", uploadError);
-                continue;
-            }
-
-            const {data: {publicUrl}} = supabase.storage.from("media").getPublicUrl(filePath);
-
-            setUploadedImages(prev => [...prev, {
-                file,
-                url: publicUrl,
-                size: (file.size / 1024 / 1024).toFixed(2) + " MB"
-            }]);
-        }
-        setIsUploading(false);
-    };
-
-    const validateImageFile = (file: File): boolean => {
-        const validExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"];
-        const fileExt = `.${file.name.split(".").pop()?.toLowerCase()}`;
-        return validExtensions.includes(fileExt);
-    };
-
-    const formatFileSize = (bytes: number): string => {
-        if (bytes < 1024) {
-            return bytes + " B";
-        }
-        if (bytes < 1024 * 1024) {
-            return (bytes / 1024).toFixed(1) + " KB";
-        }
-        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-    };
-
-    const handleFileUpload = async (files: FileList | null) => {
-        if (!files || files.length === 0) {
-            return;
-        }
-
-        const validFiles: File[] = [];
-        const invalidFiles: string[] = [];
-
-        Array.from(files).forEach((file) => {
-            if (validateImageFile(file)) {
-                validFiles.push(file);
-            } else {
-                invalidFiles.push(file.name);
-            }
-        });
-
-        if (invalidFiles.length > 0) {
-            setFileError(
-                `Invalid file type(s): ${invalidFiles.join(", ")}. Please upload images (.jpg, .jpeg, .png, .gif, .webp, .bmp)`,
-            );
-            setTimeout(() => setFileError(null), 5000);
-        }
-
-        if (validFiles.length === 0) {
+        const mediaFiles = files.filter(f => f.type.startsWith("image/") || f.type.startsWith("video/"));
+        if (mediaFiles.length === 0) {
+            setFileError("Please select image or video files only.");
             return;
         }
 
@@ -149,7 +85,8 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
         }
 
         try {
-            const uploadPromises = validFiles.map(async (file) => {
+            const uploadPromises = mediaFiles.map(async (file) => {
+                const isImage = file.type.startsWith("image/");
                 const fileExt = file.name.split(".").pop();
                 const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
@@ -170,18 +107,56 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                     file,
                     url: publicUrl,
                     size: formatFileSize(file.size),
+                    type: isImage ? "picture" : "video" as const
                 };
             });
 
             const results = await Promise.all(uploadPromises);
             setUploadedImages((prev) => [...prev, ...results]);
-            toast.success(`${results.length} image(s) uploaded successfully!`);
+            toast.success(`${results.length} file(s) uploaded successfully!`);
         } catch (error) {
             console.error("[v0] Upload error:", error);
-            toast.error("Failed to upload some images");
+            toast.error("Failed to upload some files");
         } finally {
             setIsUploading(false);
         }
+    };
+
+    const validateFile = (file: File): boolean => {
+        const validExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".mp4", ".mov", ".avi", ".webm"];
+        const fileExt = `.${file.name.split(".").pop()?.toLowerCase()}`;
+        return validExtensions.includes(fileExt);
+    };
+
+    const formatFileSize = (bytes: number): string => {
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return (bytes / 1024).toFixed(1) + " KB";
+        }
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    };
+
+    const handleFileUpload = async (files: FileList | null) => {
+        if (!files || files.length === 0) {
+            return;
+        }
+
+        const validFiles: File[] = Array.from(files).filter(validateFile);
+
+        if (validFiles.length < files.length) {
+            setFileError(
+                "Some files were ignored. Please upload images (.jpg, .jpeg, .png, .gif, .webp, .bmp) or videos (.mp4, .mov, .avi, .webm)",
+            );
+            setTimeout(() => setFileError(null), 5000);
+        }
+
+        if (validFiles.length === 0) {
+            return;
+        }
+
+        handleFiles(validFiles);
     };
 
     const handleDrop = useCallback((e: React.DragEvent) => {
@@ -267,12 +242,15 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
 
             const imageUrls = uploadedImages.map((img) => img.url);
 
+            const mediaType = uploadedImages.every(img => img.type === "picture") ? "picture" :
+                uploadedImages.every(img => img.type === "video") ? "video" : "mixed";
+
             const {data: post, error: postError} = await supabase
                 .from("posts")
                 .insert({
                     author_id: user.id,
                     content: description.trim() || title.trim(),
-                    media_type: "picture",
+                    media_type: mediaType,
                     images: imageUrls,
                     image_url: imageUrls[0],
                     content_rating: contentRating,
@@ -292,7 +270,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                 post_id: post.id,
                 album_id: albumId,
                 url: img.url,
-                type: "picture",
+                type: img.type,
                 title: title,
             }));
 
@@ -325,7 +303,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-gradient">Share Images</DialogTitle>
+                    <DialogTitle className="text-gradient">Share Media</DialogTitle>
                 </DialogHeader>
 
                 <div className="space-y-4">
@@ -352,7 +330,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept="image/*"
+                            accept="image/*,video/*"
                             multiple
                             onChange={(e) => handleFileUpload(e.target.files)}
                             className="hidden"
@@ -367,10 +345,10 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                             </div>
                             <div>
                                 <p className="text-lg font-medium">
-                                    {isUploading ? "Uploading..." : "Drop images here or click to browse"}
+                                    {isUploading ? "Uploading..." : "Drop files here or click to browse"}
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">
-                                    Supports: JPG, PNG, GIF, WebP, BMP • Multiple images allowed
+                                    Supports: JPG, PNG, GIF, MP4, MOV • Multiple files allowed
                                 </p>
                             </div>
                         </div>
@@ -381,11 +359,18 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                         <div className="grid grid-cols-4 gap-3">
                             {uploadedImages.map((image, index) => (
                                 <div key={index} className="relative group aspect-square">
-                                    <img
-                                        src={image.url || "/placeholder.svg"}
-                                        alt={`Upload ${index + 1}`}
-                                        className="w-full h-full object-cover rounded-lg"
-                                    />
+                                    {image.type === "video" ? (
+                                        <video
+                                            src={image.url}
+                                            className="w-full h-full object-cover rounded-lg"
+                                        />
+                                    ) : (
+                                        <img
+                                            src={image.url || "/placeholder.svg"}
+                                            alt={`Upload ${index + 1}`}
+                                            className="w-full h-full object-cover rounded-lg"
+                                        />
+                                    )}
                                     <Button
                                         variant="destructive"
                                         size="icon"

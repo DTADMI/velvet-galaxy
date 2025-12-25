@@ -1,6 +1,7 @@
 "use client";
 
 import {
+    Bookmark,
     Calendar,
     ChevronDown,
     Compass,
@@ -18,7 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import {usePathname, useRouter} from "next/navigation";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 import {LanguageSelector} from "@/components/language-selector";
 import {VelvetLogo} from "@/components/velvet-logo";
@@ -166,6 +167,19 @@ export function Navigation() {
                                 <Link href="/network" className="flex items-center gap-2 cursor-pointer">
                                     <Network className="h-4 w-4 text-royal-purple"/>
                                     Network Map
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-royal-purple/10"/>
+                            <DropdownMenuItem asChild>
+                                <Link href="/about" className="flex items-center gap-2 cursor-pointer">
+                                    <HelpCircle className="h-4 w-4 text-royal-blue"/>
+                                    About Velvet Galaxy
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/help" className="flex items-center gap-2 cursor-pointer">
+                                    <MessageSquare className="h-4 w-4 text-royal-green"/>
+                                    Contact Support
                                 </Link>
                             </DropdownMenuItem>
                         </DropdownMenuContent>

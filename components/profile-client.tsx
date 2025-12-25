@@ -20,7 +20,8 @@ import {
     Video,
 } from "lucide-react";
 import Link from "next/link";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {createBrowserClient} from "@/lib/supabase/client";
 
 import {ActivityFeed} from "@/components/activity-feed";
 import {AnonymousFAQ} from "@/components/anonymous-faq";
@@ -50,15 +51,81 @@ interface ProfileClientProps {
 export function ProfileClient({
                                   profile,
                                   subscription,
-                                  postsCount,
-                                  listingsCount,
-                                  conversationsCount,
-                                  followersCount,
-                                  followingCount,
-                                  friendsCount,
+                                  postsCount: initialPostsCount,
+                                  listingsCount: initialListingsCount,
+                                  conversationsCount: initialConversationsCount,
+                                  followersCount: initialFollowersCount,
+                                  followingCount: initialFollowingCount,
+                                  friendsCount: initialFriendsCount,
                                   userId,
                               }: ProfileClientProps) {
     const [activeTab, setActiveTab] = useState("activity");
+    const [stats, setStats] = useState({
+        posts: initialPostsCount,
+        listings: initialListingsCount,
+        conversations: initialConversationsCount,
+        followers: initialFollowersCount,
+        following: initialFollowingCount,
+        friends: initialFriendsCount
+    });
+    const supabase = createBrowserClient();
+
+    useEffect(() => {
+        const channel = supabase
+            .channel(`profile-stats-${userId}`)
+            .on(
+                "postgres_changes",
+                {event: "*", schema: "public", table: "follows"},
+                () => refreshStats()
+            )
+            .on(
+                "postgres_changes",
+                {event: "*", schema: "public", table: "friendships"},
+                () => refreshStats()
+            )
+            .on(
+                "postgres_changes",
+                {event: "*", schema: "public", table: "posts"},
+                () => refreshStats()
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [userId]);
+
+    const refreshStats = async () => {
+        const {count: followers} = await supabase
+            .from("follows")
+            .select("id", {count: "exact"})
+            .eq("following_id", userId);
+
+        const {count: following} = await supabase
+            .from("follows")
+            .select("id", {count: "exact"})
+            .eq("follower_id", userId);
+
+        const {count: friends} = await supabase
+            .from("friendships")
+            .select("id", {count: "exact"})
+            .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
+            .eq("status", "accepted");
+
+        const {count: posts} = await supabase
+            .from("posts")
+            .select("id", {count: "exact"})
+            .eq("author_id", userId);
+
+        setStats(prev => ({
+            ...prev,
+            followers: followers || 0,
+            following: following || 0,
+            friends: friends || 0,
+            posts: posts || 0
+        }));
+    };
+
     const displayName = profile.display_name || profile.username;
 
     return (
@@ -152,7 +219,7 @@ export function ProfileClient({
                                 <MessageSquare className="h-6 w-6 text-white"/>
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-foreground">{postsCount}</p>
+                                <p className="text-2xl font-bold text-foreground">{stats.posts}</p>
                                 <p className="text-sm text-muted-foreground">Posts</p>
                             </div>
                         </div>
@@ -167,7 +234,7 @@ export function ProfileClient({
                                 <Package className="h-6 w-6 text-white"/>
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-foreground">{listingsCount}</p>
+                                <p className="text-2xl font-bold text-foreground">{stats.listings}</p>
                                 <p className="text-sm text-muted-foreground">Listings</p>
                             </div>
                         </div>
