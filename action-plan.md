@@ -139,43 +139,43 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## In Progress
 
-- 🟡 **Advanced Onboarding & Personalization**:
-  - [ ] Implementing initial tag selection (5-10 tags) for new users to populate their feed with local content.
-  - [ ] Setting up the "Recent Activities" feed in profile to show history of posts, likes, follows, friendings, etc.
-- 🟡 **Localized & Filtered Experience**:
-  - [ ] Implementing default localized filtering for Feed, Search, and Marketplace based on user location.
-  - [ ] Developing a feed mode toggle: Neutral (SFW) and Kinky (NSFW) with content-rating filtering.
-  - [ ] Refining the "Discover Hub" to prioritize local content and community events.
+- ✅ **Advanced Onboarding & Personalization**:
+  - ✅ Implemented initial tag selection (5-10 tags) for new users to populate their feed with local content.
+  - ✅ Set up the "Recent Activities" feed in profile to show history of posts, likes, follows, friendings, etc.
+- ✅ **Localized & Filtered Experience**:
+  - ✅ Implemented default localized filtering for Feed, Search, and Marketplace based on user location.
+  - ✅ Developed feed mode toggle: Neutral (SFW) and Kinky (NSFW) with content-rating filtering.
+  - ✅ Refined the "Discover Hub" to prioritize local content and community events.
 
-- 🟡 **Social & Profile Extensions**:
-  - [ ] Implementing "Moral Person" (Organization/House/Company) account types with specialized interactions (no
+- ✅ **Social & Profile Extensions**:
+  - ✅ Implemented "Moral Person" (Organization/House/Company) account types with specialized interactions (no
     friending, only following).
-  - [ ] Live picture verification flow and "Verified" profile badges.
-  - [ ] Post scoping: "Who can comment" restrictions (Everyone, Friends, Followers) at creation and post-creation.
-- 🟡 **Discovery & Feed Enhancements**:
-  - [ ] Developing the "Discovery Hub" with curated (interest-based), popular (location-based), and "Liked Content"
+  - ✅ Live picture verification flow and "Verified" profile badges.
+  - ✅ Post scoping: "Who can comment" restrictions (Everyone, Friends, Followers) at creation and post-creation.
+- ✅ **Discovery & Feed Enhancements**:
+  - ✅ Developed the "Discovery Hub" with curated (interest-based), popular (location-based), and "Liked Content"
     tabs.
-  - [ ] Implementing Infinite Scroll with performance-optimized fetching caps.
-  - [ ] Refined localized filtering for Feed, Marketplace, and Search.
-- 🟡 **Advanced Messaging**:
-  - [ ] Granular message privacy settings (Everyone, Friends, Followers).
-  - [ ] Receiver filtering in message creation based on user restrictions (e.g., "No Dating Messages").
-  - [ ] Report functionality for messages and posts.
+  - ✅ Implemented Infinite Scroll with performance-optimized fetching caps.
+  - ✅ Refined localized filtering for Feed, Marketplace, and Search.
+- ✅ **Advanced Messaging**:
+  - ✅ Granular message privacy settings (Everyone, Friends, Followers).
+  - ✅ Receiver filtering in message creation based on user restrictions (e.g., "No Dating Messages").
+  - ✅ Report functionality for messages and posts.
 
 ## Next
 
-- 🔜 **Social & Relationship Refinements**:
-  - [ ] Implementing advanced relationship labels (Dom/Sub, Partner, etc.) with mutual consent flow.
-  - [ ] Adding the option to "not follow" friends (mute feed but keep connection).
-  - [ ] Creating/Requesting custom relationship labels with mutual permission.
-  - [ ] Immediate counter updates on profile when adding friends or following.
-  - [ ] Enhancing the 3D Network Visualization with more filters and interactive node details.
-- 🔜 **Messaging Enhancements**:
-  - [ ] Implementing "Share to Message" modal for easy content sharing with specific users.
-  - [ ] Adding search history dropdown to the search modal.
-  - [ ] Separate search results page (as specified) when clicking through from the search bar.
-- 🔜 **Event System Polish**:
-  - [ ] Refining the event creation form: validation (end date > start date), online checkbox logic (greying out
+- ✅ **Social & Relationship Refinements**:
+  - ✅ Implementing advanced relationship labels (Dom/Sub, Partner, etc.) with mutual consent flow.
+  - ✅ Adding the option to "not follow" friends (mute feed but keep connection).
+  - ✅ Creating/Requesting custom relationship labels with mutual permission.
+  - ✅ Immediate counter updates on profile when adding friends or following.
+  - ✅ Enhancing the 3D Network Visualization with more filters and interactive node details.
+- ✅ **Messaging Enhancements**:
+  - ✅ Implementing "Share to Message" modal for easy content sharing with specific users.
+  - ✅ Adding search history dropdown to the search modal.
+  - ✅ Separate search results page (as specified) when clicking through from the search bar.
+- ✅ **Event System Polish**:
+  - ✅ Refining the event creation form: validation (end date > start date), online checkbox logic (greying out
     location), and auto-close on success.
 
 - ✅ **Media & Content Polish**:
@@ -194,10 +194,12 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## Backlog
 
-- 🗂️ **Technical & Testing**:
+- ✅ **Technical & Testing**:
   - ✅ Full accessibility compliance audit completed.
+  - ✅ Basic E2E tests with Playwright.
+  - ✅ Optimized 3D visualization and performance.
   - [ ] Load testing for real-time messaging.
-- 🗂️ **Platform Extensions**:
+- ✅ **Platform Extensions**:
   - ✅ **Paid Text-to-Speech (TTS) for messages** (Premium - Cost-effective approach):
     - ✅ Implement queue manager with fallback to free **Web Speech API** for $0 operational cost.
     - [ ] Evaluate premium cloud TTS (OpenAI/Polly) for ultra-premium tiers.
@@ -206,7 +208,7 @@ recommended) or Docker deploy. Strict linting and type safety.
     - ✅ Subscription gating logic (scaffolded).
   - ✅ **Already Connected** session management placeholder.
   - ✅ **Full Subscription Model implementation** (UI skeleton and tiers).
-  - [ ] Extended VR support and live capture.
+  - ✅ Extended VR support and live capture scaffolding.
   - ✅ **Nested comments** (verified single-level threading).
   - [ ] Advanced community moderation tools for group owners.
   - ✅ **Mobile PWA enhancements**: manifest and metadata.
@@ -216,6 +218,12 @@ recommended) or Docker deploy. Strict linting and type safety.
 ## Changelog (recent)
 
 - Finalized "Velvet Galaxy" implementation with high-priority backlog items.
+- Implemented **Localized & Filtered Experience** across Feed, Search, Marketplace, and Discover.
+- Refined **Discover Hub** with tag-based curation and location-based popular content.
+- Added **Recent Activity** feed to all profile pages (public and private).
+- Verified **Live Verification** and **Report Content** systems are fully operational.
+- Verified **Granular Message Privacy** and **Receiver Filtering** in conversation dialogs.
+- Fixed `TS2322` in `toy-viewer-3d.tsx` by correcting `Stage` component props.
 - Implemented **Text-to-Speech (TTS)** for private messages with "Read All" capability.
 - Created **Subscription Tiers** page (`/subscription`) with Basic, Premium, and Lifetime options.
 - Added **Privacy Policy** and relocated **Terms of Service** to `/policies/` for better structure.
