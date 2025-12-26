@@ -1,6 +1,17 @@
 "use client";
 
-import {Calendar, FileText, ImageIcon, MessageSquare, Music, Search, Users, UsersRound, Video} from "lucide-react";
+import {
+    Calendar,
+    FileText,
+    ImageIcon,
+    MapPin,
+    MessageSquare,
+    Music,
+    Search,
+    Users,
+    UsersRound,
+    Video
+} from "lucide-react";
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
 import type React from "react";
@@ -14,6 +25,7 @@ import {Input} from "@/components/ui/input";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createBrowserClient} from "@/lib/supabase/client";
 import type {MediaItem, SearchResults as SearchResultsType} from "@/types";
+import {cn} from "@/lib/utils";
 
 interface SearchResultsProps {
     query: string
@@ -37,52 +49,102 @@ export function SearchResults({query: initialQuery, type: initialType, userId}: 
         groups: [],
     });
     const [loading, setLoading] = useState(false);
+    const [localOnly, setLocalOnly] = useState(false);
+    const [userLocation, setUserLocation] = useState<{ lat: number, lon: number } | null>(null);
     const supabase = createBrowserClient();
+
+    useEffect(() => {
+        const fetchUserLocation = async () => {
+            const {data} = await supabase.from("profiles").select("latitude, longitude").eq("id", userId).single();
+            if (data?.latitude && data?.longitude) {
+                setUserLocation({lat: Number(data.latitude), lon: Number(data.longitude)});
+            }
+        };
+        fetchUserLocation();
+    }, [userId]);
 
     useEffect(() => {
         if (query) {
             performSearch();
         }
-    }, [query, activeTab]);
+    }, [query, activeTab, localOnly, userLocation]);
 
     const performSearch = async () => {
         setLoading(true);
         const searchTerm = `%${query}%`;
 
         // Search users
-        const {data: users} = await supabase
+        let usersQuery = supabase
             .from("profiles")
             .select("*")
-            .or(`display_name.ilike.${searchTerm},username.ilike.${searchTerm},bio.ilike.${searchTerm}`)
-            .limit(20);
+            .or(`display_name.ilike.${searchTerm},username.ilike.${searchTerm},bio.ilike.${searchTerm}`);
+
+        if (localOnly && userLocation) {
+            usersQuery = usersQuery
+                .gte("latitude", userLocation.lat - 1)
+                .lte("latitude", userLocation.lat + 1)
+                .gte("longitude", userLocation.lon - 1)
+                .lte("longitude", userLocation.lon + 1);
+        }
+
+        const {data: users} = await usersQuery.limit(20);
 
         // Search media
-        const {data: media} = await supabase
+        let mediaQuery = supabase
             .from("media_items")
-            .select("*, author_profile:profiles!inner(display_name, avatar_url)")
-            .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
-            .limit(20);
+            .select("*, author_profile:profiles!inner(display_name, avatar_url, latitude, longitude)")
+            .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`);
+
+        if (localOnly && userLocation) {
+            mediaQuery = mediaQuery
+                .gte("author_profile.latitude", userLocation.lat - 1)
+                .lte("author_profile.latitude", userLocation.lat + 1)
+                .gte("author_profile.longitude", userLocation.lon - 1)
+                .lte("author_profile.longitude", userLocation.lon + 1);
+        }
+
+        const {data: media} = await mediaQuery.limit(20);
 
         // Search posts
-        const {data: posts} = await supabase
+        let postsQuery = supabase
             .from("posts")
-            .select("*, author_profile:profiles!inner(display_name, avatar_url, username)")
-            .ilike("content", searchTerm)
-            .limit(20);
+            .select("*, author_profile:profiles!inner(display_name, avatar_url, username, latitude, longitude)")
+            .ilike("content", searchTerm);
+
+        if (localOnly && userLocation) {
+            postsQuery = postsQuery
+                .gte("author_profile.latitude", userLocation.lat - 1)
+                .lte("author_profile.latitude", userLocation.lat + 1)
+                .gte("author_profile.longitude", userLocation.lon - 1)
+                .lte("author_profile.longitude", userLocation.lon + 1);
+        }
+
+        const {data: posts} = await postsQuery.limit(20);
 
         // Search events
-        const {data: events} = await supabase
+        let eventsQuery = supabase
             .from("events")
             .select("*")
-            .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
-            .limit(20);
+            .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`);
+
+        if (localOnly && userLocation) {
+            eventsQuery = eventsQuery
+                .gte("latitude", userLocation.lat - 1)
+                .lte("latitude", userLocation.lat + 1)
+                .gte("longitude", userLocation.lon - 1)
+                .lte("longitude", userLocation.lon + 1);
+        }
+
+        const {data: events} = await eventsQuery.limit(20);
 
         // Search groups
-        const {data: groups} = await supabase
+        let groupsQuery = supabase
             .from("groups")
             .select("*")
-            .or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`)
-            .limit(20);
+            .or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`);
+
+        // Groups don't have lat/lon in schema (usually) - check if they do or skip
+        const {data: groups} = await groupsQuery.limit(20);
 
         setResults({
             users: users || [],
@@ -125,10 +187,22 @@ export function SearchResults({query: initialQuery, type: initialType, userId}: 
                                 <Input
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
-                                    placeholder="Search SideNet..."
+                                    placeholder="Search Velvet Galaxy..."
                                     className="pl-10 bg-card border-border"
                                 />
                             </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setLocalOnly(!localOnly)}
+                                className={cn(
+                                    "gap-2 border-royal-purple/20 bg-transparent shrink-0",
+                                    localOnly && "bg-royal-purple text-white hover:bg-royal-purple/90"
+                                )}
+                            >
+                                <MapPin className="h-4 w-4"/>
+                                {localOnly ? "Local Only" : "Global"}
+                            </Button>
                             <Button type="submit" className="bg-gradient-to-r from-royal-blue to-royal-purple">
                                 Search
                             </Button>

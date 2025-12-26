@@ -9,6 +9,7 @@ import {
     Heart,
     ImageIcon,
     Loader2,
+    MapPin,
     Megaphone,
     Music,
     Sparkles,
@@ -25,6 +26,7 @@ import {Label} from "@/components/ui/label";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/client";
+import {cn} from "@/lib/utils";
 
 interface DiscoverClientProps {
     profile: {
@@ -46,6 +48,8 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
     const [likedPosts, setLikedPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [feedMode, setFeedMode] = useState<"sfw" | "all">("sfw");
+    const [localOnly, setLocalOnly] = useState(false);
+    const [userLocation, setUserLocation] = useState<{ lat: number, lon: number } | null>(null);
     const [contentFilters, setContentFilters] = useState({
         image: true,
         video: true,
@@ -55,6 +59,17 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
         promotional: false,
     });
 
+    useEffect(() => {
+        const fetchLocation = async () => {
+            const supabase = createClient();
+            const {data} = await supabase.from("profiles").select("latitude, longitude").eq("id", profile.id).single();
+            if (data?.latitude && data?.longitude) {
+                setUserLocation({lat: Number(data.latitude), lon: Number(data.longitude)});
+            }
+        };
+        fetchLocation();
+    }, [profile.id]);
+
     const loadPosts = useCallback(async () => {
         setLoading(true);
         const supabase = createClient();
@@ -62,7 +77,7 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
         // Build content type filter
         const contentTypes = [];
         if (contentFilters.image) {
-            contentTypes.push("image");
+            contentTypes.push("picture");
         }
         if (contentFilters.video) {
             contentTypes.push("video");
@@ -70,89 +85,84 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
         if (contentFilters.audio) {
             contentTypes.push("audio");
         }
-        if (contentFilters.writing) {
-            contentTypes.push("writing");
-        }
-        if (contentFilters.text) {
-            contentTypes.push("text");
+        if (contentFilters.writing || contentFilters.text) {
+            contentTypes.push("status");
         }
 
         const ratingFilter = feedMode === "sfw" ? ["sfw"] : ["sfw", "nsfw"];
 
         try {
-            // Load curated posts based on user's location and liked tags
-            const curatedQuery = supabase
+            // 1. Load curated posts based on user's liked tags
+            let curatedQuery = supabase
                 .from("posts")
                 .select(
                     `
-                    id,
-                    content,
-                    created_at,
-                    media_type,
-                    media_url,
-                    images,
-                    audio_url,
-                    content_rating,
-                    is_promotional,
-                    profiles (
-                        id,
-                        username,
-                        display_name,
-                        avatar_url
-                    )
+                    id, content, created_at, media_type, media_url, images, audio_url, content_rating, is_promotional,
+                    profiles!inner (id, username, display_name, avatar_url, latitude, longitude),
+                    post_tags!inner (tag_id)
                     `
                 )
                 .in("media_type", contentTypes)
                 .in("content_rating", ratingFilter)
-                .eq("is_promotional", false)
-                .order("created_at", {ascending: false})
-                .limit(20);
+                .eq("is_promotional", false);
 
-            // Load popular posts (most liked in the last 7 days)
-            const popularQuery = supabase
+            if (_likedTags.length > 0) {
+                curatedQuery = curatedQuery.in("post_tags.tag_id", _likedTags.map(t => t.tag_id));
+            }
+
+            if (localOnly && userLocation) {
+                curatedQuery = curatedQuery
+                    .gte("profiles.latitude", userLocation.lat - 1)
+                    .lte("profiles.latitude", userLocation.lat + 1)
+                    .gte("profiles.longitude", userLocation.lon - 1)
+                    .lte("profiles.longitude", userLocation.lon + 1);
+            }
+
+            // 2. Load popular posts (most liked in the last 7 days)
+            let popularQuery = supabase
                 .from("posts")
                 .select(
                     `
-                    id,
-                    content,
-                    created_at,
-                    media_type,
-                    media_url,
-                    images,
-                    audio_url,
-                    content_rating,
-                    is_promotional,
-                    profiles (
-                        id,
-                        username,
-                        display_name,
-                        avatar_url
-                    )
+                    id, content, created_at, media_type, media_url, images, audio_url, content_rating, is_promotional,
+                    profiles!inner (id, username, display_name, avatar_url, latitude, longitude)
                     `
                 )
                 .in("media_type", contentTypes)
                 .in("content_rating", ratingFilter)
                 .gt("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-                .order("like_count", {ascending: false})
-                .limit(20);
+                .order("like_count", {ascending: false});
+
+            if (localOnly && userLocation) {
+                popularQuery = popularQuery
+                    .gte("profiles.latitude", userLocation.lat - 1)
+                    .lte("profiles.latitude", userLocation.lat + 1)
+                    .gte("profiles.longitude", userLocation.lon - 1)
+                    .lte("profiles.longitude", userLocation.lon + 1);
+            }
 
             const [curatedResult, popularResult] = await Promise.all([
-                curatedQuery,
-                popularQuery,
+                curatedQuery.order("created_at", {ascending: false}).limit(20),
+                popularQuery.limit(20),
             ]);
 
             if (curatedResult.data) {
-                setCuratedPosts(curatedResult.data);
+                setCuratedPosts(curatedResult.data.map((p: any) => ({
+                    ...p,
+                    profiles: Array.isArray(p.profiles) ? p.profiles[0] : p.profiles
+                })));
             }
             if (popularResult.data) {
-                setPopularPosts(popularResult.data);
+                setPopularPosts(popularResult.data.map((p: any) => ({
+                    ...p,
+                    profiles: Array.isArray(p.profiles) ? p.profiles[0] : p.profiles
+                })));
             }
         } catch (error) {
             console.error("Error loading posts:", error);
         } finally {
             setLoading(false);
         }
-    }, [feedMode, contentFilters.image, contentFilters.video, contentFilters.audio, contentFilters.writing, contentFilters.text]);
+    }, [feedMode, localOnly, userLocation, contentFilters, _likedTags]);
 
     useEffect(() => {
         loadPosts();
@@ -434,7 +444,9 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
             </div>
 
             <Tabs defaultValue="curated" className="w-full">
-                <TabsList className="grid grid-cols-3 bg-card/50 border border-royal-purple/20 h-12">
+                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                    <TabsList
+                        className="grid grid-cols-3 bg-card/50 border border-royal-purple/20 h-12 w-full md:w-[400px]">
                     <TabsTrigger value="curated" className="text-base">
                         <Compass className="h-4 w-4 mr-2"/>
                         For You
@@ -448,6 +460,44 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
                         Liked
                     </TabsTrigger>
                 </TabsList>
+
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setLocalOnly(!localOnly)}
+                            className={cn(
+                                "gap-2 border-royal-purple/20 bg-transparent h-12 px-6",
+                                localOnly && "bg-royal-purple text-white hover:bg-royal-purple/90"
+                            )}
+                        >
+                            <MapPin className="h-4 w-4"/>
+                            {localOnly ? "Local" : "Global"}
+                        </Button>
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFeedMode(feedMode === "sfw" ? "all" : "sfw")}
+                            className={cn(
+                                "gap-2 border-royal-purple/20 bg-transparent h-12 px-6",
+                                feedMode === "all" && "bg-royal-auburn text-white hover:bg-royal-auburn/90"
+                            )}
+                        >
+                            {feedMode === "sfw" ? (
+                                <>
+                                    <Eye className="h-4 w-4"/>
+                                    SFW
+                                </>
+                            ) : (
+                                <>
+                                    <EyeOff className="h-4 w-4"/>
+                                    All
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
 
                 <TabsContent value="curated" className="mt-6">
                     {loading ? (

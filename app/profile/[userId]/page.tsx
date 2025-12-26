@@ -3,6 +3,7 @@ import {Calendar, FileText, HelpCircle, ImageIcon, MapPin, MessageSquare, Music,
 import Link from "next/link";
 import {redirect} from "next/navigation";
 
+import {ActivityFeed} from "@/components/activity-feed";
 import {AnonymousFAQ} from "@/components/anonymous-faq";
 import {FollowButton} from "@/components/follow-button";
 import {FriendButton} from "@/components/friend-button";
@@ -253,8 +254,9 @@ export default async function PublicProfilePage({
                         </div>
 
                         <Tabs defaultValue={tab || "posts"} className="w-full">
-                            <TabsList className="grid grid-cols-7 bg-background/50">
+                            <TabsList className="grid grid-cols-8 bg-background/50">
                                 <TabsTrigger value="posts">Posts</TabsTrigger>
+                                <TabsTrigger value="activity">Activity</TabsTrigger>
                                 <TabsTrigger value="pictures">
                                     <ImageIcon className="h-4 w-4"/>
                                 </TabsTrigger>
@@ -283,6 +285,17 @@ export default async function PublicProfilePage({
                                         </CardContent>
                                     </Card>
                                 )}
+                            </TabsContent>
+
+                            <TabsContent value="activity" className="mt-6">
+                                <Card className="border-royal-purple/20 bg-card/50">
+                                    <CardHeader>
+                                        <h2 className="text-xl font-semibold text-gradient">Recent Activity</h2>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ActivityFeed userId={userId} mode="profile"/>
+                                    </CardContent>
+                                </Card>
                             </TabsContent>
 
                             <TabsContent value="pictures" className="mt-6">

@@ -1,12 +1,14 @@
 "use client";
 
-import {Search} from "lucide-react";
+import {MapPin, Search} from "lucide-react";
 import {useEffect, useState} from "react";
 
 import {CreateListingDialog} from "@/components/create-listing-dialog";
 import {MarketplaceItemCard} from "@/components/marketplace-item-card";
+import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {createClient} from "@/lib/supabase/client";
+import {cn} from "@/lib/utils";
 
 interface MarketplaceItem {
     id: string
@@ -109,14 +111,27 @@ export function MarketplaceClient({items: initialItems}: MarketplaceClientProps)
                 <CreateListingDialog onListingCreated={refreshItems}/>
             </div>
 
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
-                <Input
-                    placeholder="Search items, locations..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                />
+            <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
+                    <Input
+                        placeholder="Search items, locations..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                    />
+                </div>
+                <Button
+                    variant="outline"
+                    onClick={() => setLocalOnly(!localOnly)}
+                    className={cn(
+                        "gap-2 border-royal-purple/20 bg-transparent shrink-0",
+                        localOnly && "bg-royal-purple text-white hover:bg-royal-purple/90"
+                    )}
+                >
+                    <MapPin className="h-4 w-4"/>
+                    {localOnly ? "Local Only" : "All Locations"}
+                </Button>
             </div>
 
             {filteredItems.length === 0 ? (
