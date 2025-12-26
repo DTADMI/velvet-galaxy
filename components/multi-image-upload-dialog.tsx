@@ -1,8 +1,8 @@
 "use client";
 
-import {AlertTriangle, Image as ImageIcon, ImagePlus, Loader2, Megaphone, Tag, X} from "lucide-react";
-import type React from "react";
-import {useCallback, useRef, useState} from "react";
+import {AlertTriangle, Image as ImageIcon, ImagePlus, Loader2, Megaphone, Plus, Tag, X} from "lucide-react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
+import {useTags} from "@/hooks/use-tags";
 import {toast} from "sonner";
 
 import {RichTextEditor} from "@/components/rich-text-editor";
@@ -28,8 +28,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
     const [description, setDescription] = useState("");
     const [contentRating, setContentRating] = useState<"sfw" | "nsfw">("sfw");
     const [isPromotional, setIsPromotional] = useState(false);
-    const [tags, setTags] = useState<string[]>([]);
-    const [tagInput, setTagInput] = useState("");
+    const {tags, tagInput, setTags, setTagInput, addTag, removeTag} = useTags();
     const [selectedSoundtrack, setSelectedSoundtrack] = useState<string | null>(null);
     const [uploadedImages, setUploadedImages] = useState<{
         file: File;
@@ -45,6 +44,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
     const [isPosting, setIsPosting] = useState(false);
     const [fileError, setFileError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [isAlbumListOpen, setIsAlbumListOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const onDragOver = (e: React.DragEvent) => {
@@ -107,7 +107,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                     file,
                     url: publicUrl,
                     size: formatFileSize(file.size),
-                    type: isImage ? "picture" : "video" as const
+                    type: (isImage ? "picture" : "video") as "picture" | "video"
                 };
             });
 
@@ -195,16 +195,6 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
         if (open) fetchAlbums();
     }, [open, fetchAlbums]);
 
-    const addTag = () => {
-        if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-            setTags([...tags, tagInput.trim()]);
-            setTagInput("");
-        }
-    };
-
-    const removeTag = (tag: string) => {
-        setTags(tags.filter((t) => t !== tag));
-    };
 
     const handlePost = async () => {
         if (uploadedImages.length === 0 || !title.trim()) {

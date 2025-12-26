@@ -94,19 +94,19 @@ export default function DiscoveryPage({profile}: { profile: any }) {
 
                         <TabsContent value="curated" className="space-y-6">
                             {isLoading ? <DiscoverySkeleton/> : filterContent(curated).map(post => (
-                                <PostCard key={post.id} post={post} currentUserId={profile.id}/>
+                                <PostCard key={post.id} post={post}/>
                             ))}
                         </TabsContent>
 
                         <TabsContent value="popular" className="space-y-6">
                             {isLoading ? <DiscoverySkeleton/> : filterContent(popular).map(post => (
-                                <PostCard key={post.id} post={post} currentUserId={profile.id}/>
+                                <PostCard key={post.id} post={post}/>
                             ))}
                         </TabsContent>
 
                         <TabsContent value="liked" className="space-y-6">
                             {isLoading ? <DiscoverySkeleton/> : filterContent(liked).map(post => (
-                                <PostCard key={post.id} post={post} currentUserId={profile.id}/>
+                                <PostCard key={post.id} post={post}/>
                             ))}
                         </TabsContent>
                     </Tabs>

@@ -1,9 +1,8 @@
 "use client";
 
-import {Upload} from "lucide-react";
+import {Shield, Upload, Users} from "lucide-react";
 import {useRouter} from "next/navigation";
-import type React from "react";
-import {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 import {VelvetLogo} from "@/components/velvet-logo";
 import {LocationAutocomplete} from "@/components/location-autocomplete";
@@ -15,6 +14,7 @@ import {Label} from "@/components/ui/label";
 import {Progress} from "@/components/ui/progress";
 import {Textarea} from "@/components/ui/textarea";
 import {createBrowserClient} from "@/lib/supabase/client";
+import {cn} from "@/lib/utils";
 
 interface OnboardingFlowProps {
     userId: string

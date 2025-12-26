@@ -1,13 +1,13 @@
-import {expect, test} from '@playwright/test';
+import {expect, Page, test} from '@playwright/test';
 
 test.describe('Velvet Galaxy Core Flows', () => {
-    test('landing page loads correctly', async ({page}) => {
+    test('landing page loads correctly', async ({page}: { page: Page }) => {
         await page.goto('/');
         await expect(page).toHaveTitle(/Velvet Galaxy/);
         await expect(page.getByText('Welcome to Velvet Galaxy')).toBeVisible();
     });
 
-    test('navigation works', async ({page}) => {
+    test('navigation works', async ({page}: { page: Page }) => {
         await page.goto('/');
         const loginButton = page.getByRole('link', {name: 'Sign In'});
         await expect(loginButton).toBeVisible();
@@ -15,7 +15,7 @@ test.describe('Velvet Galaxy Core Flows', () => {
         await expect(page).toHaveURL(/\/auth\/login/);
     });
 
-    test('portal sections are accessible', async ({page}) => {
+    test('portal sections are accessible', async ({page}: { page: Page }) => {
         // Note: This assumes some static accessibility even without auth
         await page.goto('/about');
         await expect(page.getByText('About Velvet Galaxy')).toBeVisible();

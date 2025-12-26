@@ -1,6 +1,6 @@
 "use client";
 
-import {Eye, EyeOff, Filter, Loader2} from "lucide-react";
+import {Eye, EyeOff, Filter, Loader2, MapPin} from "lucide-react";
 import {useEffect, useState} from "react";
 
 import {EnhancedCreatePost} from "@/components/enhanced-create-post";
@@ -14,6 +14,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {useInfiniteScroll} from "@/hooks/use-infinite-scroll";
 import {cacheUtils, usePosts} from "@/lib/cache/hooks";
 import {createClient} from "@/lib/supabase/client";
+import {cn} from "@/lib/utils";
 
 interface FeedClientProps {
     profile: {

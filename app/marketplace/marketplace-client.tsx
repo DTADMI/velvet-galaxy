@@ -1,7 +1,7 @@
 "use client";
 
 import {Search} from "lucide-react";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 import {CreateListingDialog} from "@/components/create-listing-dialog";
 import {MarketplaceItemCard} from "@/components/marketplace-item-card";

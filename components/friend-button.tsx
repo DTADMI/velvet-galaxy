@@ -1,182 +1,126 @@
 "use client";
 
 import {Clock, Eye, EyeOff, UserCheck, UserPlus, UserX} from "lucide-react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {toast} from "sonner";
 
 import {Button} from "@/components/ui/button";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {createBrowserClient} from "@/lib/supabase/client";
+import {FriendshipAction} from "@/app/actions/friendship";
+
+type FriendshipRequestStatus = "none" | "sent" | "pending" | "accepted";
 
 interface FriendButtonProps {
-    userId: string
+    userId: string;
+    action: (userId: string, action: FriendshipAction, data?: { isMuted?: boolean }) => Promise<{
+        success: boolean;
+        error?: string
+    }>
 }
 
-export function FriendButton({userId, onStatusChange}: { userId: string; onStatusChange?: () => void }) {
-    const [friendshipStatus, setFriendshipStatus] = useState<"none" | "pending" | "accepted" | "sent">("none");
+export function FriendButton({userId, action}: FriendButtonProps) {
+    const [friendshipRequestStatus, setFriendshipRequestStatus] = useState<FriendshipRequestStatus>("none");
     const [isMuted, setIsMuted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const supabase = createBrowserClient();
+
+    const checkFriendshipStatus = useCallback(async () => {
+        const {
+            data: {user},
+        } = await supabase.auth.getUser();
+        if (!user) {
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            // Check sent and received requests
+            const {data} = await supabase
+                .from('friendships')
+                .select('user_id, status, is_muted')
+                .or(`and(user_id.eq.${user.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${user.id})`)
+                .maybeSingle();
+
+            if (!data) {
+                setFriendshipRequestStatus("none");
+            } else if (data.status === 'accepted') {
+                setFriendshipRequestStatus("accepted");
+                setIsMuted(data.is_muted || false);
+            } else if (data.user_id === user.id) {
+                setFriendshipRequestStatus("sent");
+            } else {
+                setFriendshipRequestStatus("pending");
+            }
+        } catch (err) {
+            console.error("Error checking friendship status:", err);
+            setError("Failed to load friendship status");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [userId, supabase]);
 
     useEffect(() => {
         checkFriendshipStatus();
     }, [userId]);
 
-    const checkFriendshipStatus = async () => {
-        const {
-            data: {user},
-        } = await supabase.auth.getUser();
-        if (!user) {
-            return;
-        }
-
-        // Check if there's an existing friendship
-        const {data: sentRequest} = await supabase
-            .from("friendships")
-            .select("status, is_muted")
-            .eq("user_id", user.id)
-            .eq("friend_id", userId)
-            .maybeSingle();
-
-        if (sentRequest) {
-            setFriendshipStatus(sentRequest.status === "accepted" ? "accepted" : "sent");
-            setIsMuted(!!sentRequest.is_muted);
-            return;
-        }
-
-        // Check if there's a received request
-        const {data: receivedRequest} = await supabase
-            .from("friendships")
-            .select("status, is_muted")
-            .eq("user_id", userId)
-            .eq("friend_id", user.id)
-            .maybeSingle();
-
-        if (receivedRequest) {
-            setFriendshipStatus(receivedRequest.status === "accepted" ? "accepted" : "pending");
-            // Mute status for incoming friendships is handled by the receiver's perspective in the table
-            // But if the relation is bidirectional, we should check both.
-            // In Fetlife style, you can be friends and choose not to follow.
-        }
-    };
-
     const toggleMute = async () => {
         setIsLoading(true);
-        const {data: {user}} = await supabase.auth.getUser();
-        if (!user) return;
-
-        const newMuted = !isMuted;
-        const {error} = await supabase
-            .from("friendships")
-            .update({is_muted: newMuted})
-            .eq("user_id", user.id)
-            .eq("friend_id", userId);
-
-        if (!error) {
-            setIsMuted(newMuted);
-            toast.success(newMuted ? "Friend muted (not following in feed)" : "Following friend in feed");
+        try {
+            const result = await action(userId, 'toggle-mute', {isMuted});
+            if (result.success) {
+                setIsMuted(!isMuted);
+                toast.success(`Friend ${!isMuted ? 'muted' : 'unmuted'} successfully`);
+            } else {
+                setError(result.error || 'Failed to update mute status');
+            }
+        } catch (err) {
+            console.error('Error toggling mute:', err);
+            setError('An unexpected error occurred');
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
-    const sendFriendRequest = async () => {
+    const handleAction = async (actionType: FriendshipAction) => {
         setIsLoading(true);
-        const {
-            data: {user},
-        } = await supabase.auth.getUser();
-        if (!user) {
-            return;
+        try {
+            const result = await action(userId, actionType);
+            if (result.success) {
+                await checkFriendshipStatus();
+            } else {
+                setError(result.error || 'Action failed');
+            }
+        } catch (err) {
+            console.error('Error performing action:', err);
+            setError('An unexpected error occurred');
+        } finally {
+            setIsLoading(false);
         }
-
-        const {error} = await supabase.from("friendships").insert({
-            user_id: user.id,
-            friend_id: userId,
-            status: "pending",
-        });
-
-        if (!error) {
-            setFriendshipStatus("sent");
-            if (onStatusChange) onStatusChange();
-
-            await supabase.from("notifications").insert({
-                user_id: userId,
-                from_user_id: user.id,
-                type: "friend_request",
-                title: "Friend Request",
-                message: "sent you a friend request",
-                link: `/profile/${user.id}`,
-            });
-        }
-        setIsLoading(false);
     };
 
-    const acceptFriendRequest = async () => {
-        setIsLoading(true);
-        const {
-            data: {user},
-        } = await supabase.auth.getUser();
-        if (!user) {
-            return;
-        }
+    if (error) {
+        return (
+            <div className="text-sm text-red-500">
+                {error}
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setError(null)}
+                    className="ml-2"
+                >
+                    Retry
+                </Button>
+            </div>
+        );
+    }
 
-        const {error} = await supabase
-            .from("friendships")
-            .update({status: "accepted"})
-            .eq("user_id", userId)
-            .eq("friend_id", user.id);
+    if (isLoading) {
+        return <Button variant="outline" size="sm" disabled>Loading...</Button>;
+    }
 
-        if (!error) {
-            setFriendshipStatus("accepted");
-            if (onStatusChange) onStatusChange();
-
-            await supabase.from("notifications").insert({
-                user_id: userId,
-                from_user_id: user.id,
-                type: "friend_accept",
-                title: "Friend Request Accepted",
-                message: "accepted your friend request",
-                link: `/profile/${user.id}`,
-            });
-        }
-        setIsLoading(false);
-    };
-
-    const removeFriend = async () => {
-        setIsLoading(true);
-        const {
-            data: {user},
-        } = await supabase.auth.getUser();
-        if (!user) {
-            return;
-        }
-
-        await supabase
-            .from("friendships")
-            .delete()
-            .or(`and(user_id.eq.${user.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${user.id})`);
-
-        setFriendshipStatus("none");
-        if (onStatusChange) onStatusChange();
-        setIsLoading(false);
-    };
-
-    const cancelRequest = async () => {
-        setIsLoading(true);
-        const {
-            data: {user},
-        } = await supabase.auth.getUser();
-        if (!user) {
-            return;
-        }
-
-        await supabase.from("friendships").delete().eq("user_id", user.id).eq("friend_id", userId);
-
-        setFriendshipStatus("none");
-        if (onStatusChange) onStatusChange();
-        setIsLoading(false);
-    };
-
-    if (friendshipStatus === "accepted") {
+    if (friendshipRequestStatus === "accepted") {
         return (
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -203,7 +147,8 @@ export function FriendButton({userId, onStatusChange}: { userId: string; onStatu
                             </>
                         )}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={removeFriend} className="text-destructive cursor-pointer">
+                    <DropdownMenuItem onClick={() => handleAction('remove-friend')}
+                                      className="text-destructive cursor-pointer">
                         <UserX className="h-4 w-4 mr-2"/>
                         Unfriend
                     </DropdownMenuItem>
@@ -212,27 +157,27 @@ export function FriendButton({userId, onStatusChange}: { userId: string; onStatu
         );
     }
 
-    if (friendshipStatus === "pending") {
+    if (friendshipRequestStatus === "pending") {
         return (
             <div className="flex gap-2">
                 <Button
-                    onClick={acceptFriendRequest}
+                    onClick={() => handleAction("accept-request")}
                     className="bg-gradient-to-r from-royal-green to-emerald-600"
                     disabled={isLoading}
                 >
                     <UserCheck className="h-4 w-4 mr-2"/>
                     Accept
                 </Button>
-                <Button variant="outline" onClick={removeFriend} disabled={isLoading}>
+                <Button variant="outline" onClick={() => handleAction("remove-friend")} disabled={isLoading}>
                     Decline
                 </Button>
             </div>
         );
     }
 
-    if (friendshipStatus === "sent") {
+    if (friendshipRequestStatus === "sent") {
         return (
-            <Button variant="outline" onClick={cancelRequest} disabled={isLoading}>
+            <Button variant="outline" onClick={() => handleAction("cancel-request")} disabled={isLoading}>
                 <Clock className="h-4 w-4 mr-2"/>
                 Request Sent
             </Button>
@@ -241,7 +186,7 @@ export function FriendButton({userId, onStatusChange}: { userId: string; onStatu
 
     return (
         <Button
-            onClick={sendFriendRequest}
+            onClick={() => handleAction("send-request")}
             className="bg-gradient-to-r from-royal-blue to-royal-purple"
             disabled={isLoading}
         >

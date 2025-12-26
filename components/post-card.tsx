@@ -16,6 +16,7 @@ import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {createClient} from "@/lib/supabase/client";
 import type {Post} from "@/types/post";
+import {toast} from "sonner";
 
 interface PostCardProps {
     post: Post;

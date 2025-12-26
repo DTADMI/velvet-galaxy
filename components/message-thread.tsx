@@ -2,7 +2,7 @@
 
 import type {RealtimePostgresInsertPayload} from '@supabase/supabase-js';
 import {formatDistanceToNow} from "date-fns";
-import {EyeOff, Paperclip, Send, Timer} from "lucide-react";
+import {EyeOff, Paperclip, Send, Timer, Volume2, VolumeX} from "lucide-react";
 import type React from "react";
 import {useEffect, useRef, useState} from "react";
 
@@ -14,6 +14,7 @@ import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
 import {MediaSpoiler} from "@/components/media-spoiler";
 import {EphemeralMedia} from "@/components/ephemeral-media";
+import {useTTS} from "@/hooks/use-tts";
 
 interface Message {
     id: string
@@ -41,10 +42,54 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
     const [isEphemeral, setIsEphemeral] = useState(false);
     const [isSpoiler, setIsSpoiler] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isSubscriber, setIsSubscriber] = useState(true); // Placeholder for subscription check
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const {speak, stop, isPlaying} = useTTS();
+    const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+    };
+
+    const handleSpeak = (message: Message) => {
+        if (!isSubscriber) {
+            alert("Text-to-Speech is a premium feature. Please subscribe to unlock.");
+            return;
+        }
+
+        if (currentlyPlayingId === message.id && isPlaying) {
+            stop();
+            setCurrentlyPlayingId(null);
+        } else {
+            // Strip HTML from content for speech
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = message.content;
+            const plainText = tempDiv.textContent || tempDiv.innerText || "";
+
+            setCurrentlyPlayingId(message.id);
+            speak(plainText);
+        }
+    };
+
+    const handleReadAll = () => {
+        if (!isSubscriber) {
+            alert("Text-to-Speech is a premium feature. Please subscribe to unlock.");
+            return;
+        }
+
+        if (isPlaying) {
+            stop();
+            setCurrentlyPlayingId(null);
+        } else {
+            const allText = messages.map(m => {
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = m.content;
+                return `${m.profiles.display_name || m.profiles.username} says: ${tempDiv.textContent || tempDiv.innerText || ""}`;
+            }).join(". ");
+
+            setCurrentlyPlayingId("all");
+            speak(allText);
+        }
     };
 
     useEffect(() => {
@@ -239,6 +284,29 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
 
     return (
         <div className="flex flex-col h-full">
+            <div className="p-2 border-b border-border flex justify-end">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReadAll}
+                    className={cn(
+                        "text-xs gap-2",
+                        currentlyPlayingId === "all" && isPlaying && "text-royal-purple bg-royal-purple/10"
+                    )}
+                >
+                    {currentlyPlayingId === "all" && isPlaying ? (
+                        <>
+                            <VolumeX className="h-4 w-4"/>
+                            Stop Reading All
+                        </>
+                    ) : (
+                        <>
+                            <Volume2 className="h-4 w-4"/>
+                            Read All Messages
+                        </>
+                    )}
+                </Button>
+            </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message) => {
                     const isOwn = message.sender_id === currentUserId;
@@ -264,6 +332,20 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                                     <span className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(message.created_at), {addSuffix: true})}
                   </span>
+                                    <button
+                                        onClick={() => handleSpeak(message)}
+                                        className={cn(
+                                            "p-1 rounded-full hover:bg-muted transition-colors",
+                                            currentlyPlayingId === message.id && isPlaying && "text-royal-purple"
+                                        )}
+                                        title={currentlyPlayingId === message.id && isPlaying ? "Stop reading" : "Read message"}
+                                    >
+                                        {currentlyPlayingId === message.id && isPlaying ? (
+                                            <VolumeX className="h-3 w-3"/>
+                                        ) : (
+                                            <Volume2 className="h-3 w-3"/>
+                                        )}
+                                    </button>
                                     {!isOwn && (
                                         <button onClick={() => reportMessage(message.id)}
                                                 className="text-[10px] text-muted-foreground hover:text-destructive">

@@ -249,7 +249,7 @@ export function ProfileClient({
                                 <MessageSquare className="h-6 w-6 text-white"/>
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-foreground">{conversationsCount}</p>
+                                <p className="text-2xl font-bold text-foreground">{initialConversationsCount}</p>
                                 <p className="text-sm text-muted-foreground">Chats</p>
                             </div>
                         </div>
@@ -273,7 +273,7 @@ export function ProfileClient({
                                 <UserCheck className="h-6 w-6 text-white"/>
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-foreground">{friendsCount}</p>
+                                <p className="text-2xl font-bold text-foreground">{initialFriendsCount}</p>
                                 <p className="text-sm text-muted-foreground">Friends</p>
                             </div>
                         </div>
@@ -297,7 +297,7 @@ export function ProfileClient({
                                 <Users className="h-6 w-6 text-white"/>
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-foreground">{followersCount}</p>
+                                <p className="text-2xl font-bold text-foreground">{initialFollowersCount}</p>
                                 <p className="text-sm text-muted-foreground">Followers</p>
                             </div>
                         </div>
@@ -321,7 +321,7 @@ export function ProfileClient({
                                 <Users className="h-6 w-6 text-white"/>
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-foreground">{followingCount}</p>
+                                <p className="text-2xl font-bold text-foreground">{initialFollowingCount}</p>
                                 <p className="text-sm text-muted-foreground">Following</p>
                             </div>
                         </div>

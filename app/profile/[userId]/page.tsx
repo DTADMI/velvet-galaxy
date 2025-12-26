@@ -6,6 +6,7 @@ import {redirect} from "next/navigation";
 import {AnonymousFAQ} from "@/components/anonymous-faq";
 import {FollowButton} from "@/components/follow-button";
 import {FriendButton} from "@/components/friend-button";
+import {toggleFollow} from "@/app/actions/follow";
 import {Navigation} from "@/components/navigation";
 import {PostCard} from "@/components/post-card";
 import {SendMessageButton} from "@/components/send-message-button";
@@ -14,6 +15,7 @@ import {Badge} from "@/components/ui/badge";
 import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/server";
+import {handleFriendship} from "@/app/actions/friendship";
 
 export default async function PublicProfilePage({
                                                     params,
@@ -188,8 +190,14 @@ export default async function PublicProfilePage({
                                                 dating_messages_enabled: profile.dating_messages_enabled ?? true,
                                             }}
                                         />
-                                        <FriendButton userId={userId}/>
-                                        <FollowButton userId={userId}/>
+                                        <FriendButton
+                                            userId={userId}
+                                            action={handleFriendship}
+                                        />
+                                        <FollowButton
+                                            userId={userId}
+                                            action={toggleFollow}
+                                        />
                                     </div>
                                 </div>
                             </CardHeader>

@@ -13,7 +13,10 @@ const inter = Inter({subsets: ["latin"]});
 export const metadata: Metadata = {
     title: "Velvet Galaxy - Connect with Your Community",
     description: "A social platform for meaningful connections and local commerce",
-    generator: 'v0.app'
+    generator: 'v0.app',
+    manifest: '/manifest.json',
+    themeColor: '#7000ff',
+    viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
 };
 
 export default function RootLayout({

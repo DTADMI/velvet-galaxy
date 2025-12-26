@@ -13,6 +13,7 @@ import {
     Music,
     Tag,
     Upload,
+    Users,
     Video,
     X
 } from "lucide-react";
@@ -35,6 +36,8 @@ import {Label} from "@/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/client";
+import {cn} from "@/lib/utils";
+import {useTags} from "@/hooks/use-tags";
 
 interface EnhancedCreatePostProps {
     userProfile: {
@@ -59,8 +62,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
     const [contentRating, setContentRating] = useState<"sfw" | "nsfw">("sfw");
     const [visibility, setVisibility] = useState<"everyone" | "friends_only">("everyone");
     const [commentScope, setCommentScope] = useState<"everyone" | "friends" | "followers">("everyone");
-    const [tags, setTags] = useState<string[]>([]);
-    const [tagInput, setTagInput] = useState("");
+    const {tags, tagInput, setTags, setTagInput, addTag, removeTag} = useTags();
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -75,17 +77,6 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
 
     const characterLimit = isPremium ? 400 : 200;
     const isOverLimit = content.length > characterLimit && mediaType !== "writing";
-
-    const addTag = () => {
-        if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-            setTags([...tags, tagInput.trim()]);
-            setTagInput("");
-        }
-    };
-
-    const removeTag = (tag: string) => {
-        setTags(tags.filter((t) => t !== tag));
-    };
 
     const handleStatusPost = async (e: React.FormEvent) => {
         e.preventDefault();

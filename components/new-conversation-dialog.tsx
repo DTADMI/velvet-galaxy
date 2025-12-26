@@ -1,6 +1,6 @@
 "use client";
 
-import {Search, X} from "lucide-react";
+import {Loader2, Search, X} from "lucide-react";
 import {useEffect, useState} from "react";
 
 import {RichTextEditor} from "@/components/rich-text-editor";
@@ -17,6 +17,15 @@ interface NewConversationDialogProps {
     currentUserId: string
     messageType: "normal" | "dating" | "group"
     onConversationCreated: (conversationId: string) => void
+}
+
+interface SearchUserResult {
+    id: string;                  // User's unique identifier
+    username: string;            // User's username
+    display_name: string;        // User's display name
+    avatar_url: string | null;   // URL to the user's avatar image (can be null)
+    message_privacy_scope: string; // User's message privacy setting
+    allow_dating_messages: boolean; // Whether the user allows dating messages
 }
 
 export function NewConversationDialog({
@@ -85,9 +94,9 @@ export function NewConversationDialog({
             }
 
             // Filter results based on privacy settings and intended message type
-            const filtered = await Promise.all(data.map(async (profile) => {
+            const filtered = await Promise.all(data.map(async (profile: SearchUserResult) => {
                 // Dating restriction check
-                if (messageType === "dating" && profile.allow_dating_messages === false) {
+                if (messageType === "dating" && !profile.allow_dating_messages) {
                     return null;
                 }
 

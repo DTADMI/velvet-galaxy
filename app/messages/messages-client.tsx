@@ -66,6 +66,17 @@ interface MessagesClientProps {
     currentUserId: string
 }
 
+export interface Group {
+    id: string | number;
+    name: string;
+    description: string | null;
+}
+
+export type GroupMember = {
+    group_id: string | number;  // The ID of the group this user is a member of
+    groups: Group
+}
+
 export function MessagesClient({conversations, currentUserId}: MessagesClientProps) {
     const [selectedConversation, setSelectedConversation] = useState<string | undefined>();
     const [activeTab, setActiveTab] = useState("normal");
@@ -83,7 +94,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
         archived: 0,
     });
     const [rooms, setRooms] = useState<any[]>([]);
-    const [userGroups, setUserGroups] = useState<any[]>([]);
+    const [userGroups, setUserGroups] = useState<Group[]>([]);
     const [hoveredConvId, setHoveredConvId] = useState<string | null>(null);
     const router = useRouter();
     const supabase = createBrowserClient();
@@ -95,7 +106,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
             .eq("user_id", currentUserId);
 
         if (data) {
-            setUserGroups(data.map(d => d.groups));
+            setUserGroups(data.map((d: GroupMember) => d.groups));
         }
     }, [currentUserId, supabase]);
 

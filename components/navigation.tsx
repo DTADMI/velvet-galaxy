@@ -14,6 +14,7 @@ import {
     Settings,
     ShoppingBag,
     User,
+    UserPlus,
     Users,
     X,
 } from "lucide-react";
@@ -36,6 +37,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {createClient} from "@/lib/supabase/client";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
 export function Navigation() {
     const pathname = usePathname();

@@ -16,6 +16,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
 import {createClient} from "@/lib/supabase/client";
+import {useTags} from "@/hooks/use-tags";
 
 interface UploadFormProps {
     profile: {
@@ -35,8 +36,7 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
     const [isDragging, setIsDragging] = useState(false);
     const [fileError, setFileError] = useState<string | null>(null);
     const [taggedPeople, setTaggedPeople] = useState<string[]>([]);
-    const [tagInput, setTagInput] = useState("");
-    const [tags, setTags] = useState<string[]>([]);
+    const {tags, tagInput, setTags, setTagInput, addTag, removeTag} = useTags();
     const [albums, setAlbums] = useState<any[]>([]);
     const [albumInput, setAlbumInput] = useState("");
     const [showAlbumSuggestions, setShowAlbumSuggestions] = useState(false);
@@ -166,17 +166,6 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
         const newUrls = previewUrls.filter((_, i) => i !== index);
         setFiles(newFiles);
         setPreviewUrls(newUrls);
-    };
-
-    const addTag = () => {
-        if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-            setTags([...tags, tagInput.trim()]);
-            setTagInput("");
-        }
-    };
-
-    const removeTag = (tag: string) => {
-        setTags(tags.filter((t) => t !== tag));
     };
 
     const handleAlbumSelect = (albumTitle: string) => {

@@ -1,4 +1,5 @@
 import {HelpCircle, Mail, MessageSquare} from "lucide-react";
+import Link from "next/link";
 
 import {Navigation} from "@/components/navigation";
 import {Button} from "@/components/ui/button";

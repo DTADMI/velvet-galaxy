@@ -17,6 +17,7 @@ import {
     UserX,
     Video,
     VideoOff,
+    X,
 } from "lucide-react";
 import {useRouter} from "next/navigation";
 import type React from "react";
@@ -34,6 +35,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Switch} from "@/components/ui/switch";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createBrowserClient} from "@/lib/supabase/client";
+import {cn} from "@/lib/utils";
 
 interface Message {
     id: string

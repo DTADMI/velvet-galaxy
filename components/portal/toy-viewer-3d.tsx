@@ -22,7 +22,7 @@ export function ToyViewer3D({modelUrl}: { modelUrl: string }) {
                 </div>
             }>
                 <Canvas shadows camera={{position: [0, 0, 150], fov: 40}}>
-                    <Stage environment="city" intensity={0.6} contactShadow={false}>
+                    <Stage environment="city" intensity={0.6} shadows={false}>
                         <Model url={modelUrl}/>
                     </Stage>
                     <OrbitControls makeDefault autoRotate/>
