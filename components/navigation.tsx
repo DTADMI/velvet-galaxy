@@ -12,6 +12,7 @@ import {
     MessageSquare,
     Network,
     Settings,
+    Shield,
     ShoppingBag,
     User,
     UserPlus,
@@ -211,6 +212,15 @@ export function Navigation() {
                                 <p className="text-sm font-bold text-gradient truncate">{userProfile?.display_name || userProfile?.username}</p>
                                 <p className="text-xs text-muted-foreground truncate">@{userProfile?.username}</p>
                             </div>
+                            {userProfile?.is_admin && (
+                                <DropdownMenuItem asChild>
+                                    <Link href="/admin"
+                                          className="flex items-center gap-2 cursor-pointer text-royal-purple font-bold">
+                                        <Shield className="h-4 w-4"/>
+                                        Admin Dashboard
+                                    </Link>
+                                </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem asChild>
                                 <Link href="/profile" className="flex items-center gap-2 cursor-pointer py-2">
                                     <User className="h-4 w-4 text-royal-blue"/>

@@ -12,9 +12,11 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import {toast} from "sonner";
 import {MediaSpoiler} from "@/components/media-spoiler";
 import {EphemeralMedia} from "@/components/ephemeral-media";
 import {useTTS} from "@/hooks/use-tts";
+import {useFeatureFlag} from "@/hooks/use-feature-flag";
 
 interface Message {
     id: string
@@ -45,6 +47,7 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
     const [isSubscriber, setIsSubscriber] = useState(true); // Placeholder for subscription check
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const {speak, stop, isPlaying} = useTTS();
+    const {isEnabled: isTTSEnabled} = useFeatureFlag("premium_tts");
     const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
 
     const scrollToBottom = () => {
@@ -52,6 +55,11 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
     };
 
     const handleSpeak = (message: Message) => {
+        if (!isTTSEnabled) {
+            toast.error("Text-to-Speech is currently disabled by system administration.");
+            return;
+        }
+
         if (!isSubscriber) {
             alert("Text-to-Speech is a premium feature. Please subscribe to unlock.");
             return;
@@ -72,6 +80,11 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
     };
 
     const handleReadAll = () => {
+        if (!isTTSEnabled) {
+            toast.error("Text-to-Speech is currently disabled by system administration.");
+            return;
+        }
+
         if (!isSubscriber) {
             alert("Text-to-Speech is a premium feature. Please subscribe to unlock.");
             return;

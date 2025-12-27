@@ -18,6 +18,8 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Textarea} from "@/components/ui/textarea";
 import {createClient} from "@/lib/supabase/client";
+import {useFeatureFlag} from "@/hooks/use-feature-flag";
+import {toast} from "sonner";
 
 interface CreateListingDialogProps {
     onListingCreated: () => void
@@ -26,6 +28,7 @@ interface CreateListingDialogProps {
 export function CreateListingDialog({onListingCreated}: CreateListingDialogProps) {
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const {isEnabled: isVideoEnabled} = useFeatureFlag("marketplace_video");
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -54,6 +57,10 @@ export function CreateListingDialog({onListingCreated}: CreateListingDialogProps
     };
 
     const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!isVideoEnabled) {
+            toast.error("Video listings are currently disabled.");
+            return;
+        }
         const files = Array.from(e.target.files || []);
         setVideos((prev) => [...prev, ...files]);
     };

@@ -29,6 +29,11 @@ recommended) or Docker deploy. Strict linting and type safety.
   - ✅ Performed accessibility audit and added ARIA labels to key components.
   - ✅ Optimized 3D Network Visualization performance for mobile devices.
   - ✅ Finalized all "Next" and "Backlog" items from the initial plan.
+- ✅ **Admin & Governance**:
+  - ✅ **Feature Flagging System**: Implemented `feature_flags` table and `useFeatureFlag` hook to toggle
+    paid/experimental features (TTS, Marketplace video).
+  - ✅ **Admin Dashboard**: Created `/admin` hub for managing system-wide feature flags and viewing platform stats.
+  - ✅ **Admin Profile Extension**: Added `is_admin` role to profiles with secure navigation and access control.
 - ✅ Velvet Portal Extensions:
   - **Velvet Market**: Implemented merchandise store and digital product listings with `sql/market.sql` schema and
     `app/portal/market/page.tsx`.
@@ -218,6 +223,9 @@ recommended) or Docker deploy. Strict linting and type safety.
 ## Changelog (recent)
 
 - Finalized "Velvet Galaxy" implementation with high-priority backlog items.
+- Implemented **Feature Flagging System** to manage premium and experimental functionalities.
+- Created **Admin Dashboard** for platform management and statistics tracking.
+- Added **is_admin** profile role and integrated it into the navigation system.
 - Implemented **Localized & Filtered Experience** across Feed, Search, Marketplace, and Discover.
 - Refined **Discover Hub** with tag-based curation and location-based popular content.
 - Added **Recent Activity** feed to all profile pages (public and private).
