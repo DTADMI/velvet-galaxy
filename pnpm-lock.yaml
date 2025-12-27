@@ -110,9 +110,6 @@ importers:
       '@supabase/supabase-js':
         specifier: latest
         version: 2.88.0
-      '@types/react-dropzone':
-        specifier: ^5.1.0
-        version: 5.1.0(react@19.2.3)
       '@vercel/analytics':
         specifier: 1.6.1
         version: 1.6.1(next@16.0.10(@babel/core@7.28.5)(@playwright/test@1.57.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
@@ -1815,10 +1812,6 @@ packages:
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
       '@types/react': ^19.2.0
-
-  '@types/react-dropzone@5.1.0':
-    resolution: {integrity: sha512-VCdDCwSsr1MT2frsVl5p8qH+LWwUGzsaNtGkEQekHviZqK0dmTbiIp2Pzfb8lTkH4oTE2JtBbWnbuM6B4FH80A==}
-    deprecated: This is a stub types definition. react-dropzone provides its own type definitions, so you do not need this installed.
 
   '@types/react-reconciler@0.28.9':
     resolution: {integrity: sha512-HHM3nxyUZ3zAylX8ZEyrDNd2XZOnQ0D5XfunJF5FLQnZbHHYq4UWvW1QfelQNXv1ICNkwYhfxjwfnqivYB6bFg==}
@@ -5177,12 +5170,6 @@ snapshots:
   '@types/react-dom@19.2.3(@types/react@19.2.7)':
     dependencies:
       '@types/react': 19.2.7
-
-  '@types/react-dropzone@5.1.0(react@19.2.3)':
-    dependencies:
-      react-dropzone: 14.3.8(react@19.2.3)
-    transitivePeerDependencies:
-      - react
 
   '@types/react-reconciler@0.28.9(@types/react@19.2.7)':
     dependencies:

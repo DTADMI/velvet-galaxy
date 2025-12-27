@@ -27,6 +27,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import {useFeatureFlag} from "@/hooks/use-feature-flag";
 
 interface DiscoverClientProps {
     profile: {
@@ -43,6 +44,7 @@ interface DiscoverClientProps {
 }
 
 export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
+    const [activeTab, setActiveTab] = useState("popular");
     const [curatedPosts, setCuratedPosts] = useState<any[]>([]);
     const [popularPosts, setPopularPosts] = useState<any[]>([]);
     const [likedPosts, setLikedPosts] = useState<any[]>([]);
@@ -50,6 +52,14 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
     const [feedMode, setFeedMode] = useState<"sfw" | "all">("sfw");
     const [localOnly, setLocalOnly] = useState(false);
     const [userLocation, setUserLocation] = useState<{ lat: number, lon: number } | null>(null);
+    const {isEnabled: isRecommendationsEnabled, isLoading: isFlagsLoading} = useFeatureFlag("ai_recommendations");
+    const {isEnabled: isLocalizedEnabled} = useFeatureFlag("localized_discovery");
+
+    useEffect(() => {
+        if (!isFlagsLoading && isRecommendationsEnabled) {
+            setActiveTab("curated");
+        }
+    }, [isFlagsLoading, isRecommendationsEnabled]);
     const [contentFilters, setContentFilters] = useState({
         image: true,
         video: true,
@@ -110,7 +120,7 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
                 curatedQuery = curatedQuery.in("post_tags.tag_id", _likedTags.map(t => t.tag_id));
             }
 
-            if (localOnly && userLocation) {
+            if (localOnly && userLocation && isLocalizedEnabled) {
                 curatedQuery = curatedQuery
                     .gte("profiles.latitude", userLocation.lat - 1)
                     .lte("profiles.latitude", userLocation.lat + 1)
@@ -132,7 +142,7 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
                 .gt("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
                 .order("like_count", {ascending: false});
 
-            if (localOnly && userLocation) {
+            if (localOnly && userLocation && isLocalizedEnabled) {
                 popularQuery = popularQuery
                     .gte("profiles.latitude", userLocation.lat - 1)
                     .lte("profiles.latitude", userLocation.lat + 1)
@@ -443,14 +453,19 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
                 </div>
             </div>
 
-            <Tabs defaultValue="curated" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                     <TabsList
-                        className="grid grid-cols-3 bg-card/50 border border-royal-purple/20 h-12 w-full md:w-[400px]">
-                    <TabsTrigger value="curated" className="text-base">
-                        <Compass className="h-4 w-4 mr-2"/>
-                        For You
-                    </TabsTrigger>
+                        className={cn(
+                            "grid bg-card/50 border border-royal-purple/20 h-12 w-full md:w-[400px]",
+                            isRecommendationsEnabled ? "grid-cols-3" : "grid-cols-2"
+                        )}>
+                        {isRecommendationsEnabled && (
+                            <TabsTrigger value="curated" className="text-base">
+                                <Compass className="h-4 w-4 mr-2"/>
+                                For You
+                            </TabsTrigger>
+                        )}
                     <TabsTrigger value="popular" className="text-base">
                         <TrendingUp className="h-4 w-4 mr-2"/>
                         Popular
@@ -462,18 +477,20 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
                 </TabsList>
 
                     <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setLocalOnly(!localOnly)}
-                            className={cn(
-                                "gap-2 border-royal-purple/20 bg-transparent h-12 px-6",
-                                localOnly && "bg-royal-purple text-white hover:bg-royal-purple/90"
-                            )}
-                        >
-                            <MapPin className="h-4 w-4"/>
-                            {localOnly ? "Local" : "Global"}
-                        </Button>
+                        {isLocalizedEnabled && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setLocalOnly(!localOnly)}
+                                className={cn(
+                                    "gap-2 border-royal-purple/20 bg-transparent h-12 px-6",
+                                    localOnly && "bg-royal-purple text-white hover:bg-royal-purple/90"
+                                )}
+                            >
+                                <MapPin className="h-4 w-4"/>
+                                {localOnly ? "Local" : "Global"}
+                            </Button>
+                        )}
 
                         <Button
                             variant="outline"

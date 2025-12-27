@@ -31,9 +31,13 @@ recommended) or Docker deploy. Strict linting and type safety.
   - ✅ Finalized all "Next" and "Backlog" items from the initial plan.
 - ✅ **Admin & Governance**:
   - ✅ **Feature Flagging System**: Implemented `feature_flags` table and `useFeatureFlag` hook to toggle
-    paid/experimental features (TTS, Marketplace video).
+    paid/experimental features (TTS, Marketplace video, AI recommendations, 3D viewer, Localized discovery).
   - ✅ **Admin Dashboard**: Created `/admin` hub for managing system-wide feature flags and viewing platform stats.
   - ✅ **Admin Profile Extension**: Added `is_admin` role to profiles with secure navigation and access control.
+- ✅ **Security & Maintenance**:
+  - ✅ **Next.js Security Update**: Upgraded to Next.js 16.0.10 to address critical RSC vulnerabilities (CVE-2025-66478,
+    CVE-2025-55182).
+  - ✅ **Secret Rotation Advisory**: Documented the need for secret rotation following the RSC protocol vulnerability.
 - ✅ Velvet Portal Extensions:
   - **Velvet Market**: Implemented merchandise store and digital product listings with `sql/market.sql` schema and
     `app/portal/market/page.tsx`.
@@ -223,7 +227,9 @@ recommended) or Docker deploy. Strict linting and type safety.
 ## Changelog (recent)
 
 - Finalized "Velvet Galaxy" implementation with high-priority backlog items.
-- Implemented **Feature Flagging System** to manage premium and experimental functionalities.
+- Implemented **Feature Flagging System** to manage premium and experimental functionalities (TTS, Marketplace video, AI
+  recommendations, 3D viewer, Localized discovery).
+- Upgraded to **Next.js 16.0.10** to patch critical RSC security vulnerabilities.
 - Created **Admin Dashboard** for platform management and statistics tracking.
 - Added **is_admin** profile role and integrated it into the navigation system.
 - Implemented **Localized & Filtered Experience** across Feed, Search, Marketplace, and Discover.

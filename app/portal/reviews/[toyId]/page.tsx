@@ -11,6 +11,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Separator} from "@/components/ui/separator";
 import {ToyViewer3D} from "@/components/portal/toy-viewer-3d";
 import {createBrowserClient} from "@/lib/supabase/client";
+import {useFeatureFlag} from "@/hooks/use-feature-flag";
 
 export default function ToyDetailPage() {
     const params = useParams();
@@ -23,6 +24,7 @@ export default function ToyDetailPage() {
     const [comments, setComments] = useState<any[]>([]);
     const [newComment, setNewComment] = useState("");
     const supabase = createBrowserClient();
+    const {isEnabled: is3DEnabled} = useFeatureFlag("toy_viewer_3d");
 
     useEffect(() => {
         fetchToyDetails();
@@ -76,8 +78,17 @@ export default function ToyDetailPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         {/* Left Column: Visuals */}
                         <div className="space-y-6">
-                            {model3d ? (
+                            {model3d && is3DEnabled ? (
                                 <ToyViewer3D modelUrl={model3d.url}/>
+                            ) : media.find(m => m.type === 'image') ? (
+                                <div
+                                    className="aspect-square bg-muted rounded-xl border border-royal-purple/20 overflow-hidden">
+                                    <img
+                                        src={media.find(m => m.type === 'image').url}
+                                        alt={toy.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
                             ) : (
                                 <div className="aspect-square bg-muted rounded-xl border border-royal-purple/20"/>
                             )}
