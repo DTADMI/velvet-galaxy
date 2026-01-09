@@ -138,17 +138,26 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
             <CardHeader className={displaySize === "compact" ? "pb-2" : "pb-3"}>
                 <div className="flex items-center justify-between">
                     <Link
-                        href={`/profile/${post.author_profile.id}`}
+                        href={`/profile/${post.author_profile?.id || 'unknown'}`}
                         className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                     >
                         <Avatar className={`${avatarSize} border-2 border-royal-purple`}>
-                            <AvatarImage src={post.author_profile.avatar_url || undefined}/>
-                            <AvatarFallback className="bg-gradient-to-br from-royal-purple to-royal-blue text-white">
-                                {post.author_profile.display_name?.[0]?.toUpperCase() || post.author_profile.username[0].toUpperCase()}
+                            <AvatarImage
+                                src={post.author_profile?.avatar_url || '/avatar-placeholder.png' || undefined}
+                                alt={`${post.author_profile?.display_name || post.author_profile?.username || 'User'}'s avatar`}
+                                className={!post.author_profile?.avatar_url ? 'hidden' : ''}
+                            />
+                            <AvatarFallback
+                                className="bg-gradient-to-br from-royal-purple to-royal-blue text-white"
+                            >
+                                {post.author_profile?.display_name?.[0]?.toUpperCase() ||
+                                    post.author_profile?.username?.[0]?.toUpperCase() || 'U'}
                             </AvatarFallback>
                         </Avatar>
                         <div>
-                            <p className={`font-semibold ${textSize}`}>{post.author_profile.display_name || post.author_profile.username}</p>
+                            <p className={`font-semibold ${textSize} line-clamp-1`}>
+                                {post.author_profile?.display_name || post.author_profile?.username || 'Unknown User'}
+                            </p>
                             <p className={`${displaySize === "compact" ? "text-[10px]" : "text-xs"} text-muted-foreground`}>
                                 {formatDistanceToNow(new Date(post.created_at), {addSuffix: true})}
                             </p>
@@ -174,7 +183,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                                 NSFW
                             </Badge>
                         )}
-                        {currentUserId === post.author_profile.id && (
+                        {currentUserId === post.author_profile?.id && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

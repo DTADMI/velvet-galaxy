@@ -20,7 +20,7 @@ export async function handleFriendship(userId: string, action: FriendshipAction,
 
     try {
         switch (action) {
-            case 'send-request':
+            case 'send-request': {
                 const {error: sendError} = await supabase
                     .from('friendships')
                     .insert([{
@@ -30,8 +30,9 @@ export async function handleFriendship(userId: string, action: FriendshipAction,
                     }]);
                 if (sendError) throw sendError;
                 break;
+            }
 
-            case 'accept-request':
+            case 'accept-request': {
                 // Update the existing friend request to accepted
                 const {error: acceptError} = await supabase
                     .from('friendships')
@@ -42,8 +43,9 @@ export async function handleFriendship(userId: string, action: FriendshipAction,
 
                 if (acceptError) throw acceptError;
                 break;
+            }
 
-            case 'remove-friend':
+            case 'remove-friend': {
                 // Delete friendship in both directions
                 const {error: removeError} = await supabase
                     .from('friendships')
@@ -52,8 +54,9 @@ export async function handleFriendship(userId: string, action: FriendshipAction,
 
                 if (removeError) throw removeError;
                 break;
+            }
 
-            case 'cancel-request':
+            case 'cancel-request': {
                 // Delete the pending request
                 const {error: cancelError} = await supabase
                     .from('friendships')
@@ -64,8 +67,9 @@ export async function handleFriendship(userId: string, action: FriendshipAction,
 
                 if (cancelError) throw cancelError;
                 break;
+            }
 
-            case 'toggle-mute':
+            case 'toggle-mute': {
                 const {isMuted} = data || {isMuted: false};
                 const {error: muteError} = await supabase
                     .from('friendships')
@@ -74,6 +78,7 @@ export async function handleFriendship(userId: string, action: FriendshipAction,
                     .eq("friend_id", userId);
                 if (muteError) throw muteError;
                 break;
+            }
         }
 
         revalidatePath(`/profile/${userId}`);

@@ -83,8 +83,10 @@ export function Navigation() {
     };
 
     const getActiveClasses = (isActive: boolean, color: string) => {
+        const hoverClass = getHoverClass(color);
+        
         if (!isActive) {
-            return "hover:text-foreground";
+            return `hover:text-foreground ${hoverClass}`;
         }
 
         switch (color) {
@@ -102,6 +104,25 @@ export function Navigation() {
                 return "bg-royal-auburn text-white shadow-lg shadow-royal-auburn/20";
             default:
                 return "bg-primary text-primary-foreground";
+        }
+    };
+
+    const getHoverClass = (color: string) => {
+        switch (color) {
+            case "royal-purple":
+                return "hover:bg-royal-purple hover:text-white hover:shadow-lg hover:shadow-royal-purple/20";
+            case "pink-600":
+                return "hover:bg-pink-600 hover:text-white hover:shadow-lg hover:shadow-pink-600/20";
+            case "royal-blue":
+                return "hover:bg-royal-blue hover:text-white hover:shadow-lg hover:shadow-royal-blue/20";
+            case "royal-green":
+                return "hover:bg-royal-green hover:text-white hover:shadow-lg hover:shadow-royal-green/20";
+            case "royal-orange":
+                return "hover:bg-royal-orange hover:text-white hover:shadow-lg hover:shadow-royal-orange/20";
+            case "royal-auburn":
+                return "hover:bg-royal-auburn hover:text-white hover:shadow-lg hover:shadow-royal-auburn/20";
+            default:
+                return "hover:bg-muted";
         }
     };
 
