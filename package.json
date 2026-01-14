@@ -12,7 +12,9 @@
     "test": "vitest",
     "test:e2e": "playwright install --with-deps && playwright test --config=playwright.config.ts",
     "format": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "db:migrate": "bash scripts/run-migrations.sh",
+    "db:check": "echo 'Copy scripts/check-db-state.sql and run in Supabase SQL Editor'"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -82,7 +84,9 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.57.0",
+    "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4.1.18",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

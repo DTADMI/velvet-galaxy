@@ -6,6 +6,7 @@ import {useRouter} from "next/navigation";
 import type React from "react";
 import {useEffect, useState} from "react";
 
+import {AuthNavigation} from "@/components/auth-navigation";
 import {Alert, AlertDescription} from "@/components/ui/alert";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
@@ -75,7 +76,9 @@ export default function LoginPage() {
 
     if (existingUser) {
         return (
-            <div className="flex min-h-screen w-full items-center justify-center p-6">
+            <>
+                <AuthNavigation/>
+                <div className="flex min-h-screen w-full items-center justify-center p-6 pt-24">
                 <div className="w-full max-w-sm">
                     <Card className="border-royal-blue/20">
                         <CardHeader>
@@ -106,11 +109,14 @@ export default function LoginPage() {
                     </Card>
                 </div>
             </div>
+            </>
         );
     }
 
     return (
-        <div className="flex min-h-screen w-full items-center justify-center p-6">
+        <>
+            <AuthNavigation/>
+            <div className="flex min-h-screen w-full items-center justify-center p-6 pt-24">
             <div className="w-full max-w-sm">
                 <Card className="border-royal-blue/20">
                     <CardHeader>
@@ -170,5 +176,6 @@ export default function LoginPage() {
                 </Card>
             </div>
         </div>
+        </>
     );
 }

@@ -1,14 +1,33 @@
 "use client";
 
-import {Eye, EyeOff, Filter, Move, RotateCcw, Search, SettingsIcon, X, ZoomIn, ZoomOut} from "lucide-react";
+import {
+    ChevronDown,
+    ChevronUp,
+    Download,
+    Eye,
+    EyeOff,
+    Filter,
+    Hand,
+    MousePointer,
+    Move,
+    RotateCcw,
+    Search,
+    SettingsIcon,
+    X,
+    ZoomIn,
+    ZoomOut
+} from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
-import {Card} from "@/components/ui/card";
+import {CustomRelationshipDialog} from "@/components/custom-relationship-dialog";
+import {NodeEditDialog} from "@/components/node-edit-dialog";
+import {EdgeEditDialog} from "@/components/edge-edit-dialog";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {Input} from "@/components/ui/input";
@@ -17,6 +36,29 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Slider} from "@/components/ui/slider";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {createBrowserClient} from "@/lib/supabase/client";
+
+interface RelationshipEdge {
+    type: string;
+    label: string;
+    nodeColor: string;
+    edgeColor: string;
+    lineStyle: string;
+    isCustom: boolean; // True if using a custom relationship type
+    isExternal?: boolean; // True if this is an external/custom relationship (editable)
+    isPersisted?: boolean; // True if saved in DB (requires accepted request), false if temporary/view-only
+    relationshipId?: string; // ID of the external_relationship or custom_relationship record
+}
+
+interface TemporaryRelationship {
+    id: string; // Unique ID for the temporary relationship
+    user_id: string;
+    external_profile_id?: string; // For user-to-external
+    from_profile_id?: string; // For external-to-external
+    to_profile_id?: string; // For external-to-external
+    relationship_type_id?: string;
+    default_type?: string;
+    notes?: string;
+}
 
 interface NetworkNode {
     id: string
@@ -28,7 +70,10 @@ interface NetworkNode {
     z: number
     connections: string[]
     relationshipTypes: Record<string, string>
-    type: "user" | "group"
+    relationships: Record<string, RelationshipEdge[]> // Multiple relationships per connection
+    type: "user" | "group" | "external"
+    isCustom?: boolean // True if this is a custom added relationship
+    node_color?: string // Custom color for external profiles
     groupData?: {
         name: string
         member_count: number
@@ -50,14 +95,12 @@ interface Relationship {
     related_user_id: string;
     relationship_type: string;
     status: string;
-    profiles: Profile;
 }
 
 interface Follow {
     id: string;
     follower_id: string;
     following_id: string;
-    profiles: Profile;
 }
 
 interface Friendship {
@@ -65,7 +108,6 @@ interface Friendship {
     user_id: string;
     friend_id: string;
     status: string;
-    profiles: Profile;
 }
 
 interface GroupMember {
@@ -92,7 +134,7 @@ const filterNetworkNodes = (nodes: NetworkNode[], hiddenNodes: Set<string>, sear
     family: boolean;
     colleague: boolean;
     acquaintance: boolean
-}) => {
+}, showCustomOnly: boolean) => {
     return nodes.filter((node, index) => {
         if (index === 0) {
             return true;
@@ -101,6 +143,9 @@ const filterNetworkNodes = (nodes: NetworkNode[], hiddenNodes: Set<string>, sear
             return false;
         }
         if (searchQuery && !node.display_name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            return false;
+        }
+        if (showCustomOnly && !node.isCustom) {
             return false;
         }
         if (node.type === "group") {
@@ -144,7 +189,11 @@ export function NetworkVisualization({userId}: { userId: string }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [nodes, setNodes] = useState<NetworkNode[]>([]);
+    const [temporaryRelationships, setTemporaryRelationships] = useState<TemporaryRelationship[]>([]);
     const [selectedNode, setSelectedNode] = useState<NetworkNode | null>(null);
+    const [isNodeEditOpen, setIsNodeEditOpen] = useState(false);
+    const [isEdgeEditOpen, setIsEdgeEditOpen] = useState(false);
+    const [selectedEdge, setSelectedEdge] = useState<any>(null);
     const [clickCount, setClickCount] = useState(0);
     const [lastClickedNode, setLastClickedNode] = useState<string | null>(null);
     const [zoom, setZoom] = useState(1);
@@ -157,6 +206,12 @@ export function NetworkVisualization({userId}: { userId: string }) {
     const [canvasSize, setCanvasSize] = useState({width: 1920, height: 1080});
     const [maxNodes, setMaxNodes] = useState(50);
     const [showGroups, setShowGroups] = useState(true);
+    const [showCustomOnly, setShowCustomOnly] = useState(false);
+    const [showLegend, setShowLegend] = useState(true);
+    const [customTypesForLegend, setCustomTypesForLegend] = useState<any[]>([]);
+    const [manualPositionMode, setManualPositionMode] = useState(false);
+    const [manualPositions, setManualPositions] = useState<Map<string, { x: number, y: number, z: number }>>(new Map());
+    const [hideEdgeEditWarning, setHideEdgeEditWarning] = useState(false);
     const [relationshipFilters, setRelationshipFilters] = useState({
         friend: true,
         partner: true,
@@ -165,78 +220,523 @@ export function NetworkVisualization({userId}: { userId: string }) {
         acquaintance: true,
     });
     const [stars, setStars] = useState<Star[]>([]);
-    const [nodeSpacing, setNodeSpacing] = useState(300);
+    const [nodeSpacing, setNodeSpacing] = useState(150);
     const [autoRotate, setAutoRotate] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [hiddenNodes, setHiddenNodes] = useState<Set<string>>(new Set());
     const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(new Set());
     const [isPanning, setIsPanning] = useState(false);
+    const [mouseDownPosition, setMouseDownPosition] = useState<{ x: number, y: number } | null>(null);
+    const [nodeSize, setNodeSize] = useState(16);
+    const [edgeThickness, setEdgeThickness] = useState(2);
+    const [showEdgeLabels, setShowEdgeLabels] = useState(true);
+    const [nodeColors, setNodeColors] = useState({
+        user: '#8b5cf6',
+        group: '#10b981',
+        external: '#6b7280'
+    });
     const animationRef = useRef<number>(0);
     const timeRef = useRef(0);
+
+    // Calculate visible node types and relationship types based on current map state
+    const visibleLegendData = useMemo(() => {
+        const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters, showCustomOnly);
+
+        const visibleNodeTypes = new Set<string>();
+        const visibleDefaultTypes = new Set<string>();
+        const visibleCustomTypes = new Map<string, any>();
+        const visibleExternalNodes = new Map<string, { color: string, label: string }>();
+
+        // Analyze visible nodes
+        filteredNodes.forEach((node, index) => {
+            if (index === 0) {
+                visibleNodeTypes.add('user');
+            } else if (node.type === 'group') {
+                visibleNodeTypes.add('group');
+            } else if (node.type === 'external') {
+                visibleNodeTypes.add('external');
+
+                // Track external nodes by their custom type
+                const edges = node.relationships?.[userId] || [];
+                edges.forEach((edge: any) => {
+                    if (edge.isExternal && edge.type) {
+                        const customType = customTypesForLegend.find(t => t.id === edge.type);
+                        if (customType) {
+                            visibleExternalNodes.set(customType.id, {
+                                color: customType.node_color || node.node_color || nodeColors.external,
+                                label: customType.label
+                            });
+                        }
+                    } else if (node.node_color) {
+                        // Fallback: use node's own color
+                        visibleExternalNodes.set(node.id, {
+                            color: node.node_color,
+                            label: node.display_name
+                        });
+                    }
+                });
+            } else {
+                visibleNodeTypes.add('user');
+            }
+
+            // Get relationship types for this node
+            const relationshipType = node.relationshipTypes?.[userId];
+            if (relationshipType && ['friend', 'partner', 'family', 'colleague', 'acquaintance'].includes(relationshipType)) {
+                visibleDefaultTypes.add(relationshipType);
+            }
+
+            // Get custom relationship types from edges
+            Object.values(node.relationships || {}).forEach((edges: any) => {
+                edges.forEach((edge: any) => {
+                    if (edge.isCustom && edge.type) {
+                        // Find the custom type details
+                        const customType = customTypesForLegend.find(t => t.id === edge.type);
+                        if (customType) {
+                            visibleCustomTypes.set(customType.id, customType);
+                        }
+                    }
+                });
+            });
+        });
+
+        return {
+            nodeTypes: visibleNodeTypes,
+            defaultTypes: visibleDefaultTypes,
+            customTypes: Array.from(visibleCustomTypes.values()),
+            externalNodes: Array.from(visibleExternalNodes.values())
+        };
+    }, [nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters, showCustomOnly, customTypesForLegend, nodeColors.external]);
+
+    useEffect(() => {
+        async function loadCustomTypesForLegend() {
+            const supabase = createBrowserClient();
+            const {data} = await supabase
+                .from("custom_relationship_types")
+                .select("*")
+                .or(`is_global.eq.true,user_id.eq.${userId}`)
+                .order("label");
+
+            if (data) {
+                setCustomTypesForLegend(data);
+            }
+        }
+
+        loadCustomTypesForLegend();
+    }, [userId]);
 
     const loadNetworkData = useCallback(async () => {
         const supabase = createBrowserClient();
 
-        const [relationshipsResult, followsResult, friendshipsResult, groupsResult] = await Promise.all([
+        const [relationshipsResult, followsResult, friendshipsResult, groupsResult, customRelationshipsResult, externalProfilesResult, externalRelationshipsResult, manualRelationshipsResult] = await Promise.all([
             supabase
                 .from("relationships")
-                .select("*, profiles!relationships_related_user_id_fkey(id, username, display_name, avatar_url)")
+                .select(`
+                    id,
+                    user_id,
+                    related_user_id,
+                    relationship_type,
+                    status
+                `)
                 .or(`user_id.eq.${userId},related_user_id.eq.${userId}`)
                 .eq("status", "accepted")
                 .limit(maxNodes),
             supabase
                 .from("follows")
-                .select("*, profiles!follows_following_id_fkey(id, username, display_name, avatar_url)")
+                .select(`
+                    id,
+                    follower_id,
+                    following_id
+                `)
                 .or(`follower_id.eq.${userId},following_id.eq.${userId}`)
                 .limit(maxNodes),
             supabase
                 .from("friendships")
-                .select("*, profiles!friendships_friend_id_fkey(id, username, display_name, avatar_url)")
+                .select(`
+                    id,
+                    user_id,
+                    friend_id,
+                    status
+                `)
                 .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
                 .eq("status", "accepted")
                 .limit(maxNodes),
             showGroups
                 ? supabase.from("group_members").select("group_id, groups(id, name)").eq("user_id", userId).limit(10)
                 : Promise.resolve({data: []}),
+            supabase
+                .from("user_relationships")
+                .select(`
+                    *,
+                    initiator_profile:profiles!user_relationships_initiator_id_fkey(id, username, display_name, avatar_url),
+                    recipient_profile:profiles!user_relationships_recipient_id_fkey(id, username, display_name, avatar_url),
+                    custom_relationship_type:custom_relationship_types(id, label, node_color, edge_color, line_style)
+                `)
+                .or(`initiator_id.eq.${userId},recipient_id.eq.${userId}`)
+                .eq("status", "accepted")
+                .limit(maxNodes),
+            supabase
+                .from("external_profiles")
+                .select("*")
+                .eq("user_id", userId)
+                .eq("is_visible_on_map", true),
+            supabase
+                .from("external_relationships")
+                .select(`
+                    *,
+                    external_profile:external_profiles(*),
+                    custom_relationship_type:custom_relationship_types(id, label, node_color, edge_color, line_style)
+                `)
+                .eq("user_id", userId),
+            supabase
+                .from("custom_relationships")
+                .select(`
+                    *,
+                    from_profile:external_profiles!custom_relationships_from_profile_id_fkey(*),
+                    to_profile:external_profiles!custom_relationships_to_profile_id_fkey(*),
+                    custom_relationship_type:custom_relationship_types(id, label, node_color, edge_color, line_style)
+                `)
+                .eq("user_id", userId)
+                .eq("is_visible_on_map", true),
         ]);
 
         const relationships: Relationship[] = relationshipsResult.data || [];
         const follows: Follow[] = followsResult.data || [];
         const friendships: Friendship[] = friendshipsResult.data || [];
         const userGroups: GroupMember[] = groupsResult.data || [];
+        const customRelationships: any[] = customRelationshipsResult.data || [];
+        const externalProfiles: any[] = externalProfilesResult.data || [];
+        const externalRelationships: any[] = externalRelationshipsResult.data || [];
+        const manualRelationships: any[] = manualRelationshipsResult.data || [];
 
         const allConnections = new Map<string, any>();
+        const connectionRelationships = new Map<string, RelationshipEdge[]>();
+        const manualConnectionsMap = new Map<string, boolean>();
 
+        // Fetch all unique user IDs from all relationship sources
+        const relatedUserIds = new Set<string>();
+        relationships.forEach((rel: Relationship) => {
+            if (rel.user_id !== userId) relatedUserIds.add(rel.user_id);
+            if (rel.related_user_id !== userId) relatedUserIds.add(rel.related_user_id);
+        });
+        follows.forEach((follow: Follow) => {
+            if (follow.follower_id !== userId) relatedUserIds.add(follow.follower_id);
+            if (follow.following_id !== userId) relatedUserIds.add(follow.following_id);
+        });
+        friendships.forEach((friendship: Friendship) => {
+            if (friendship.user_id !== userId) relatedUserIds.add(friendship.user_id);
+            if (friendship.friend_id !== userId) relatedUserIds.add(friendship.friend_id);
+        });
+
+        // Fetch profiles for all related users
+        let profilesMap = new Map<string, Profile>();
+        if (relatedUserIds.size > 0) {
+            const {data: profilesData} = await supabase
+                .from("profiles")
+                .select("id, username, display_name, avatar_url")
+                .in("id", Array.from(relatedUserIds));
+
+            if (profilesData) {
+                profilesData.forEach((profile: Profile) => {
+                    profilesMap.set(profile.id, profile);
+                });
+            }
+        }
+
+        // Process relationships with fetched profiles
         relationships.forEach((rel: Relationship) => {
             const connectedUserId = rel.user_id === userId ? rel.related_user_id : rel.user_id;
-            if (rel.profiles) {
+            const connectedProfile = profilesMap.get(connectedUserId);
+
+            if (connectedProfile) {
                 allConnections.set(connectedUserId, {
-                    ...rel.profiles,
+                    id: connectedProfile.id,
+                    username: connectedProfile.username,
+                    display_name: connectedProfile.display_name,
+                    avatar_url: connectedProfile.avatar_url,
                     relationship_type: rel.relationship_type || "friend",
                     type: "user",
                 });
             }
         });
 
+        // Process follows with fetched profiles
         follows.forEach((follow: Follow) => {
             const connectedUserId = follow.follower_id === userId ? follow.following_id : follow.follower_id;
-            if (follow.profiles && !allConnections.has(connectedUserId)) {
+            const connectedProfile = profilesMap.get(connectedUserId);
+
+            if (connectedProfile && !allConnections.has(connectedUserId)) {
                 allConnections.set(connectedUserId, {
-                    ...follow.profiles,
+                    id: connectedProfile.id,
+                    username: connectedProfile.username,
+                    display_name: connectedProfile.display_name,
+                    avatar_url: connectedProfile.avatar_url,
                     relationship_type: "acquaintance",
                     type: "user",
                 });
             }
         });
 
+        // Process friendships with fetched profiles
         friendships.forEach((friendship: Friendship) => {
             const connectedUserId = friendship.user_id === userId ? friendship.friend_id : friendship.user_id;
-            if (friendship.profiles && !allConnections.has(connectedUserId)) {
+            const connectedProfile = profilesMap.get(connectedUserId);
+
+            if (connectedProfile && !allConnections.has(connectedUserId)) {
                 allConnections.set(connectedUserId, {
-                    ...friendship.profiles,
+                    id: connectedProfile.id,
+                    username: connectedProfile.username,
+                    display_name: connectedProfile.display_name,
+                    avatar_url: connectedProfile.avatar_url,
                     relationship_type: "friend",
                     type: "user",
                 });
+            }
+        });
+
+        // Process custom relationships
+        customRelationships.forEach((rel: any) => {
+            const isInitiator = rel.initiator_id === userId;
+            const connectedUserId = isInitiator ? rel.recipient_id : rel.initiator_id;
+            const profile = isInitiator ? rel.recipient_profile : rel.initiator_profile;
+
+            if (profile) {
+                // Add to connections if not already there
+                if (!allConnections.has(connectedUserId)) {
+                    allConnections.set(connectedUserId, {
+                        ...profile,
+                        relationship_type: rel.default_type || "other",
+                        type: "user",
+                    });
+                }
+
+                // Add relationship edge
+                const edges = connectionRelationships.get(connectedUserId) || [];
+                const edge: RelationshipEdge = {
+                    type: rel.custom_relationship_type ? rel.custom_relationship_type.id : rel.default_type,
+                    label: rel.custom_relationship_type ? rel.custom_relationship_type.label : (rel.default_type || "Connection"),
+                    nodeColor: rel.custom_relationship_type ? rel.custom_relationship_type.node_color : "#8b5cf6",
+                    edgeColor: rel.custom_relationship_type ? rel.custom_relationship_type.edge_color : "#a855f7",
+                    lineStyle: rel.custom_relationship_type ? rel.custom_relationship_type.line_style : "solid",
+                    isCustom: !!rel.custom_relationship_type
+                };
+                edges.push(edge);
+                connectionRelationships.set(connectedUserId, edges);
+            }
+        });
+
+        // Process external relationships
+        externalRelationships.forEach((rel: any) => {
+            const externalProfile = rel.external_profile;
+            if (externalProfile) {
+                const externalId = `external-${externalProfile.id}`;
+
+                // Add to connections if not already there
+                if (!allConnections.has(externalId)) {
+                    allConnections.set(externalId, {
+                        id: externalId,
+                        username: externalProfile.display_name,
+                        display_name: externalProfile.display_name,
+                        avatar_url: null,
+                        relationship_type: rel.default_type || "acquaintance",
+                        type: "external",
+                        node_color: externalProfile.node_color,
+                    });
+                }
+
+                // Mark as custom if flagged
+                if (rel.is_custom) {
+                    manualConnectionsMap.set(externalId, true);
+                }
+
+                // Add relationship edge
+                const edges = connectionRelationships.get(externalId) || [];
+                const edge: RelationshipEdge = {
+                    type: rel.custom_relationship_type ? rel.custom_relationship_type.id : rel.default_type,
+                    label: rel.custom_relationship_type ? rel.custom_relationship_type.label : (rel.default_type ? rel.default_type.charAt(0).toUpperCase() + rel.default_type.slice(1) : "Connection"),
+                    nodeColor: rel.custom_relationship_type ? rel.custom_relationship_type.node_color : externalProfile.node_color,
+                    edgeColor: rel.custom_relationship_type ? rel.custom_relationship_type.edge_color : externalProfile.node_color,
+                    lineStyle: rel.custom_relationship_type ? rel.custom_relationship_type.line_style : "solid",
+                    isCustom: !!rel.custom_relationship_type,
+                    isExternal: true, // Mark as external/editable
+                    isPersisted: true, // This is from DB, so it's persisted
+                    relationshipId: rel.id // Store the external_relationship ID
+                };
+                edges.push(edge);
+                connectionRelationships.set(externalId, edges);
+            }
+        });
+
+        // Process custom relationships between external profiles
+        manualRelationships.forEach((rel: any) => {
+            const fromProfile = rel.from_profile;
+            const toProfile = rel.to_profile;
+
+            if (fromProfile && toProfile) {
+                const fromId = `external-${fromProfile.id}`;
+                const toId = `external-${toProfile.id}`;
+
+                // Add both profiles to connections if not already there
+                if (!allConnections.has(fromId)) {
+                    allConnections.set(fromId, {
+                        id: fromId,
+                        username: fromProfile.display_name,
+                        display_name: fromProfile.display_name,
+                        avatar_url: null,
+                        relationship_type: "acquaintance",
+                        type: "external",
+                        node_color: fromProfile.node_color,
+                    });
+                }
+
+                if (!allConnections.has(toId)) {
+                    allConnections.set(toId, {
+                        id: toId,
+                        username: toProfile.display_name,
+                        display_name: toProfile.display_name,
+                        avatar_url: null,
+                        relationship_type: "acquaintance",
+                        type: "external",
+                        node_color: toProfile.node_color,
+                    });
+                }
+
+                // Mark both as custom connections
+                manualConnectionsMap.set(fromId, true);
+                manualConnectionsMap.set(toId, true);
+
+                // Create bidirectional relationship edges
+                const fromEdges = connectionRelationships.get(toId) || [];
+                const toEdges = connectionRelationships.get(fromId) || [];
+
+                const edge: RelationshipEdge = {
+                    type: rel.custom_relationship_type ? rel.custom_relationship_type.id : rel.default_type,
+                    label: rel.label || (rel.custom_relationship_type ? rel.custom_relationship_type.label : (rel.default_type ? rel.default_type.charAt(0).toUpperCase() + rel.default_type.slice(1) : "Connection")),
+                    nodeColor: rel.custom_relationship_type ? rel.custom_relationship_type.node_color : "#6b7280",
+                    edgeColor: rel.custom_relationship_type ? rel.custom_relationship_type.edge_color : "#6b7280",
+                    lineStyle: rel.custom_relationship_type ? rel.custom_relationship_type.line_style : "solid",
+                    isCustom: !!rel.custom_relationship_type,
+                    isExternal: true, // Mark as external/editable (custom relationship)
+                    isPersisted: true, // This is from DB, so it's persisted
+                    relationshipId: rel.id // Store the custom_relationship ID
+                };
+
+                fromEdges.push(edge);
+                toEdges.push(edge);
+                connectionRelationships.set(toId, fromEdges);
+                connectionRelationships.set(fromId, toEdges);
+
+                // Add connections between the two external profiles
+                const fromConn = allConnections.get(fromId);
+                const toConn = allConnections.get(toId);
+                if (fromConn && !fromConn.connections) fromConn.connections = [];
+                if (toConn && !toConn.connections) toConn.connections = [];
+                if (fromConn && !fromConn.connections.includes(toId)) fromConn.connections.push(toId);
+                if (toConn && !toConn.connections.includes(fromId)) toConn.connections.push(fromId);
+            }
+        });
+
+        // Process temporary relationships (frontend-only, not persisted to DB)
+        temporaryRelationships.forEach((tempRel: TemporaryRelationship) => {
+            // Fetch custom type data if needed
+            const customType = customTypesForLegend.find(t => t.id === tempRel.relationship_type_id);
+
+            if (tempRel.external_profile_id) {
+                // User-to-external temporary relationship
+                const externalId = `external-${tempRel.external_profile_id}`;
+                const externalProfile = externalProfiles.find(p => p.id === tempRel.external_profile_id);
+
+                if (externalProfile) {
+                    // Add to connections if not already there
+                    if (!allConnections.has(externalId)) {
+                        allConnections.set(externalId, {
+                            id: externalId,
+                            username: externalProfile.display_name,
+                            display_name: externalProfile.display_name,
+                            avatar_url: null,
+                            relationship_type: tempRel.default_type || "acquaintance",
+                            type: "external",
+                            node_color: externalProfile.node_color,
+                        });
+                    }
+
+                    // Add temporary relationship edge
+                    const edges = connectionRelationships.get(externalId) || [];
+                    const edge: RelationshipEdge = {
+                        type: customType ? customType.id : tempRel.default_type || "acquaintance",
+                        label: customType ? customType.label : (tempRel.default_type ? tempRel.default_type.charAt(0).toUpperCase() + tempRel.default_type.slice(1) : "Connection"),
+                        nodeColor: customType ? customType.node_color : externalProfile.node_color,
+                        edgeColor: customType ? customType.edge_color : externalProfile.node_color,
+                        lineStyle: customType ? customType.line_style : "solid",
+                        isCustom: !!customType,
+                        isExternal: true,
+                        isPersisted: false, // Temporary relationship, not persisted
+                        relationshipId: tempRel.id
+                    };
+                    edges.push(edge);
+                    connectionRelationships.set(externalId, edges);
+                }
+            } else if (tempRel.from_profile_id && tempRel.to_profile_id) {
+                // External-to-external temporary relationship
+                const fromId = `external-${tempRel.from_profile_id}`;
+                const toId = `external-${tempRel.to_profile_id}`;
+                const fromProfile = externalProfiles.find(p => p.id === tempRel.from_profile_id);
+                const toProfile = externalProfiles.find(p => p.id === tempRel.to_profile_id);
+
+                if (fromProfile && toProfile) {
+                    // Add both profiles to connections if not already there
+                    if (!allConnections.has(fromId)) {
+                        allConnections.set(fromId, {
+                            id: fromId,
+                            username: fromProfile.display_name,
+                            display_name: fromProfile.display_name,
+                            avatar_url: null,
+                            relationship_type: "acquaintance",
+                            type: "external",
+                            node_color: fromProfile.node_color,
+                        });
+                    }
+
+                    if (!allConnections.has(toId)) {
+                        allConnections.set(toId, {
+                            id: toId,
+                            username: toProfile.display_name,
+                            display_name: toProfile.display_name,
+                            avatar_url: null,
+                            relationship_type: "acquaintance",
+                            type: "external",
+                            node_color: toProfile.node_color,
+                        });
+                    }
+
+                    // Create bidirectional temporary relationship edges
+                    const fromEdges = connectionRelationships.get(toId) || [];
+                    const toEdges = connectionRelationships.get(fromId) || [];
+
+                    const edge: RelationshipEdge = {
+                        type: customType ? customType.id : tempRel.default_type || "acquaintance",
+                        label: tempRel.label || (customType ? customType.label : (tempRel.default_type ? tempRel.default_type.charAt(0).toUpperCase() + tempRel.default_type.slice(1) : "Connection")),
+                        nodeColor: customType ? customType.node_color : "#6b7280",
+                        edgeColor: customType ? customType.edge_color : "#6b7280",
+                        lineStyle: customType ? customType.line_style : "solid",
+                        isCustom: !!customType,
+                        isExternal: true,
+                        isPersisted: false, // Temporary relationship, not persisted
+                        relationshipId: tempRel.id
+                    };
+
+                    fromEdges.push(edge);
+                    toEdges.push(edge);
+                    connectionRelationships.set(toId, fromEdges);
+                    connectionRelationships.set(fromId, toEdges);
+
+                    // Add connections between the two external profiles
+                    const fromConn = allConnections.get(fromId);
+                    const toConn = allConnections.get(toId);
+                    if (fromConn && !fromConn.connections) fromConn.connections = [];
+                    if (toConn && !toConn.connections) toConn.connections = [];
+                    if (fromConn && !fromConn.connections.includes(toId)) fromConn.connections.push(toId);
+                    if (toConn && !toConn.connections.includes(fromId)) toConn.connections.push(fromId);
+                }
             }
         });
 
@@ -262,6 +762,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
             z: 0,
             connections: Array.from(allConnections.keys()),
             relationshipTypes: {},
+            relationships: {},
             type: "user",
         };
         networkNodes.push(centerNode);
@@ -282,7 +783,10 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 z: Math.sin(angle) * Math.cos(elevation) * radius,
                 connections: [userId],
                 relationshipTypes: {[userId]: connProfile.relationship_type},
-                type: "user",
+                relationships: {[userId]: connectionRelationships.get(connId) || []},
+                type: connProfile.type || "user",
+                isCustom: manualConnectionsMap.has(connId),
+                node_color: connProfile.node_color, // Pass through node_color for external profiles
             };
             networkNodes.push(node);
         });
@@ -301,6 +805,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                         z: Math.sin(angle) * groupRadius,
                         connections: [userId],
                         relationshipTypes: {[userId]: "group"},
+                        relationships: {},
                         type: "group",
                         groupData: {
                             name: groupMember.groups.name,
@@ -314,12 +819,14 @@ export function NetworkVisualization({userId}: { userId: string }) {
         }
 
         const connectedUserIds = Array.from(allConnections.keys());
-        if (connectedUserIds.length > 1) {
+        // Filter out external profile IDs (they start with "external-") for relationships query
+        const realUserIds = connectedUserIds.filter(id => !id.startsWith("external-") && !id.startsWith("group-"));
+        if (realUserIds.length > 1) {
             const {data: secondDegree} = await supabase
                 .from("relationships")
                 .select("user_id, related_user_id, relationship_type")
-                .in("user_id", connectedUserIds)
-                .in("related_user_id", connectedUserIds)
+                .in("user_id", realUserIds)
+                .in("related_user_id", realUserIds)
                 .eq("status", "accepted");
 
             if (secondDegree && secondDegree.length > 0) {
@@ -467,7 +974,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 ctx.fill();
             });
 
-            const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
+            const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters, showCustomOnly);
 
             const drawnConnections = new Set<string>();
 
@@ -484,62 +991,250 @@ export function NetworkVisualization({userId}: { userId: string }) {
                         const from = project3DTo2D(node, centerX, centerY);
                         const to = project3DTo2D(connNode, centerX, centerY);
 
-                        let relationshipType = node.relationshipTypes[connId];
-                        if (!relationshipType && connNode.relationshipTypes[node.id]) {
-                            relationshipType = connNode.relationshipTypes[node.id];
+                        // Get all relationship edges for this connection
+                        let relationships = node.relationships[connId] || [];
+                        if (relationships.length === 0 && connNode.relationships[node.id]) {
+                            relationships = connNode.relationships[node.id];
                         }
 
-                        const colors = {
-                            friend: {start: "rgba(168, 85, 247, 0.6)", end: "rgba(139, 92, 246, 0.4)", glow: "#A855F7"},
-                            partner: {
-                                start: "rgba(236, 72, 153, 0.6)",
-                                end: "rgba(219, 39, 119, 0.4)",
-                                glow: "#EC4899"
-                            },
-                            family: {start: "rgba(34, 197, 94, 0.6)", end: "rgba(22, 163, 74, 0.4)", glow: "#22C55E"},
-                            colleague: {
-                                start: "rgba(96, 165, 250, 0.6)",
-                                end: "rgba(59, 130, 246, 0.4)",
-                                glow: "#60A5FA"
-                            },
-                            acquaintance: {
-                                start: "rgba(156, 163, 175, 0.5)",
-                                end: "rgba(107, 114, 128, 0.3)",
-                                glow: "#9CA3AF"
-                            },
-                            group: {start: "rgba(251, 191, 36, 0.6)", end: "rgba(245, 158, 11, 0.4)", glow: "#FBBF24"},
-                        };
-                        const color = colors[relationshipType as keyof typeof colors] || colors.acquaintance;
+                        // Fallback to old relationship types if no custom relationships exist
+                        if (relationships.length === 0) {
+                            let relationshipType = node.relationshipTypes[connId];
+                            if (!relationshipType && connNode.relationshipTypes[node.id]) {
+                                relationshipType = connNode.relationshipTypes[node.id];
+                            }
 
-                        // Draw glow
-                        ctx.shadowBlur = 8;
-                        ctx.shadowColor = color.glow;
+                            const defaultColors = {
+                                friend: {
+                                    start: "rgba(168, 85, 247, 0.6)",
+                                    end: "rgba(139, 92, 246, 0.4)",
+                                    glow: "#A855F7"
+                                },
+                                partner: {
+                                    start: "rgba(236, 72, 153, 0.6)",
+                                    end: "rgba(219, 39, 119, 0.4)",
+                                    glow: "#EC4899"
+                                },
+                                family: {
+                                    start: "rgba(34, 197, 94, 0.6)",
+                                    end: "rgba(22, 163, 74, 0.4)",
+                                    glow: "#22C55E"
+                                },
+                                colleague: {
+                                    start: "rgba(96, 165, 250, 0.6)",
+                                    end: "rgba(59, 130, 246, 0.4)",
+                                    glow: "#60A5FA"
+                                },
+                                acquaintance: {
+                                    start: "rgba(156, 163, 175, 0.5)",
+                                    end: "rgba(107, 114, 128, 0.3)",
+                                    glow: "#9CA3AF"
+                                },
+                                group: {
+                                    start: "rgba(251, 191, 36, 0.6)",
+                                    end: "rgba(245, 158, 11, 0.4)",
+                                    glow: "#FBBF24"
+                                },
+                            };
 
-                        const gradient = ctx.createLinearGradient(from.x, from.y, to.x, to.y);
-                        gradient.addColorStop(0, color.start);
-                        gradient.addColorStop(1, color.end);
+                            relationships = [{
+                                type: relationshipType || 'acquaintance',
+                                label: relationshipType ? relationshipType.charAt(0).toUpperCase() + relationshipType.slice(1) : 'Acquaintance',
+                                nodeColor: '',
+                                edgeColor: '',
+                                lineStyle: 'solid',
+                                isCustom: false
+                            }];
+                        }
 
-                        ctx.strokeStyle = gradient;
-                        ctx.lineWidth = 2.5;
-                        ctx.lineCap = "round";
-                        ctx.beginPath();
-                        ctx.moveTo(from.x, from.y);
-                        ctx.lineTo(to.x, to.y);
-                        ctx.stroke();
+                        // Calculate offset for multiple edges
+                        const edgeCount = relationships.length;
+                        const offsetDistance = 8; // pixels between parallel lines
 
-                        ctx.shadowBlur = 0;
+                        relationships.forEach((relationship, edgeIndex) => {
+                            // Calculate perpendicular offset for multiple edges
+                            let offsetX = 0;
+                            let offsetY = 0;
+
+                            if (edgeCount > 1) {
+                                // Calculate perpendicular vector
+                                const dx = to.x - from.x;
+                                const dy = to.y - from.y;
+                                const length = Math.sqrt(dx * dx + dy * dy);
+                                const perpX = -dy / length;
+                                const perpY = dx / length;
+
+                                // Center the edges around the direct line
+                                const totalWidth = (edgeCount - 1) * offsetDistance;
+                                const offset = (edgeIndex * offsetDistance) - (totalWidth / 2);
+
+                                offsetX = perpX * offset;
+                                offsetY = perpY * offset;
+                            }
+
+                            const fromX = from.x + offsetX;
+                            const fromY = from.y + offsetY;
+                            const toX = to.x + offsetX;
+                            const toY = to.y + offsetY;
+
+                            // Determine edge color
+                            let edgeColor;
+                            let glowColor;
+
+                            if (relationship.isCustom && relationship.edgeColor) {
+                                // Use custom edge color
+                                edgeColor = relationship.edgeColor;
+                                glowColor = relationship.edgeColor;
+                            } else {
+                                // Use default colors based on relationship type
+                                const defaultColors = {
+                                    friend: {
+                                        start: "rgba(168, 85, 247, 0.6)",
+                                        end: "rgba(139, 92, 246, 0.4)",
+                                        glow: "#A855F7"
+                                    },
+                                    partner: {
+                                        start: "rgba(236, 72, 153, 0.6)",
+                                        end: "rgba(219, 39, 119, 0.4)",
+                                        glow: "#EC4899"
+                                    },
+                                    family: {
+                                        start: "rgba(34, 197, 94, 0.6)",
+                                        end: "rgba(22, 163, 74, 0.4)",
+                                        glow: "#22C55E"
+                                    },
+                                    colleague: {
+                                        start: "rgba(96, 165, 250, 0.6)",
+                                        end: "rgba(59, 130, 246, 0.4)",
+                                        glow: "#60A5FA"
+                                    },
+                                    acquaintance: {
+                                        start: "rgba(156, 163, 175, 0.5)",
+                                        end: "rgba(107, 114, 128, 0.3)",
+                                        glow: "#9CA3AF"
+                                    },
+                                    group: {
+                                        start: "rgba(251, 191, 36, 0.6)",
+                                        end: "rgba(245, 158, 11, 0.4)",
+                                        glow: "#FBBF24"
+                                    },
+                                };
+                                const color = defaultColors[relationship.type as keyof typeof defaultColors] || defaultColors.acquaintance;
+                                edgeColor = color.start;
+                                glowColor = color.glow;
+                            }
+
+                            // Draw glow
+                            ctx.shadowBlur = 8;
+                            ctx.shadowColor = glowColor;
+
+                            // Create gradient for edge
+                            const gradient = ctx.createLinearGradient(fromX, fromY, toX, toY);
+                            if (relationship.isCustom && relationship.edgeColor) {
+                                // Solid color for custom edges
+                                const hexToRgba = (hex: string, alpha: number) => {
+                                    const r = parseInt(hex.slice(1, 3), 16);
+                                    const g = parseInt(hex.slice(3, 5), 16);
+                                    const b = parseInt(hex.slice(5, 7), 16);
+                                    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                                };
+                                gradient.addColorStop(0, hexToRgba(relationship.edgeColor, 0.6));
+                                gradient.addColorStop(1, hexToRgba(relationship.edgeColor, 0.4));
+                            } else {
+                                gradient.addColorStop(0, edgeColor);
+                                gradient.addColorStop(1, edgeColor.replace('0.6', '0.4'));
+                            }
+
+                            ctx.strokeStyle = gradient;
+                            ctx.lineWidth = edgeThickness;
+                            ctx.lineCap = "round";
+
+                            // Apply line style
+                            const lineStyle = relationship.lineStyle || 'solid';
+                            if (lineStyle === 'dashed') {
+                                ctx.setLineDash([10, 5]);
+                            } else if (lineStyle === 'dotted') {
+                                ctx.setLineDash([2, 4]);
+                            } else if (lineStyle === 'double') {
+                                // Draw two parallel lines
+                                ctx.setLineDash([]);
+                                const perpX = -(toY - fromY) / Math.sqrt((toX - fromX) ** 2 + (toY - fromY) ** 2);
+                                const perpY = (toX - fromX) / Math.sqrt((toX - fromX) ** 2 + (toY - fromY) ** 2);
+                                const offset = 2;
+
+                                ctx.beginPath();
+                                ctx.moveTo(fromX + perpX * offset, fromY + perpY * offset);
+                                ctx.lineTo(toX + perpX * offset, toY + perpY * offset);
+                                ctx.stroke();
+
+                                ctx.beginPath();
+                                ctx.moveTo(fromX - perpX * offset, fromY - perpY * offset);
+                                ctx.lineTo(toX - perpX * offset, toY - perpY * offset);
+                                ctx.stroke();
+                            } else if (lineStyle === 'wavy') {
+                                // Draw wavy line
+                                ctx.setLineDash([]);
+                                const dx = toX - fromX;
+                                const dy = toY - fromY;
+                                const distance = Math.sqrt(dx * dx + dy * dy);
+                                const waveCount = Math.floor(distance / 10);
+                                const waveAmplitude = 3;
+
+                                ctx.beginPath();
+                                ctx.moveTo(fromX, fromY);
+                                for (let i = 0; i <= waveCount; i++) {
+                                    const t = i / waveCount;
+                                    const x = fromX + dx * t;
+                                    const y = fromY + dy * t;
+                                    const perpOffset = Math.sin(i * Math.PI) * waveAmplitude;
+                                    const perpX = -(dy / distance) * perpOffset;
+                                    const perpY = (dx / distance) * perpOffset;
+                                    ctx.lineTo(x + perpX, y + perpY);
+                                }
+                                ctx.stroke();
+                            } else {
+                                // Solid line (default)
+                                ctx.setLineDash([]);
+                                ctx.beginPath();
+                                ctx.moveTo(fromX, fromY);
+                                ctx.lineTo(toX, toY);
+                                ctx.stroke();
+                            }
+
+                            // Reset line dash
+                            ctx.setLineDash([]);
+                            ctx.shadowBlur = 0;
+
+                            // Draw edge label if enabled and zoomed in enough
+                            if (showEdgeLabels && zoom > 1 && relationship.label && relationship.label.toLowerCase() !== "acquaintance") {
+                                const midX = (fromX + toX) / 2;
+                                const midY = (fromY + toY) / 2;
+
+                                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+                                ctx.font = "11px sans-serif";
+                                const text = relationship.label;
+                                const metrics = ctx.measureText(text);
+                                const padding = 4;
+
+                                ctx.fillRect(midX - metrics.width / 2 - padding, midY - 8, metrics.width + padding * 2, 16);
+
+                                ctx.fillStyle = "#FFF";
+                                ctx.textAlign = "center";
+                                ctx.fillText(text, midX, midY + 4);
+                            }
+                        });
                     }
                 });
             });
 
             filteredNodes.forEach((node, index) => {
                 const pos = project3DTo2D(node, centerX, centerY);
-                const size = index === 0 ? 26 : node.type === "group" ? 22 : 18;
+                const size = index === 0 ? nodeSize + 10 : node.type === "group" ? nodeSize + 6 : nodeSize;
                 const isSelected = selectedNode?.id === node.id;
                 const isHighlighted = highlightedNodes.has(node.id);
 
                 const relationshipType = node.relationshipTypes[userId];
-                const nodeColors = {
+                const relationshipColors = {
                     friend: {start: "#C084FC", end: "#A855F7", glow: "#A855F7"},
                     partner: {start: "#F9A8D4", end: "#EC4899", glow: "#EC4899"},
                     family: {start: "#86EFAC", end: "#22C55E", glow: "#22C55E"},
@@ -547,12 +1242,21 @@ export function NetworkVisualization({userId}: { userId: string }) {
                     acquaintance: {start: "#D1D5DB", end: "#9CA3AF", glow: "#9CA3AF"},
                     group: {start: "#FCD34D", end: "#F59E0B", glow: "#F59E0B"},
                 };
-                const colors =
-                    index === 0
-                        ? {start: "#C084FC", end: "#A855F7", glow: "#A855F7"}
-                        : node.type === "group"
-                            ? nodeColors.group
-                            : nodeColors[relationshipType as keyof typeof nodeColors] || nodeColors.acquaintance;
+
+                // Determine colors based on node type and relationship
+                let colors;
+                if (index === 0) {
+                    colors = {start: nodeColors.user, end: nodeColors.user, glow: nodeColors.user};
+                } else if (node.type === "group") {
+                    colors = {start: nodeColors.group, end: nodeColors.group, glow: nodeColors.group};
+                } else if (node.type === "external") {
+                    // Use custom node color if available, otherwise use default
+                    const customColor = node.node_color || nodeColors.external;
+                    colors = {start: customColor, end: customColor, glow: customColor};
+                } else {
+                    const relColor = relationshipColors[relationshipType as keyof typeof relationshipColors] || relationshipColors.acquaintance;
+                    colors = relColor;
+                }
 
                 const outerGlow = ctx.createRadialGradient(
                     pos.x,
@@ -620,10 +1324,41 @@ export function NetworkVisualization({userId}: { userId: string }) {
         animate();
     }, [nodes, zoom, relationshipFilters, stars, autoRotate, cameraOffset.x, cameraOffset.y, hiddenNodes, searchQuery, showGroups, userId, selectedNode?.id, highlightedNodes, project3DTo2D]);
 
+    // Helper function to calculate distance from point to line segment
+    const distanceToLineSegment = (px: number, py: number, x1: number, y1: number, x2: number, y2: number): number => {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const lengthSquared = dx * dx + dy * dy;
+
+        if (lengthSquared === 0) {
+            return Math.sqrt((px - x1) ** 2 + (py - y1) ** 2);
+        }
+
+        let t = ((px - x1) * dx + (py - y1) * dy) / lengthSquared;
+        t = Math.max(0, Math.min(1, t));
+
+        const projX = x1 + t * dx;
+        const projY = y1 + t * dy;
+
+        return Math.sqrt((px - projX) ** 2 + (py - projY) ** 2);
+    };
+
     const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (isPanning || isDraggingNode) {
             return;
         }
+
+        // Check if this was a drag (mouse moved more than 5px)
+        if (mouseDownPosition) {
+            const deltaX = Math.abs(e.clientX - mouseDownPosition.x);
+            const deltaY = Math.abs(e.clientY - mouseDownPosition.y);
+            if (deltaX > 5 || deltaY > 5) {
+                // This was a drag, not a click
+                setMouseDownPosition(null);
+                return;
+            }
+        }
+        setMouseDownPosition(null);
 
         const canvas = canvasRef.current;
         if (!canvas) {
@@ -632,7 +1367,68 @@ export function NetworkVisualization({userId}: { userId: string }) {
 
         const {clickX, clickY, centerX, centerY} = calculateMouseReference(canvas, e, cameraOffset);
 
-        const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
+        const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters, showCustomOnly);
+
+        // First check if click is on a node (nodes have priority)
+        let clickedOnNode = false;
+        for (const node of filteredNodes) {
+            const {
+                pos,
+                size,
+                distance
+            } = calculateNodeMetrics(project3DTo2D, node, centerX, centerY, filteredNodes, clickX, clickY);
+
+            if (distance <= size) {
+                clickedOnNode = true;
+                break;
+            }
+        }
+
+        // Only check edges if we didn't click on a node
+        if (!clickedOnNode) {
+            for (const node of filteredNodes) {
+                for (const connId of node.connections) {
+                    const connectedNode = filteredNodes.find(n => n.id === connId);
+                    if (!connectedNode) continue;
+
+                    const pos1 = project3DTo2D(node, centerX, centerY);
+                    const pos2 = project3DTo2D(connectedNode, centerX, centerY);
+
+                    const distToLine = distanceToLineSegment(clickX, clickY, pos1.x, pos1.y, pos2.x, pos2.y);
+
+                    if (distToLine < 10) { // 10px threshold
+                        const edges = node.relationships[connId] || [];
+
+                        // Check if edge is persisted (from DB, requires accepted request)
+                        // Persisted edges: edges.length === 0 (real network) OR isPersisted === true
+                        // Temporary edges: isPersisted === false
+                        const isPersistedEdge = edges.length === 0 || edges.some((e: RelationshipEdge) => e.isPersisted);
+                        const hasExternalEdge = edges.some((e: RelationshipEdge) => e.isExternal);
+
+                        // Check localStorage preference for hiding warning on persisted edges
+                        const hideWarning = localStorage.getItem('hideEdgeEditWarning') === 'true';
+
+                        // Show dialog if: it's temporary/external (always editable) OR it's persisted and warning not hidden
+                        if (!isPersistedEdge || !hideWarning) {
+                            // Find the external relationship if it exists
+                            const externalEdge = edges.find((e: RelationshipEdge) => e.isExternal);
+
+                            setSelectedEdge({
+                                fromNodeId: node.id,
+                                toNodeId: connId,
+                                fromNodeName: node.display_name,
+                                toNodeName: connectedNode.display_name,
+                                isExternal: hasExternalEdge,
+                                isPersisted: isPersistedEdge,
+                                relationshipId: externalEdge?.relationshipId,
+                            });
+                            setIsEdgeEditOpen(true);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
 
         const sortedNodes = [...filteredNodes].sort((a, b) => {
             const posA = project3DTo2D(a, centerX, centerY);
@@ -687,10 +1483,15 @@ export function NetworkVisualization({userId}: { userId: string }) {
             return;
         }
 
+        // Track mouse position for drag detection
+        setMouseDownPosition({x: e.clientX, y: e.clientY});
+
         const {clickX, clickY, centerX, centerY} = calculateMouseReference(canvas, e, cameraOffset);
 
-        if (e.ctrlKey || e.metaKey) {
-            const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
+        // In manual position mode, allow dragging nodes without modifier key
+        // In normal mode, require Ctrl/Cmd key
+        if (manualPositionMode || e.ctrlKey || e.metaKey) {
+            const filteredNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters, showCustomOnly);
 
             for (const node of filteredNodes) {
                 const {
@@ -706,6 +1507,11 @@ export function NetworkVisualization({userId}: { userId: string }) {
                     return;
                 }
             }
+        }
+
+        // Don't allow rotation in manual position mode
+        if (manualPositionMode) {
+            return;
         }
 
         if (e.button === 2 || e.shiftKey) {
@@ -808,11 +1614,27 @@ export function NetworkVisualization({userId}: { userId: string }) {
         });
     };
 
-    const visibleNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters);
+    const visibleNodes = filterNetworkNodes(nodes, hiddenNodes, searchQuery, showGroups, userId, relationshipFilters, showCustomOnly);
 
     const totalConnections = Math.max(0, nodes.length - 1);
     const visibleCount = visibleNodes.length;
     const linkCount = Math.max(0, Math.floor(nodes.reduce((sum, node) => sum + node.connections.length, 0) / 2));
+
+    const handleExportImage = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        // Export as PNG
+        canvas.toBlob((blob) => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `network-map-${new Date().toISOString().split('T')[0]}.png`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+    };
     useEffect(() => {
         const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
         const starCount = isMobile ? 100 : 300;
@@ -829,6 +1651,12 @@ export function NetworkVisualization({userId}: { userId: string }) {
             });
         }
         setStars(newStars);
+
+        // Load edge warning preference from localStorage
+        const savedPreference = localStorage.getItem('hideEdgeEditWarning');
+        if (savedPreference === 'true') {
+            setHideEdgeEditWarning(true);
+        }
     }, []);
 
     useEffect(() => {
@@ -868,7 +1696,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                     ref={canvasRef}
                     width={canvasSize.width}
                     height={canvasSize.height}
-                    className="w-full h-full cursor-move"
+                    className={`w-full h-full ${manualPositionMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-move'}`}
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
@@ -891,21 +1719,21 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 </div>
 
                 <div className="absolute top-4 right-4 flex flex-col gap-2">
+                    <CustomRelationshipDialog
+                        userId={userId}
+                        onRelationshipCreated={loadNetworkData}
+                        onTemporaryRelationshipCreated={(tempRel) => {
+                            setTemporaryRelationships(prev => [...prev, tempRel]);
+                            loadNetworkData(); // Reload to show the temporary relationship
+                        }}
+                    />
+
                     <Dialog>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <DialogTrigger asChild>
-                                        <Button size="icon" variant="secondary" className="bg-card/90 backdrop-blur">
-                                            <SettingsIcon className="h-4 w-4"/>
-                                        </Button>
-                                    </DialogTrigger>
-                                </TooltipTrigger>
-                                <TooltipContent side="left">
-                                    <p>Network Settings</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        <DialogTrigger asChild>
+                            <Button size="icon" variant="secondary" className="bg-card/90 backdrop-blur" type="button">
+                                <SettingsIcon className="h-4 w-4"/>
+                            </Button>
+                        </DialogTrigger>
                         <DialogContent className="bg-card/95 backdrop-blur max-w-md">
                             <DialogHeader>
                                 <DialogTitle>Network Settings</DialogTitle>
@@ -942,10 +1770,33 @@ export function NetworkVisualization({userId}: { userId: string }) {
                                     <Checkbox
                                         id="showGroups"
                                         checked={showGroups}
-                                        onCheckedChange={(checked) => setShowGroups(checked as boolean)}
+                                        onCheckedChange={(checked) => {
+                                            const newValue = checked as boolean;
+                                            setShowGroups(newValue);
+                                            if (newValue) {
+                                                setShowCustomOnly(false); // Uncheck Show Custom Relationships Only
+                                            }
+                                        }}
                                     />
                                     <Label htmlFor="showGroups" className="cursor-pointer">
                                         Show Groups
+                                    </Label>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="showCustomOnly"
+                                        checked={showCustomOnly}
+                                        onCheckedChange={(checked) => {
+                                            const newValue = checked as boolean;
+                                            setShowCustomOnly(newValue);
+                                            if (newValue) {
+                                                setShowGroups(false); // Uncheck Show Groups
+                                            }
+                                        }}
+                                    />
+                                    <Label htmlFor="showCustomOnly" className="cursor-pointer">
+                                        Show Custom Relationships Only
                                     </Label>
                                 </div>
 
@@ -958,6 +1809,97 @@ export function NetworkVisualization({userId}: { userId: string }) {
                                     <Label htmlFor="autoRotate" className="cursor-pointer">
                                         Auto-Rotate
                                     </Label>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="nodeSize">Node Size: {nodeSize}px</Label>
+                                    <Slider
+                                        id="nodeSize"
+                                        min={8}
+                                        max={32}
+                                        step={2}
+                                        value={[nodeSize]}
+                                        onValueChange={(value) => setNodeSize(value[0])}
+                                    />
+                                    <p className="text-xs text-muted-foreground">Adjust the size of network nodes</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edgeThickness">Edge Thickness: {edgeThickness}px</Label>
+                                    <Slider
+                                        id="edgeThickness"
+                                        min={1}
+                                        max={8}
+                                        step={1}
+                                        value={[edgeThickness]}
+                                        onValueChange={(value) => setEdgeThickness(value[0])}
+                                    />
+                                    <p className="text-xs text-muted-foreground">Adjust connection line thickness</p>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="showEdgeLabels"
+                                        checked={showEdgeLabels}
+                                        onCheckedChange={(checked) => setShowEdgeLabels(checked as boolean)}
+                                    />
+                                    <Label htmlFor="showEdgeLabels" className="cursor-pointer">
+                                        Show Relationship Labels
+                                    </Label>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        id="hideEdgeWarning"
+                                        checked={hideEdgeEditWarning}
+                                        onCheckedChange={(checked) => {
+                                            const newValue = checked as boolean;
+                                            setHideEdgeEditWarning(newValue);
+                                            localStorage.setItem('hideEdgeEditWarning', String(newValue));
+                                        }}
+                                    />
+                                    <Label htmlFor="hideEdgeWarning" className="cursor-pointer">
+                                        Hide edge edit warnings
+                                    </Label>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label>Node Colors</Label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div className="space-y-1">
+                                            <Label htmlFor="userColor" className="text-xs">Users</Label>
+                                            <Input
+                                                id="userColor"
+                                                type="color"
+                                                value={nodeColors.user}
+                                                onChange={(e) => setNodeColors({...nodeColors, user: e.target.value})}
+                                                className="h-8 w-full"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="groupColor" className="text-xs">Groups</Label>
+                                            <Input
+                                                id="groupColor"
+                                                type="color"
+                                                value={nodeColors.group}
+                                                onChange={(e) => setNodeColors({...nodeColors, group: e.target.value})}
+                                                className="h-8 w-full"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="externalColor" className="text-xs">External</Label>
+                                            <Input
+                                                id="externalColor"
+                                                type="color"
+                                                value={nodeColors.external}
+                                                onChange={(e) => setNodeColors({
+                                                    ...nodeColors,
+                                                    external: e.target.value
+                                                })}
+                                                className="h-8 w-full"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </DialogContent>
@@ -1007,6 +1949,46 @@ export function NetworkVisualization({userId}: { userId: string }) {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    onClick={() => setManualPositionMode(!manualPositionMode)}
+                                    className="bg-card/90 backdrop-blur"
+                                >
+                                    {manualPositionMode ? (
+                                        <MousePointer className="h-4 w-4"/>
+                                    ) : (
+                                        <Hand className="h-4 w-4"/>
+                                    )}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                                <p>{manualPositionMode ? 'Navigate Mode' : 'Manual Move Mode'}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    onClick={handleExportImage}
+                                    className="bg-card/90 backdrop-blur"
+                                >
+                                    <Download className="h-4 w-4"/>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                                <p>Export as PNG</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
                                 <Button size="icon" variant="secondary" onClick={handleZoomIn}
                                         className="bg-card/90 backdrop-blur">
                                     <ZoomIn className="h-4 w-4"/>
@@ -1050,11 +2032,22 @@ export function NetworkVisualization({userId}: { userId: string }) {
                 <Card className="absolute bottom-4 left-4 p-4 bg-card/90 backdrop-blur max-w-sm">
                     <h3 className="font-semibold mb-2 text-gradient">Your Network</h3>
                     <p className="text-sm text-muted-foreground mb-3">
-                        <strong>Drag:</strong> Rotate • <strong>Scroll:</strong> Zoom • <strong>Shift+Drag:</strong> Pan
-                        <br/>
-                        <strong>Ctrl+Drag:</strong> Move node • <strong>Click:</strong> View node
-                        • <strong>Double-click:</strong>{" "}
-                        Center & highlight
+                        {manualPositionMode ? (
+                            <>
+                                <strong>Click & Drag:</strong> Move node • <strong>Scroll:</strong> Zoom
+                                <br/>
+                                <strong>Click:</strong> View node • <strong>Double-click:</strong> Center & highlight
+                            </>
+                        ) : (
+                            <>
+                                <strong>Drag:</strong> Rotate • <strong>Scroll:</strong> Zoom
+                                • <strong>Shift+Drag:</strong> Pan
+                                <br/>
+                                <strong>Ctrl+Drag:</strong> Move node • <strong>Click:</strong> View node
+                                • <strong>Double-click:</strong>{" "}
+                                Center & highlight
+                            </>
+                        )}
                     </p>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
@@ -1120,12 +2113,29 @@ export function NetworkVisualization({userId}: { userId: string }) {
                             <p className="text-xs text-muted-foreground">Connections: {selectedNode.connections.length}</p>
                             {selectedNode.id !== userId && (
                                 <Badge variant="secondary" className="capitalize">
-                                    {selectedNode.type === "group" ? "Group" : selectedNode.relationshipTypes[userId] || "Unknown"}
+                                    {selectedNode.type === "group" ? "Group" : (() => {
+                                        // Check if there are custom relationships
+                                        const edges = selectedNode.relationships?.[userId] || [];
+                                        if (edges.length > 0 && edges[0].label) {
+                                            return edges[0].label;
+                                        }
+                                        return selectedNode.relationshipTypes[userId] || "Unknown";
+                                    })()}
                                 </Badge>
                             )}
 
                             {selectedNode.id !== userId && (
                                 <div className="flex gap-2">
+                                    <Button
+                                        size="sm"
+                                        variant="default"
+                                        onClick={() => setIsNodeEditOpen(true)}
+                                        className="flex-1"
+                                    >
+                                        <SettingsIcon className="h-4 w-4 mr-1"/>
+                                        Edit Node
+                                    </Button>
+
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
@@ -1133,18 +2143,11 @@ export function NetworkVisualization({userId}: { userId: string }) {
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => toggleNodeVisibility(selectedNode.id)}
-                                                    className="flex-1"
                                                 >
                                                     {hiddenNodes.has(selectedNode.id) ? (
-                                                        <>
-                                                            <Eye className="h-4 w-4 mr-1"/>
-                                                            Show
-                                                        </>
+                                                        <Eye className="h-4 w-4"/>
                                                     ) : (
-                                                        <>
-                                                            <EyeOff className="h-4 w-4 mr-1"/>
-                                                            Hide
-                                                        </>
+                                                        <EyeOff className="h-4 w-4"/>
                                                     )}
                                                 </Button>
                                             </TooltipTrigger>
@@ -1195,6 +2198,146 @@ export function NetworkVisualization({userId}: { userId: string }) {
                         </div>
                     </Card>
                 )}
+
+                {/* Node Edit Dialog */}
+                <NodeEditDialog
+                    node={selectedNode}
+                    userId={userId}
+                    isOpen={isNodeEditOpen}
+                    onClose={() => setIsNodeEditOpen(false)}
+                    onUpdate={() => {
+                        loadNetworkData();
+                        setIsNodeEditOpen(false);
+                    }}
+                />
+
+                {/* Edge Edit Dialog */}
+                <EdgeEditDialog
+                    edge={selectedEdge}
+                    userId={userId}
+                    isOpen={isEdgeEditOpen}
+                    onClose={() => {
+                        setIsEdgeEditOpen(false);
+                        setSelectedEdge(null);
+                    }}
+                    onUpdate={() => {
+                        loadNetworkData();
+                        setIsEdgeEditOpen(false);
+                        setSelectedEdge(null);
+                    }}
+                />
+
+                {/* Map Legend Card */}
+                <div className="absolute bottom-4 right-4 w-80 max-h-[80vh] overflow-auto">
+                    <Card className="bg-background/95 backdrop-blur border-royal-purple/20">
+                        <CardHeader className="pb-3">
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="text-sm">Map Legend</CardTitle>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setShowLegend(!showLegend)}
+                                >
+                                    {showLegend ? <ChevronDown className="h-4 w-4"/> : <ChevronUp className="h-4 w-4"/>}
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        {showLegend && (
+                            <CardContent className="space-y-3 text-sm">
+                                {visibleLegendData.nodeTypes.size > 0 && (
+                                    <div>
+                                        <p className="text-xs font-medium text-muted-foreground mb-2">Node Types ({
+                                            (visibleLegendData.nodeTypes.has('user') ? 1 : 0) +
+                                            visibleLegendData.externalNodes.length +
+                                            (visibleLegendData.nodeTypes.has('group') ? 1 : 0)
+                                        })</p>
+                                        <div className="space-y-2">
+                                            {visibleLegendData.nodeTypes.has('user') && (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-4 h-4 rounded-full border"
+                                                         style={{backgroundColor: nodeColors.user}}/>
+                                                    <span className="text-xs">You (Center)</span>
+                                                </div>
+                                            )}
+                                            {visibleLegendData.externalNodes.map((externalNode, idx) => (
+                                                <div key={idx} className="flex items-center gap-2">
+                                                    <div className="w-4 h-4 rounded-full border"
+                                                         style={{backgroundColor: externalNode.color}}/>
+                                                    <span className="text-xs">{externalNode.label}</span>
+                                                </div>
+                                            ))}
+                                            {visibleLegendData.nodeTypes.has('group') && (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-4 h-4 rounded-full border"
+                                                         style={{backgroundColor: nodeColors.group}}/>
+                                                    <span className="text-xs">Group</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {visibleLegendData.defaultTypes.size > 0 && (
+                                    <div className="border-t pt-3">
+                                        <p className="text-xs font-medium text-muted-foreground mb-2">Relationship Types
+                                            ({visibleLegendData.defaultTypes.size})</p>
+                                        <div className="space-y-2">
+                                            {[
+                                                {type: 'friend', label: 'Friend', color: '#A855F7'},
+                                                {type: 'partner', label: 'Partner', color: '#EC4899'},
+                                                {type: 'family', label: 'Family', color: '#22C55E'},
+                                                {type: 'colleague', label: 'Colleague', color: '#3B82F6'},
+                                                {type: 'acquaintance', label: 'Acquaintance', color: '#9CA3AF'},
+                                            ].filter(t => visibleLegendData.defaultTypes.has(t.type)).map(type => (
+                                                <div key={type.label} className="flex items-center gap-2">
+                                                    <div
+                                                        className="w-4 h-4 rounded-full border"
+                                                        style={{backgroundColor: type.color}}
+                                                    />
+                                                    <span className="text-xs">{type.label}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {visibleLegendData.customTypes.length > 0 && (
+                                    <div className="border-t pt-3">
+                                        <p className="text-xs font-medium text-muted-foreground mb-2">Custom Types
+                                            ({visibleLegendData.customTypes.length})</p>
+                                        <div className="space-y-2">
+                                            {visibleLegendData.customTypes.map(type => (
+                                                <div key={type.id} className="flex items-center gap-2">
+                                                    <div
+                                                        className="w-4 h-4 rounded-full border"
+                                                        style={{backgroundColor: type.node_color}}
+                                                    />
+                                                    <span className="text-xs flex-1">{type.label}</span>
+                                                    {type.line_style !== 'solid' && (
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {type.line_style}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="border-t pt-3">
+                                    <p className="text-xs font-medium text-muted-foreground mb-2">Interactions</p>
+                                    <div className="space-y-1 text-xs text-muted-foreground">
+                                        <p>• Click node: View details</p>
+                                        <p>• Double-click node: Center view</p>
+                                        <p>• Click edge: Edit relationship</p>
+                                        <p>• Drag canvas: Pan view</p>
+                                        <p>• Scroll: Zoom in/out</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        )}
+                    </Card>
+                </div>
             </div>
         </div>
     );
