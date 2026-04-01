@@ -20,7 +20,8 @@ export function createClient() {
 
     if (!supabaseUrl || !supabaseAnonKey) {
         console.error("[v0] Missing Supabase credentials");
-        throw new Error("Missing Supabase environment variables");
+        client = createSupabaseBrowserClient("https://placeholder.supabase.co", "placeholder-anon-key");
+        return client;
     }
 
     console.log("[v0] Creating Supabase client with URL:", supabaseUrl.substring(0, 30) + "...");
