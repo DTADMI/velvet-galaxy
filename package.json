@@ -9,7 +9,7 @@
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "lint:ci": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
     "start": "next start",
-    "test": "vitest",
+    "test": "vitest run",
     "test:e2e": "playwright install --with-deps && playwright test --config=playwright.config.ts",
     "format": "prettier --write .",
     "prepare": "husky install",

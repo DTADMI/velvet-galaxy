@@ -3,10 +3,11 @@
 import {revalidatePath} from "next/cache";
 
 import {SUBSCRIPTION_PRODUCTS} from "@/lib/products";
-import {stripe} from "@/lib/stripe";
+import {getStripeClient} from "@/lib/stripe";
 import {createServerClient} from "@/lib/supabase/server";
 
 export async function startCheckoutSession(productId: string) {
+    const stripe = getStripeClient();
     const product = SUBSCRIPTION_PRODUCTS.find((p) => p.id === productId);
     if (!product) {
         throw new Error(`Product with id "${productId}" not found`);
@@ -55,6 +56,7 @@ export async function startCheckoutSession(productId: string) {
 }
 
 export async function handleSuccessfulPayment(sessionId: string) {
+    const stripe = getStripeClient();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid" && session.metadata) {
@@ -88,6 +90,7 @@ export async function handleSuccessfulPayment(sessionId: string) {
 }
 
 export async function cancelSubscription() {
+    const stripe = getStripeClient();
     const supabase = await createServerClient();
     const {
         data: {user},
