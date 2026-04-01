@@ -1,10 +1,9 @@
 // Service Worker for caching static assets and API responses
 const CACHE_NAME = "velvet_galaxy-cache-v1"
 const STATIC_CACHE = "velvet_galaxy-static-v1"
-const API_CACHE = "velvet_galaxy-api-v1"
 
 // Static assets to cache immediately
-const STATIC_ASSETS = ["/", "/feed", "/discover", "/messages", "/profile", "/manifest.json"]
+const STATIC_ASSETS = ["/", "/feed", "/discover", "/messages", "/profile", "/download", "/offline", "/manifest.json"]
 
 // Install event - cache static assets
 self.addEventListener("install", (event) => {
@@ -34,7 +33,7 @@ self.addEventListener("activate", (event) => {
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE && cacheName !== API_CACHE) {
+                    if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE) {
                         console.log("[v0] Deleting old cache:", cacheName)
                         return caches.delete(cacheName)
                     }
@@ -62,24 +61,9 @@ self.addEventListener("fetch", (event) => {
         return
     }
 
-    // Handle API requests (Supabase)
+    // Handle API requests (Supabase) as network-only to avoid stale/private cache risks
     if (url.hostname.includes("supabase")) {
-        event.respondWith(
-            caches.open(API_CACHE).then((cache) => {
-                return fetch(request)
-                    .then((response) => {
-                        // Only cache successful responses
-                        if (response.status === 200) {
-                            cache.put(request, response.clone())
-                        }
-                        return response
-                    })
-                    .catch(() => {
-                        // Return cached response if network fails
-                        return cache.match(request)
-                    })
-            }),
-        )
+        event.respondWith(fetch(request))
         return
     }
 
@@ -122,7 +106,7 @@ self.addEventListener("fetch", (event) => {
                             return cachedResponse
                         }
                         // Return offline page if available
-                        return caches.match("/")
+                        return caches.match("/offline")
                     })
                 }),
         )

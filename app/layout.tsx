@@ -7,6 +7,8 @@ import type React from "react";
 import {ThemeProvider} from "@/components/theme-provider";
 import {TooltipProvider} from "@/components/ui/tooltip";
 import {CacheProvider} from "@/lib/cache/provider";
+import {PWAInstallPrompt} from "@/components/pwa/install-prompt";
+import {ServiceWorkerRegistration} from "@/components/pwa/service-worker-registration";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -44,21 +46,10 @@ export default function RootLayout({
             `,
                 }}
             />
-            <script
-                dangerouslySetInnerHTML={{
-                    __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('[v0] Service Worker registered:', reg.scope))
-                    .catch(err => console.error('[v0] Service Worker registration failed:', err));
-                });
-              }
-            `,
-                }}
-            />
         </head>
         <body className={inter.className}>
+        <ServiceWorkerRegistration/>
+        <PWAInstallPrompt/>
         <ThemeProvider defaultTheme="dark" storageKey="velvet_galaxy-theme">
             <CacheProvider>
                 <TooltipProvider>{children}</TooltipProvider>
