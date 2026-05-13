@@ -1,0 +1,8 @@
+interface:
+  display_name: "Subscription Management"
+  short_description: "Manage subscription tiers, Stripe webhooks, and access gating."
+  brand_color: "#7c3aed"
+  default_prompt: "Use $subscription-management to handle subscription and monetization work."
+
+policy:
+  allow_implicit_invocation: true

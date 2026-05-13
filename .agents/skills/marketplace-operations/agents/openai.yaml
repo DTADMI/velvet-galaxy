@@ -1,0 +1,8 @@
+interface:
+  display_name: "Marketplace Operations"
+  short_description: "Manage listings, Stripe integration, and purchase flows."
+  brand_color: "#7c3aed"
+  default_prompt: "Use $marketplace-operations to handle marketplace and commerce work."
+
+policy:
+  allow_implicit_invocation: true

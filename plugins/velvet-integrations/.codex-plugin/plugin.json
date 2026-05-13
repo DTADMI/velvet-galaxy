@@ -1,0 +1,23 @@
+{
+  "name": "velvet-integrations",
+  "version": "0.1.0",
+  "description": "Velvet Galaxy repo-local MCP bundle for GitHub and Supabase.",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Velvet Galaxy Integrations",
+    "shortDescription": "GitHub and Supabase MCP bundle.",
+    "longDescription": "Repo-local plugin metadata for the GitHub and Supabase MCP servers used during Velvet Galaxy work.",
+    "developerName": "Velvet Galaxy Engineering",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Integrations"
+    ],
+    "defaultPrompt": [
+      "Inspect the Velvet Galaxy GitHub work items.",
+      "Inspect the Velvet Galaxy Supabase project context.",
+      "Use both Velvet Galaxy MCP targets for context."
+    ],
+    "brandColor": "#7c3aed"
+  }
+}

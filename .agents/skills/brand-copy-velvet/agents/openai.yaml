@@ -1,0 +1,8 @@
+interface:
+  display_name: "Brand Copy Velvet"
+  short_description: "Review VG copy, naming, tone, and terminology."
+  brand_color: "#7c3aed"
+  default_prompt: "Use $brand-copy-velvet to review Velvet Galaxy brand language."
+
+policy:
+  allow_implicit_invocation: true

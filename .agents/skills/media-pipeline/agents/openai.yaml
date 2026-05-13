@@ -1,0 +1,8 @@
+interface:
+  display_name: "Media Pipeline"
+  short_description: "Handle uploads, EXIF stripping, and media viewer security."
+  brand_color: "#7c3aed"
+  default_prompt: "Use $media-pipeline to handle media upload and display work."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,8 @@
+interface:
+  display_name: "Content Moderation Review"
+  short_description: "Handle reports, content rating, and moderation queues."
+  brand_color: "#7c3aed"
+  default_prompt: "Use $content-moderation-review to handle moderation tasks."
+
+policy:
+  allow_implicit_invocation: true

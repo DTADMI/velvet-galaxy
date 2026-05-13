@@ -1,0 +1,8 @@
+interface:
+  display_name: "Social Graph Management"
+  short_description: "Manage relationships, privacy scoping, and consent flows."
+  brand_color: "#7c3aed"
+  default_prompt: "Use $social-graph-management to handle relationship and social graph work."
+
+policy:
+  allow_implicit_invocation: true

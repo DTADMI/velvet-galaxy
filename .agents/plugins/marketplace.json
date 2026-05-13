@@ -1,0 +1,20 @@
+{
+  "name": "velvet-local",
+  "interface": {
+    "displayName": "Velvet Galaxy Local"
+  },
+  "plugins": [
+    {
+      "name": "velvet-integrations",
+      "source": {
+        "source": "local",
+        "path": "./plugins/velvet-integrations"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
