@@ -27,7 +27,7 @@
 - `sql/` supplemental SQL (schema, seed, feature flags, marketplace, toy reviews)
 - `styles/` global CSS
 - `tests/` Vitest unit tests and Playwright e2e tests
-- `docs/` technical documentation
+- `docs/` technical documentation (gap analysis, Neo4j plan, AI plan, artist architecture, Vercel guardrails)
 
 ## Hard Rules
 

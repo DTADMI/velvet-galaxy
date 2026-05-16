@@ -143,7 +143,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                     >
                         <Avatar className={`${avatarSize} border-2 border-royal-purple`}>
                             <AvatarImage
-                                src={post.author_profile?.avatar_url || '/avatar-placeholder.png' || undefined}
+                                src={post.author_profile?.avatar_url || '/avatar-placeholder.png'}
                                 alt={`${post.author_profile?.display_name || post.author_profile?.username || 'User'}'s avatar`}
                                 className={!post.author_profile?.avatar_url ? 'hidden' : ''}
                             />

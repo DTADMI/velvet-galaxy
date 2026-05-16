@@ -25,7 +25,7 @@ export function useFeatureFlag(flagName: string, defaultValue: boolean = false) 
 
             try {
                 const {data, error: queryError} = await supabase
-                    .from<FeatureFlag>('feature_flags')
+                    .from('feature_flags')
                     .select('is_enabled')
                     .eq('name', flagName)
                     .single();

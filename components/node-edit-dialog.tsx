@@ -313,7 +313,9 @@ export function NodeEditDialog({node, userId, isOpen, onClose, onUpdate}: NodeEd
                                                     <span className="text-sm">
                                                         {rel.custom_relationship_type
                                                             ? rel.custom_relationship_type.label
-                                                            : rel.default_type?.charAt(0).toUpperCase() + rel.default_type?.slice(1)}
+                                                            : rel.default_type
+                                                                ? rel.default_type.charAt(0).toUpperCase() + rel.default_type.slice(1)
+                                                                : "Unknown"}
                                                     </span>
                                                     <Button
                                                         size="icon"

@@ -48,12 +48,32 @@ POLICY "Admins can manage feature flags"
         )
     );
 
--- Seed some initial flags
+-- Seed initial feature flags
 INSERT INTO public.feature_flags (name, description, is_enabled)
-VALUES ('premium_tts', 'Enable high-quality AI Text-to-Speech for premium users', true),
-       ('advanced_analytics', 'Show detailed post and profile analytics', false),
-       ('beta_chat_rooms', 'Access to experimental video chat rooms', true),
-       ('marketplace_video', 'Support for video previews in marketplace listings', true),
-       ('ai_recommendations', 'Enable AI-powered content recommendations in Discovery', true),
-       ('toy_viewer_3d', 'Enable 3D interactive toy viewer in reviews', true),
-       ('localized_discovery', 'Enable location-based filtering in Discovery Hub', true) ON CONFLICT (name) DO NOTHING;
+VALUES
+    -- Core platform flags
+    ('premium_tts', 'Enable high-quality AI Text-to-Speech for premium users', true),
+    ('advanced_analytics', 'Show detailed post and profile analytics', false),
+    ('beta_chat_rooms', 'Access to experimental video chat rooms', true),
+    ('marketplace_video', 'Support for video previews in marketplace listings', true),
+    ('ai_recommendations', 'Enable AI-powered content recommendations in Discovery', true),
+    ('toy_viewer_3d', 'Enable 3D interactive toy viewer in reviews', true),
+    ('localized_discovery', 'Enable location-based filtering in Discovery Hub', true),
+
+    -- AI feature flags
+    ('ai_content_moderation', 'AI-powered content moderation for posts, messages, and comments', false),
+    ('ai_translation_assist', 'AI-assisted EN↔FR translation for posts and messages', false),
+    ('ai_post_composer', 'AI writing assistant for creating post content', false),
+    ('ai_tag_suggestions', 'AI auto-suggest tags from post content', false),
+    ('ai_content_recommendations', 'AI-powered personalized feed and content recommendations', false),
+    ('ai_people_discovery', 'AI-powered social graph "People You May Know" recommendations', false),
+    ('ai_media_caption', 'AI-generated captions for uploaded images and videos', false),
+    ('ai_chat_assistant', 'AI social coaching and conversation suggestions', false),
+    ('ai_onboarding_assistant', 'AI-guided new user onboarding and profile setup', false),
+    ('ai_group_activity', 'AI activity and event suggestion generator for groups', false),
+
+    -- Neo4j feature flags (optional, requires Neo4j AuraDB)
+    ('neo4j_graph_queries', 'Neo4j-backed social graph queries for galaxy visualization and recommendations', false),
+    ('neo4j_community_detection', 'Neo4j community detection algorithms for discovery', false),
+    ('neo4j_recommendations', 'Neo4j-powered friend and content recommendations', false)
+ON CONFLICT (name) DO NOTHING;

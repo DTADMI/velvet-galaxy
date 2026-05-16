@@ -24,8 +24,7 @@ export async function startCheckoutSession(productId: string) {
 
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
-        ui_mode: "embedded",
-        redirect_on_completion: "never",
+        mode: product.duration === "lifetime" ? "payment" : "subscription",
         line_items: [
             {
                 price_data: {
@@ -44,7 +43,6 @@ export async function startCheckoutSession(productId: string) {
                 quantity: 1,
             },
         ],
-        mode: product.duration === "lifetime" ? "payment" : "subscription",
         metadata: {
             userId: user.id,
             productId: product.id,

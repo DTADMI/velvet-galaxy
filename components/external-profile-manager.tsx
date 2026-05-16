@@ -615,7 +615,9 @@ export default function ExternalProfileManager() {
                                         <p className="text-sm text-muted-foreground">
                                             {rel.custom_relationship_type
                                                 ? rel.custom_relationship_type.label
-                                                : rel.default_type?.charAt(0).toUpperCase() + rel.default_type?.slice(1)}
+                                                : rel.default_type
+                                                    ? rel.default_type.charAt(0).toUpperCase() + rel.default_type.slice(1)
+                                                    : "Unknown"}
                                         </p>
                                     </div>
                                     <Button

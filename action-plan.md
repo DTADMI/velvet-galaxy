@@ -148,81 +148,80 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## In Progress
 
-- ✅ **Advanced Onboarding & Personalization**:
-  - ✅ Implemented initial tag selection (5-10 tags) for new users to populate their feed with local content.
-  - ✅ Set up the "Recent Activities" feed in profile to show history of posts, likes, follows, friendings, etc.
-- ✅ **Localized & Filtered Experience**:
-  - ✅ Implemented default localized filtering for Feed, Search, and Marketplace based on user location.
-  - ✅ Developed feed mode toggle: Neutral (SFW) and Kinky (NSFW) with content-rating filtering.
-  - ✅ Refined the "Discover Hub" to prioritize local content and community events.
+- 🔴 **Security Hardening (May 2026)**:
+  - 🔴 Added Content-Security-Policy, Permissions-Policy, COOP, CORP headers to `next.config.mjs`.
+  - 🔴 Removed `typescript.ignoreBuildErrors: true` and `images.unoptimized: true` from config.
+  - 🔴 Secured API config endpoint with origin checking.
+  - 🔴 Upgraded all libraries: Next.js 16.2.6, Vite 8.0.13, Vitest 4.1.6, ESLint 10.4.0, Stripe 22.1.1.
+  - 🔴 Reduced CVEs from 42 (21 high) to 1 (moderate, Next.js bundled postcss).
 
-- ✅ **Social & Profile Extensions**:
-  - ✅ Implemented "Moral Person" (Organization/House/Company) account types with specialized interactions (no
-    friending, only following).
-  - ✅ Live picture verification flow and "Verified" profile badges.
-  - ✅ Post scoping: "Who can comment" restrictions (Everyone, Friends, Followers) at creation and post-creation.
-- ✅ **Discovery & Feed Enhancements**:
-  - ✅ Developed the "Discovery Hub" with curated (interest-based), popular (location-based), and "Liked Content"
-    tabs.
-  - ✅ Implemented Infinite Scroll with performance-optimized fetching caps.
-  - ✅ Refined localized filtering for Feed, Marketplace, and Search.
-- ✅ **Advanced Messaging**:
-  - ✅ Granular message privacy settings (Everyone, Friends, Followers).
-  - ✅ Receiver filtering in message creation based on user restrictions (e.g., "No Dating Messages").
-  - ✅ Report functionality for messages and posts.
+- 🔴 **Redis Infrastructure (May 2026)**:
+  - 🔴 Created `lib/redis/` layer with Upstash client, sliding-window rate limiting, and response caching.
+  - 🔴 Rate limiting migrated to Redis-first with Supabase fallback.
+  - 🔴 Added `@upstash/redis` and `@upstash/ratelimit` dependencies.
+  - [ ] Deploy Upstash Redis instance and configure env vars.
+
+- 🟡 **AI Features — Foundation (May 2026)**:
+  - 🟡 Created provider-agnostic AI adapter layer (`lib/ai/`) with DeepSeek V4 Flash/Pro support.
+  - 🟡 Built API routes for content moderation, translation (EN↔FR), post composer, and tag suggestions.
+  - 🟡 Redis caching for AI responses with prompt hashing and TTL.
+  - 🟡 Tier-based rate limiting configured per feature.
+  - 🟡 Feature flags seeded for all 10 AI features.
+  - [ ] Deploy AI features behind feature flags.
+  - [ ] Build admin AI settings page (`app/admin/ai/page.tsx`).
+  - [ ] Implement remaining AI features (recommendations, chat, onboarding, media captioning).
+
+- 🟡 **Error Handling Strategy (May 2026)**:
+  - 🟡 Created centralized error types, classification, and user-friendly messages (`lib/errors.ts`).
+  - 🟡 Built reusable `ErrorBoundary` component with retry support.
+  - [ ] Integrate error boundaries into key page layouts.
+
+- 🟡 **Documentation (May 2026)**:
+  - 🟡 Created comprehensive gap analysis (`docs/gap-analysis-implementation-roadmap.md`).
+  - 🟡 Created Neo4J integration plan (`docs/neo4j-integration-plan.md`).
+  - 🟡 Created AI features implementation plan (`docs/ai-features-implementation-plan.md`).
+  - 🟡 Created TanStack Query migration guide (`docs/tanstack-migration-guide.md`).
 
 ## Next
 
-- ✅ **Social & Relationship Refinements**:
-  - ✅ Implementing advanced relationship labels (Dom/Sub, Partner, etc.) with mutual consent flow.
-  - ✅ Adding the option to "not follow" friends (mute feed but keep connection).
-  - ✅ Creating/Requesting custom relationship labels with mutual permission.
-  - ✅ Immediate counter updates on profile when adding friends or following.
-  - ✅ Enhancing the 3D Network Visualization with more filters and interactive node details.
-- ✅ **Messaging Enhancements**:
-  - ✅ Implementing "Share to Message" modal for easy content sharing with specific users.
-  - ✅ Adding search history dropdown to the search modal.
-  - ✅ Separate search results page (as specified) when clicking through from the search bar.
-- ✅ **Event System Polish**:
-  - ✅ Refining the event creation form: validation (end date > start date), online checkbox logic (greying out
-    location), and auto-close on success.
+- 🔜 **Neo4J Integration (Phase 3)**:
+  - 🔜 Set up Neo4j AuraDB free tier.
+  - 🔜 Define graph model (Profile, Group, Event, Artwork nodes + relationships).
+  - 🔜 Build sync layer (Supabase webhooks → Neo4j upserts).
+  - 🔜 Implement graph-native queries for galaxy visualization and recommendations.
+  - 🔜 Gate behind `neo4j_graph_queries` feature flag.
 
-- ✅ **Media & Content Polish**:
-  - ✅ Batch image/video uploads with simultaneous album creation/selection.
-  - ✅ Sequential media navigation (Next/Prev buttons) in detail views (Fetlife-style).
-  - ✅ Marketplace enhancements: Support for videos and audio in listings.
-- ✅ **Navigation & UI/UX**:
-  - ✅ Expanding top-right Profile Dropdown: Friends/Followers list, Bookmarks, Events, FAQ, Parameters, and Account
-    Switching.
-  - ✅ Navbar links for Help/Support forms, Policies (ToS), and About pages.
-  - ✅ Fast-path "Upload" button in navbar for all media types.
-- ✅ **Relationship Refinements**:
-  - ✅ Advanced relationship labels (Dom/Sub, etc.) with mutual consent flow.
-  - ✅ "Not follow" option for friends (connection without feed clutter).
-  - ✅ Immediate UI counter updates for social interactions.
+- 🔜 **System Health & Monitoring**:
+  - 🔜 Build admin health dashboard with Supabase/Redis/API metrics.
+  - 🔜 Add audit logging table and triggers.
+  - 🔜 Implement email notifications for security events (MFA, suspicious device).
+
+- 🔜 **AI Features — Phase 2**:
+  - 🔜 AI content recommendations and people discovery.
+  - 🔜 AI chat assistant and onboarding assistant.
+  - 🔜 AI media captioning and group activity generator.
+
+- 🔜 **TanStack Query Migration** (optional enhancement):
+  - 🔜 Install `@tanstack/react-query`.
+  - 🔜 Add `QueryClientProvider`.
+  - 🔜 Migrate key data-fetching hooks.
+  - 🔜 Implement optimistic updates for social actions.
+
+- 🔜 **UI/UX Improvements**:
+  - 🔜 Skeleton loaders for all dynamic routes.
+  - 🔜 Empty state components with CTAs.
+  - 🔜 Optimistic UI updates for likes, follows, bookmarks.
+  - 🔜 Loading progress indicators for uploads and AI operations.
 
 ## Backlog
 
-- ✅ **Technical & Testing**:
-  - ✅ Full accessibility compliance audit completed.
-  - ✅ Basic E2E tests with Playwright.
-  - ✅ Optimized 3D visualization and performance.
-  - [ ] Load testing for real-time messaging.
-- ✅ **Platform Extensions**:
-  - ✅ **Paid Text-to-Speech (TTS) for messages** (Premium - Cost-effective approach):
-    - ✅ Implement queue manager with fallback to free **Web Speech API** for $0 operational cost.
-    - [ ] Evaluate premium cloud TTS (OpenAI/Polly) for ultra-premium tiers.
-    - ✅ Reading individual messages or whole inbox.
-    - ✅ Player controls (skip, back, auto-play next).
-    - ✅ Subscription gating logic (scaffolded).
-  - ✅ **Already Connected** session management placeholder.
-  - ✅ **Full Subscription Model implementation** (UI skeleton and tiers).
-  - ✅ Extended VR support and live capture scaffolding.
-  - ✅ **Nested comments** (verified single-level threading).
-  - [ ] Advanced community moderation tools for group owners.
-  - ✅ **Mobile PWA enhancements**: manifest and metadata.
-  - ✅ **Contact forms and Help page integration**.
-  - ✅ **Terms of Service and Policy pages** (About/Policies).
+- [ ] Load testing for real-time messaging.
+- [ ] Evaluate premium cloud TTS (OpenAI Polly) for ultra-premium tiers.
+- [ ] Advanced community moderation tools for group owners.
+- [ ] Full offline PWA support with service worker caching strategy.
+- [ ] Visual regression testing with Playwright.
+- [ ] Performance benchmarking and optimization.
+- [ ] Accessibility audit v2 with screen reader testing.
 
 ## Changelog (recent)
 

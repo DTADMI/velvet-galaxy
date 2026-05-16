@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    typescript: {
-        ignoreBuildErrors: true,
-    },
     images: {
         remotePatterns: [
             {
@@ -11,7 +8,6 @@ const nextConfig = {
                 hostname: '**.supabase.co',
             },
         ],
-        unoptimized: true,
     },
     experimental: {
         serverActions: {
@@ -54,10 +50,6 @@ const securityHeaders = [
         value: 'max-age=63072000; includeSubDomains; preload',
     },
     {
-        key: 'X-XSS-Protection',
-        value: '1; mode=block',
-    },
-    {
         key: 'X-Frame-Options',
         value: 'SAMEORIGIN',
     },
@@ -68,6 +60,26 @@ const securityHeaders = [
     {
         key: 'Referrer-Policy',
         value: 'origin-when-cross-origin',
+    },
+    {
+        key: 'Content-Security-Policy',
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com; frame-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';",
+    },
+    {
+        key: 'Permissions-Policy',
+        value: 'camera=self, microphone=self, geolocation=self, interest-cohort=()',
+    },
+    {
+        key: 'Cross-Origin-Opener-Policy',
+        value: 'same-origin',
+    },
+    {
+        key: 'Cross-Origin-Resource-Policy',
+        value: 'same-origin',
+    },
+    {
+        key: 'X-Permitted-Cross-Domain-Policies',
+        value: 'none',
     },
 ];
 

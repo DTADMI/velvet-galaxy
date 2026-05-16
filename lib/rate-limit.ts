@@ -1,4 +1,5 @@
 import {createServerClient} from "@/lib/supabase/server";
+import {checkRateLimit as redisCheckRateLimit} from "@/lib/redis/rate-limit";
 
 interface RateLimitConfig {
     maxRequests: number
@@ -6,19 +7,36 @@ interface RateLimitConfig {
 }
 
 const RATE_LIMITS: Record<string, RateLimitConfig> = {
-    post_create: {maxRequests: 10, windowMs: 60000}, // 10 posts per minute
-    comment_create: {maxRequests: 20, windowMs: 60000}, // 20 comments per minute
-    message_send: {maxRequests: 30, windowMs: 60000}, // 30 messages per minute
-    like: {maxRequests: 50, windowMs: 60000}, // 50 likes per minute
-    follow: {maxRequests: 20, windowMs: 60000}, // 20 follows per minute
-    auth_login: {maxRequests: 5, windowMs: 300000}, // 5 login attempts per 5 minutes
-    auth_signup: {maxRequests: 3, windowMs: 3600000}, // 3 signups per hour
+    post_create: {maxRequests: 10, windowMs: 60000},
+    comment_create: {maxRequests: 20, windowMs: 60000},
+    message_send: {maxRequests: 30, windowMs: 60000},
+    like: {maxRequests: 50, windowMs: 60000},
+    follow: {maxRequests: 20, windowMs: 60000},
+    auth_login: {maxRequests: 5, windowMs: 300000},
+    auth_signup: {maxRequests: 3, windowMs: 3600000},
 };
 
 export async function checkRateLimit(
     userId: string,
     action: keyof typeof RATE_LIMITS,
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+    const redisResult = await redisCheckRateLimit(userId, action);
+    if (redisResult.resetAt < Date.now() + 5000) {
+        return {
+            allowed: redisResult.allowed,
+            remaining: redisResult.remaining,
+            resetAt: new Date(redisResult.resetAt),
+        };
+    }
+
+    if (!redisResult.allowed) {
+        return {
+            allowed: false,
+            remaining: redisResult.remaining,
+            resetAt: new Date(redisResult.resetAt),
+        };
+    }
+
     const supabase = await createServerClient();
     const config = RATE_LIMITS[action];
 
@@ -28,7 +46,6 @@ export async function checkRateLimit(
 
     const windowStart = new Date(Date.now() - config.windowMs);
 
-    // Count recent actions
     const {count} = await supabase
         .from("rate_limits")
         .select("*", {count: "exact", head: true})
@@ -41,11 +58,10 @@ export async function checkRateLimit(
     const allowed = requestCount < config.maxRequests;
 
     if (allowed) {
-        // Record this action
         await supabase.from("rate_limits").insert({
             user_id: userId,
             action,
-            ip_address: null, // Could be added from headers
+            ip_address: null,
         });
     }
 

@@ -57,6 +57,7 @@ interface TemporaryRelationship {
     to_profile_id?: string; // For external-to-external
     relationship_type_id?: string;
     default_type?: string;
+    label?: string;
     notes?: string;
 }
 

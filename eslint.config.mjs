@@ -176,7 +176,7 @@ export default [
             "**/tailwind.config.js",
             "**/vitest.config.ts",
             "**/playwright.config.ts",
-            "**/backend/doc/**", // Exclude backend docs from ESLint
+            "**/backend/doc/**",
             "**/backend/target/**",
             "**/doc/**",
             "types/**/*.d.ts",
@@ -187,6 +187,7 @@ export default [
             "**/eslint.config.*",
             "**/postcss.config.*",
             "**/next-env.d.ts",
+            "**/scripts/**",
         ],
     },
 
