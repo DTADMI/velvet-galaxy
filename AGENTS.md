@@ -39,6 +39,17 @@
 - For data-heavy work, prefer repo scripts over repeated manual tool calls when a script is practical.
 - Use `pnpm`/`pnpx` rather than `npm`/`npx` for all package management and script execution.
 
+### Performance
+
+- Public content pages must export `revalidate` with a value appropriate to the content change rate.
+- Dynamic routes serving public content should implement `generateStaticParams` for high-traffic entries.
+- Use `React.cache()` to deduplicate expensive data-fetching functions called from multiple components in the same render tree.
+- Enable Partial Prerendering (`experimental.ppr: 'incremental'`) and set stale times (`experimental.staleTimes`) in `next.config.mjs`.
+- Configure `experimental.optimizePackageImports` for Radix UI, lucide-react, and date-fns.
+- Pages with list data must paginate; never return unbounded result sets.
+- Never remove `cache()` wrappers from shared data-fetching functions.
+- Never downgrade a page from static/ISR to `force-dynamic` without documenting the reason.
+
 ### Change Safety
 
 - Do not remove or overwrite user changes in a dirty worktree unless explicitly asked.
