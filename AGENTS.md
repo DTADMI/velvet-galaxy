@@ -37,14 +37,15 @@
 - Scope searches and avoid heavy folders: `node_modules`, `.next`, `test-results`, `.qodo`, `.idea`.
 - Never use `Get-ChildItem -Recurse | Select-String` for repo content search.
 - For data-heavy work, prefer repo scripts over repeated manual tool calls when a script is practical.
+- Use `pnpm`/`pnpx` rather than `npm`/`npx` for all package management and script execution.
 
 ### Change Safety
 
 - Do not remove or overwrite user changes in a dirty worktree unless explicitly asked.
 - Avoid editing generated output or `.next/`.
 - Keep new product behavior behind feature flags, and keep UI/API enforcement in sync.
-- Growth ideas, themes, and events must remain feature-flag gated and controllable from the admin dashboard.
 - Vendor-dependent integrations must go through local adapters, not direct vendor SDK calls in feature code.
+- **Never use `--no-verify`, `--no-gpg-sign`, or any hook-skipping flag on git commits or pushes.** The pre-commit hook runs `pnpm lint`, `pnpm build`, and `pnpm test`. These must pass before every commit. If a hook takes too long, increase the tool timeout — do not bypass the hook.
 
 ### Social Platform Rules
 
