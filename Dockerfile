@@ -1,4 +1,4 @@
-## Multi-stage Dockerfile for Velvet Galaxy (Next.js 16, Node 20, pnpm)
+## Multi-stage Dockerfile for Velvet Galaxy (Next.js 16, Node 22.22.3, pnpm)
 
 # 1) Base image with pnpm
 FROM node:22.22.3-alpine AS base
