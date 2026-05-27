@@ -1,10 +1,10 @@
 ## Multi-stage Dockerfile for Velvet Galaxy (Next.js 16, Node 20, pnpm)
 
 # 1) Base image with pnpm
-FROM node:20-alpine AS base
+FROM node:22.22.3-alpine AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.33.4 --activate
 
 # 2) Install dependencies (with caching)
 FROM base AS deps
