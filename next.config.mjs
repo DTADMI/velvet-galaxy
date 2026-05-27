@@ -15,6 +15,14 @@ const nextConfig = {
         },
         optimizeCss: true,
         scrollRestoration: true,
+        staleTimes: {
+            dynamic: 30,
+            static: 300,
+        },
+        optimizePackageImports: [
+            "lucide-react",
+            "date-fns",
+        ],
     },
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production' ? {exclude: ['error']} : false,

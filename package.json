@@ -8,6 +8,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "lint:ci": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
+    "typecheck": "tsc --noEmit",
     "start": "next start",
     "test": "vitest run",
     "test:e2e": "playwright install --with-deps && playwright test --config=playwright.config.ts",
