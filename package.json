@@ -14,7 +14,8 @@
     "format": "prettier --write .",
     "prepare": "husky install",
     "db:migrate": "bash scripts/run-migrations.sh",
-    "db:check": "echo 'Copy scripts/check-db-state.sql and run in Supabase SQL Editor'"
+    "db:check": "echo 'Copy scripts/check-db-state.sql and run in Supabase SQL Editor'",
+    "check:supabase-security": "node scripts/check-supabase-security.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

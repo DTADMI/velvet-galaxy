@@ -11,9 +11,9 @@ SELECT USING (bucket_id = 'media');
 
 CREATE
 POLICY "Authenticated users can upload media" ON storage.objects
-  FOR INSERT WITH CHECK (
-    bucket_id = 'media' 
-    AND auth.role() = 'authenticated'
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'media'
   );
 
 CREATE
@@ -40,9 +40,9 @@ SELECT USING (bucket_id = 'avatars');
 
 CREATE
 POLICY "Authenticated users can upload avatars" ON storage.objects
-  FOR INSERT WITH CHECK (
-    bucket_id = 'avatars' 
-    AND auth.role() = 'authenticated'
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'avatars'
   );
 
 CREATE

@@ -124,7 +124,8 @@ $$ LANGUAGE sql STABLE;
 -- ============================================================================
 
 -- View for posts with linked artwork details
-CREATE OR REPLACE VIEW public.promotional_posts_with_artwork AS
+CREATE OR REPLACE VIEW public.promotional_posts_with_artwork
+WITH (security_invoker = true) AS
 SELECT
     p.*,
     a.title as artwork_title,
@@ -139,7 +140,8 @@ LEFT JOIN public.artworks a ON p.artwork_id = a.id
 WHERE p.is_promotional = true;
 
 -- View for artist profiles with full user details
-CREATE OR REPLACE VIEW public.artists_with_profiles AS
+CREATE OR REPLACE VIEW public.artists_with_profiles
+WITH (security_invoker = true) AS
 SELECT
     ap.*,
     p.username,
@@ -186,7 +188,8 @@ CREATE POLICY IF NOT EXISTS "Promotional posts follow same visibility rules as r
 -- ============================================================================
 
 -- View for artist engagement metrics including both social and showcase content
-CREATE OR REPLACE VIEW public.artist_full_engagement_metrics AS
+CREATE OR REPLACE VIEW public.artist_full_engagement_metrics
+WITH (security_invoker = true) AS
 SELECT
     p.id as artist_id,
     p.username,

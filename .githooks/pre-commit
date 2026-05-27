@@ -2,5 +2,6 @@
 set -euo pipefail
 
 pnpm lint
+pnpm check:supabase-security
 pnpm build
 pnpm test

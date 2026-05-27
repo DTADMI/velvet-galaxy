@@ -375,7 +375,8 @@ create trigger update_commission_requests_updated_at
 -- ============================================================================
 
 -- View for artwork with engagement metrics
-create or replace view public.artworks_with_stats as
+create or replace view public.artworks_with_stats
+with (security_invoker = true) as
 select
     a.*,
     count(distinct al.user_id) as like_count,
@@ -386,7 +387,8 @@ left join public.artwork_comments ac on a.id = ac.artwork_id
 group by a.id;
 
 -- View for artist profiles with stats
-create or replace view public.artist_profiles_with_stats as
+create or replace view public.artist_profiles_with_stats
+with (security_invoker = true) as
 select
     ap.*,
     count(distinct aw.id) as artwork_count,
