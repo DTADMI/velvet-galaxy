@@ -1,15 +1,17 @@
 ﻿#!/usr/bin/env bash
 set -euo pipefail
 
-pnpm lint
-pnpm check:supabase-security
-echo "[pre-commit] Running encoding checks..."
-STAGED_ENCODING=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E '\.(sql|md|ps1)
+echo "[pre-commit] Velvet Galaxy checks..."
 echo ""
 
-pnpm build
-pnpm test
- | tr '\n' ',' | sed 's/,$//')
+pnpm lint
+pnpm typecheck
+
+echo "[pre-commit] Running Supabase security checks..."
+pnpm check:supabase-security
+
+echo "[pre-commit] Running encoding checks..."
+STAGED_ENCODING=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E '\.(sql|md|ps1)' | tr '\n' ',' | sed 's/,$//')
 if [ -n "$STAGED_ENCODING" ]; then
   powershell -NoProfile -Command "& ./scripts/check-encoding.ps1 -Files '$STAGED_ENCODING' -Quiet"
   echo "[pre-commit] EncodingCheck: PASSED"
@@ -17,7 +19,11 @@ else
   echo "[pre-commit] EncodingCheck: SKIPPED (no encoding-sensitive files staged)"
 fi
 echo ""
-echo ""
 
+echo "[pre-commit] Running build..."
 pnpm build
+
+echo "[pre-commit] Running tests..."
 pnpm test
+
+echo "[pre-commit] All checks passed."

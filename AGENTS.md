@@ -135,7 +135,8 @@ Use the repo skills when the task matches:
 
 - Active Codex lifecycle hooks live in `.codex/hooks.json`.
 - Repo Git hooks live in `.githooks/` and are installed by `node scripts/install-git-hooks.mjs` (or equivalent).
-- The pre-commit hook runs `pnpm lint`, `pnpm build`, and `pnpm test`.
+- The pre-commit hook runs `pnpm lint`, `pnpm typecheck`, `pnpm check:supabase-security`, encoding checks, `pnpm build`, and `pnpm test`.
+- Run `pnpm run-all-checks` locally to verify everything passes before committing.
 
 ## MCP And Plugin Boundaries
 

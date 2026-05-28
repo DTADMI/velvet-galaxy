@@ -1,6 +1,5 @@
 param(
   [string]$Path = ".",
-  [string]$Files = "",
   [switch]$Fix,
   [switch]$Quiet
 )
@@ -152,27 +151,17 @@ function Repair-Placeholders {
 
 # ---- Main ----
 
+# Resolve search path
+$searchPath = Resolve-Path -LiteralPath $Path -ErrorAction Stop
+
 # Collect files to check
 $files = @()
-if ($Files) {
-  # Files specified as comma-separated list (for pre-commit staged files)
-  $fileList = $Files -split ','
-  foreach ($f in $fileList) {
-    $trimmed = $f.Trim()
-    if ($trimmed -and (Test-Path -LiteralPath $trimmed)) {
-      $files += Get-Item -LiteralPath $trimmed
-    }
-  }
-  Write-Msg "Checking $($files.Count) specified files for encoding issues..."
-} else {
-  # Directory scan mode
-  $searchPath = Resolve-Path -LiteralPath $Path -ErrorAction Stop
-  Get-ChildItem -LiteralPath $searchPath -Recurse -File -Include @('*.sql', '*.md', '*.ps1', '*.mjs', '*.sh', '*.txt') |
-    Where-Object { $_.FullName -notmatch '\\node_modules\\' } |
-    Where-Object { $_.FullName -notmatch '\\.next\\' } |
-    ForEach-Object { $files += $_ }
-  Write-Msg "Checking $($files.Count) files in $searchPath for encoding issues..."
-}
+Get-ChildItem -LiteralPath $searchPath -Recurse -File -Include @('*.sql', '*.md', '*.ps1', '*.mjs', '*.sh', '*.txt') |
+  Where-Object { $_.FullName -notmatch '\\node_modules\\' } |
+  Where-Object { $_.FullName -notmatch '\\.next\\' } |
+  ForEach-Object { $files += $_ }
+
+Write-Msg "Checking $($files.Count) files in $searchPath for encoding issues..."
 
 foreach ($file in $files) {
   $fileIssues = @()
