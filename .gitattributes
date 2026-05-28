@@ -1,0 +1,18 @@
+# Force LF line endings for SQL migration files (cross-platform compatibility)
+*.sql text eol=lf
+# Force LF for shell scripts
+*.sh text eol=lf
+# Force LF for Node.js scripts
+*.mjs text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+# JSON files - keep LF
+*.json text eol=lf
+# Markdown
+*.md text eol=lf
+# YAML
+*.yml text eol=lf
+*.yaml text eol=lf
+# PowerShell scripts - keep native Windows line endings
+*.ps1 text eol=crlf

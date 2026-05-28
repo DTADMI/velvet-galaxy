@@ -91,6 +91,26 @@
 - Keep EXIF stripping defaults for photo uploads.
 - Security events such as MFA changes and suspicious-device events must emit both in-app and transactional email notifications.
 
+
+### Encoding & Special Character Handling
+
+- French accented characters (e, e, e, o, c, etc.) are used throughout translations,
+  and content. They must NOT be corrupted, replaced, or mangled.
+- **JSONB text replacement**: Use `jsonb_set(content, '{text}', to_jsonb(replace(content->>'text', old, new)))`
+  for plain-text replacements. Never use `regexp_replace(content::text, ...)` when the
+  pattern contains Unicode characters â€” the JSONB `::text` cast escapes Unicode.
+- **PowerShell piping**: Never pipe SQL containing accented characters directly to
+  `docker exec -i psql`. Write to a temp UTF-8 file, copy to container, then execute
+  with `-f` flag.
+- **File encoding**: Use .NET methods for reliable UTF-8 without BOM:
+  `[System.IO.File]::WriteAllText(path, content, [Text.Encoding]::UTF8)`.
+- **Line endings**: SQL, shell script, and TypeScript files must use LF line endings.
+  `.ps1` files use CRLF. See `.gitattributes` at the project root.
+- **Verification**: Run `scripts/check-encoding.ps1` to scan for encoding issues.
+  Run `scripts/fix-encoding.ps1 all` to repair them.
+- When writing new seed data or migration SQL that includes French text, refer to
+  `docs/technical/encoding-reference.md` and the `encoding-handling` skill.
+
 ### External Research
 
 - Prefer local documentation (`docs/`, `AGENTS.md`, source code) before fetching external sources.
