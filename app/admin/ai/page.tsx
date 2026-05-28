@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { invalidateClientFlagCache } from "@/hooks/use-feature-flag";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,7 +56,10 @@ export default function AdminAiSettingsPage() {
             .update({ is_enabled: !current, updated_at: new Date().toISOString() })
             .eq("name", name);
 
-        if (!error) refetch();
+        if (!error) {
+            refetch();
+            invalidateClientFlagCache().catch(() => {});
+        }
     };
 
     if (checking) {

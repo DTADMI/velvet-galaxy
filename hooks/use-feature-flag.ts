@@ -1,128 +1,112 @@
-import {useEffect, useState} from 'react';
-import {createBrowserClient} from '@/lib/supabase/client';
+"use client";
 
-interface FeatureFlag {
-    name: string;
-    is_enabled: boolean;
-    created_at?: string;
-    updated_at?: string;
+import { useEffect, useState } from "react";
+import { getDefaultFlags } from "@/lib/feature-flags";
+
+const DEFAULT_FLAGS = getDefaultFlags();
+
+const FLAGS_CACHE_TTL = 60_000;
+
+let _cachedFlags: Record<string, boolean> | null = null;
+let _cachedAt = 0;
+
+async function fetchFlags(): Promise<Record<string, boolean>> {
+    const now = Date.now();
+    if (_cachedFlags && now - _cachedAt < FLAGS_CACHE_TTL) {
+        return _cachedFlags;
+    }
+
+    try {
+        const res = await fetch("/api/feature-flags");
+        if (res.ok) {
+            const flags = (await res.json()) as Record<string, boolean>;
+            _cachedFlags = flags;
+            _cachedAt = now;
+            return flags;
+        }
+    } catch (err) {
+        console.warn("[VG:FeatureFlags] API fetch failed, using defaults:", err);
+    }
+
+    return { ...DEFAULT_FLAGS };
 }
 
 export function useFeatureFlag(flagName: string, defaultValue: boolean = false) {
-    const [isEnabled, setIsEnabled] = useState<boolean>(defaultValue);
+    const [isEnabled, setIsEnabled] = useState<boolean>(() => {
+        if (_cachedFlags && flagName in _cachedFlags) {
+            return _cachedFlags[flagName];
+        }
+        return DEFAULT_FLAGS[flagName] ?? defaultValue;
+    });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-    const supabase = createBrowserClient();
-    const MAX_RETRIES = 2;
-    const RETRY_DELAY = 1000; // 1 second
 
     useEffect(() => {
         let isMounted = true;
-        let retryCount = 0;
 
-        async function checkFlag() {
-            if (!isMounted) return;
-
+        async function load() {
             try {
-                const {data, error: queryError} = await supabase
-                    .from('feature_flags')
-                    .select('is_enabled')
-                    .eq('name', flagName)
-                    .single();
-
-                if (queryError) {
-                    // If the table doesn't exist (PGRST205 or 42P01), use default value
-                    if (queryError.code === '42P01' || queryError.code === 'PGRST205') {
-                        console.warn(`Feature flags table not found. Using default value (${defaultValue}) for ${flagName}`);
-                        if (isMounted) {
-                            setIsEnabled(defaultValue);
-                            setError(null);
-                            setIsLoading(false);
-                        }
-                        return;
-                    }
-
-                    // Retry logic for transient errors
-                    if (retryCount < MAX_RETRIES) {
-                        retryCount++;
-                        console.warn(`Retry ${retryCount}/${MAX_RETRIES} for feature flag ${flagName}`);
-                        setTimeout(checkFlag, RETRY_DELAY * retryCount);
-                        return;
-                    }
-
-                    throw queryError;
-                }
-
+                const flags = await fetchFlags();
                 if (isMounted) {
-                    setIsEnabled(data?.is_enabled ?? defaultValue);
-                    setError(null);
+                    setIsEnabled(flags[flagName] ?? defaultValue);
+                    setIsLoading(false);
                 }
             } catch (err) {
-                console.error(`Error in useFeatureFlag for ${flagName}:`, {
-                    error: err,
-                    flagName,
-                    retryCount,
-                    timestamp: new Date().toISOString()
-                });
-
                 if (isMounted) {
                     setError(err instanceof Error ? err : new Error(String(err)));
                     setIsEnabled(defaultValue);
+                    setIsLoading(false);
                 }
-            } finally {
+            }
+        }
+
+        load();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [flagName, defaultValue]);
+
+    return { isEnabled, isLoading };
+}
+
+export function useFeatureFlags() {
+    const [flags, setFlags] = useState<Record<string, boolean>>(_cachedFlags ?? { ...DEFAULT_FLAGS });
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function load() {
+            try {
+                const result = await fetchFlags();
+                if (isMounted) {
+                    setFlags(result);
+                    setIsLoading(false);
+                }
+            } catch {
                 if (isMounted) {
                     setIsLoading(false);
                 }
             }
         }
 
-        checkFlag();
+        load();
 
-        // Optional: Subscribe to changes (only if table exists)
-        // Skip subscription setup to avoid errors when table doesn't exist
         return () => {
             isMounted = false;
         };
-    }, [flagName, supabase]);
+    }, []);
 
-    return {isEnabled, isLoading};
+    return { flags, isLoading };
 }
 
-export function useFeatureFlags() {
-    const [flags, setFlags] = useState<Record<string, boolean>>({});
-    const [isLoading, setIsLoading] = useState(true);
-    const supabase = createBrowserClient();
-
-    useEffect(() => {
-        async function fetchFlags() {
-            const {data, error} = await supabase
-                .from('feature_flags')
-                .select('name, is_enabled');
-
-            if (error) {
-                // If table doesn't exist, just use empty flags
-                if (error.code === '42P01' || error.code === 'PGRST205') {
-                    console.warn('Feature flags table not found. All flags will use default values.');
-                    setFlags({});
-                } else {
-                    console.error('Error fetching feature flags:', error);
-                }
-            } else if (data) {
-                const flagMap = data.reduce((acc: Record<string, boolean>, flag: any) => {
-                    acc[flag.name] = flag.is_enabled;
-                    return acc;
-                }, {} as Record<string, boolean>);
-                setFlags(flagMap);
-            }
-            setIsLoading(false);
-        }
-
-        fetchFlags();
-
-        // Skip subscription to avoid errors when table doesn't exist
-        return () => {
-        };
-    }, [supabase]);
-
-    return {flags, isLoading};
+export async function invalidateClientFlagCache(): Promise<void> {
+    _cachedFlags = null;
+    _cachedAt = 0;
+    try {
+        await fetch("/api/feature-flags", { method: "POST" });
+    } catch (err) {
+        console.warn("[VG:FeatureFlags] Invalidation API call failed:", err);
+    }
 }

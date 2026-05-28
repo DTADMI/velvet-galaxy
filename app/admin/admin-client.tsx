@@ -13,6 +13,7 @@ import {Label} from "@/components/ui/label";
 import {Textarea} from "@/components/ui/textarea";
 import {toast} from "sonner";
 import {createBrowserClient} from "@/lib/supabase/client";
+import {invalidateClientFlagCache} from "@/hooks/use-feature-flag";
 
 interface FeatureFlag {
     id: string;
@@ -88,6 +89,7 @@ export function AdminClient({initialFlags, stats}: AdminClientProps) {
             setFlags(prev => prev.map(f => f.id === id ? {...f, is_enabled: !isEnabled} : f));
         } else {
             toast.success("Feature flag updated");
+            invalidateClientFlagCache().catch(() => {});
         }
     };
 
