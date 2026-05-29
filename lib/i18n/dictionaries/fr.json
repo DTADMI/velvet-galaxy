@@ -399,10 +399,33 @@
     "guidelines": "Règles de la communauté"
   },
   "about": {
-    "about": "À propos",
-    "aboutVelvetGalaxy": "À propos de Velvet Galaxy",
+    "about": "A? propos",
+    "aboutVelvetGalaxy": "A? propos de Velvet Galaxy",
     "mission": "Mission",
     "team": "Équipe",
     "contact": "Contact"
+  },
+  "voice": {
+    "recorder": {
+      "startRecording": "Commencer l'enregistrement",
+      "record": "Enregistrer",
+      "recording": "Enregistrement...",
+      "paused": "En pause",
+      "pause": "Pause",
+      "resume": "Reprendre",
+      "stop": "Arrêter",
+      "cancel": "Annuler",
+      "preview": "Aperçu",
+      "sendVoiceMessage": "Envoyer le message vocal",
+      "errorMicrophone": "Impossible d'accéder au microphone. Vérifiez les autorisations.",
+      "durationSeconds": "{{duration}}s"
+    },
+    "player": {
+      "play": "Lire",
+      "pause": "Pause",
+      "seek": "Rechercher"
+    },
+    "voiceMessageLabel": "Message vocal"
   }
+}
 }

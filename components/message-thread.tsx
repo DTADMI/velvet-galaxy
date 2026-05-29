@@ -2,7 +2,7 @@
 
 import type {RealtimePostgresInsertPayload} from '@supabase/supabase-js';
 import {formatDistanceToNow} from "date-fns";
-import {EyeOff, Paperclip, Send, Timer, Volume2, VolumeX} from "lucide-react";
+import {EyeOff, Mic, Paperclip, Send, Timer, Volume2, VolumeX} from "lucide-react";
 import type React from "react";
 import {useEffect, useRef, useState} from "react";
 
@@ -17,6 +17,7 @@ import {MediaSpoiler} from "@/components/media-spoiler";
 import {EphemeralMedia} from "@/components/ephemeral-media";
 import {useTTS} from "@/hooks/use-tts";
 import {useFeatureFlag} from "@/hooks/use-feature-flag";
+import {VoiceRecorder, VoicePlayer} from "@nebula-forge/voice-messaging";
 
 interface Message {
     id: string
@@ -44,6 +45,7 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
     const [isEphemeral, setIsEphemeral] = useState(false);
     const [isSpoiler, setIsSpoiler] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
     const [isSubscriber, setIsSubscriber] = useState(true); // Placeholder for subscription check
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const {speak, stop, isPlaying} = useTTS();
@@ -278,6 +280,39 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
         setNewMessage(value);
     };
 
+    const handleVoiceComplete = async (blob: Blob, duration: number) => {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        const userId = user?.id;
+        if (!userId) return;
+        const messageId = crypto.randomUUID();
+        const filePath = `voice-messages/${userId}/${messageId}.webm`;
+        const { error: uploadError } = await supabase.storage
+            .from("private-media")
+            .upload(filePath, blob, { upsert: true, contentType: "audio/webm" });
+        if (uploadError) {
+            toast.error("Failed to upload voice message");
+            return;
+        }
+        const { data: urlData } = supabase.storage.from("private-media").getPublicUrl(filePath);
+        const voiceUrl = urlData.publicUrl;
+        const { data, error } = await supabase
+            .from("messages")
+            .insert({
+                conversation_id: conversationId,
+                sender_id: currentUserId,
+                content: "",
+                message_type: "voice",
+                metadata: { voiceUrl, duration },
+            })
+            .select("id, content, created_at, sender_id, profiles (username, display_name)")
+            .single();
+        if (!error && data) {
+            setMessages((prev) => [...prev, data as Message]);
+        }
+        setShowVoiceRecorder(false);
+    };
+
     const reportMessage = async (messageId: string) => {
         const reason = prompt("Why are you reporting this message?");
         if (!reason) return;
@@ -369,18 +404,30 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                                 <Card
                                     className={cn("border-royal-blue/20 overflow-hidden", isOwn && "bg-royal-auburn text-white border-royal-auburn")}>
                                     <CardContent className="p-0">
-                                        <EphemeralMedia
-                                            isViewed={!!message.viewed_at}
-                                            onView={() => handleViewEphemeral(message.id)}
-                                            className={cn(!message.is_ephemeral && "contents")}
-                                        >
-                                            <MediaSpoiler isSpoiler={message.is_spoiler}>
-                                                <div
-                                                    className="text-sm p-3 leading-relaxed prose prose-sm max-w-none dark:prose-invert"
-                                                    dangerouslySetInnerHTML={{__html: message.content}}
+                                        {(message as any).message_type === "voice" &&
+                                        (message as any).metadata?.voiceUrl ? (
+                                            <div className="p-3">
+                                                <VoicePlayer
+                                                    url={(message as any).metadata.voiceUrl}
+                                                    compact
+                                                    t={(key: string) => key}
+                                                    className="min-w-[180px]"
                                                 />
-                                            </MediaSpoiler>
-                                        </EphemeralMedia>
+                                            </div>
+                                        ) : (
+                                            <EphemeralMedia
+                                                isViewed={!!message.viewed_at}
+                                                onView={() => handleViewEphemeral(message.id)}
+                                                className={cn(!message.is_ephemeral && "contents")}
+                                            >
+                                                <MediaSpoiler isSpoiler={message.is_spoiler}>
+                                                    <div
+                                                        className="text-sm p-3 leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                                                        dangerouslySetInnerHTML={{__html: message.content}}
+                                                    />
+                                                </MediaSpoiler>
+                                            </EphemeralMedia>
+                                        )}
                                     </CardContent>
                                 </Card>
                             </div>
@@ -391,68 +438,86 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
             </div>
 
             <div className="border-t border-border p-4 bg-muted/20">
-                <form onSubmit={handleSend} className="space-y-3">
-                    <div className="flex items-center gap-2 px-1">
-                        <Button
-                            type="button"
-                            variant={isEphemeral ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setIsEphemeral(!isEphemeral)}
-                            className={cn(
-                                "h-8 gap-1.5 text-[10px] font-bold uppercase tracking-tight transition-all",
-                                isEphemeral && "bg-amber-500 hover:bg-amber-600 text-white border-amber-500 shadow-md scale-105"
-                            )}
-                        >
-                            <Timer className="h-3.5 w-3.5"/>
-                            {isEphemeral ? "Ephemeral ON" : "View Once"}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant={isSpoiler ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setIsSpoiler(!isSpoiler)}
-                            className={cn(
-                                "h-8 gap-1.5 text-[10px] font-bold uppercase tracking-tight transition-all",
-                                isSpoiler && "bg-purple-600 hover:bg-purple-700 text-white border-purple-600 shadow-md scale-105"
-                            )}
-                        >
-                            <EyeOff className="h-3.5 w-3.5"/>
-                            {isSpoiler ? "Spoiler ON" : "Spoiler"}
-                        </Button>
-                        <div className="flex-1"/>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            title="Attach media (coming soon)"
-                        >
-                            <Paperclip className="h-4 w-4"/>
-                        </Button>
-                    </div>
-                    <div className="flex gap-2 items-end">
-                        <div className="flex-1">
-                            <RichTextEditor
-                                value={newMessage}
-                                onChange={handleRichTextChange}
-                                placeholder={isEphemeral ? "Send a view-once message..." : "Type your message..."}
-                                minHeight="60px"
-                                disabled={isLoading}
-                            />
+                {showVoiceRecorder ? (
+                    <VoiceRecorder
+                        onRecordingComplete={handleVoiceComplete}
+                        onCancel={() => setShowVoiceRecorder(false)}
+                        t={(key) => key}
+                    />
+                ) : (
+                    <form onSubmit={handleSend} className="space-y-3">
+                        <div className="flex items-center gap-2 px-1">
+                            <Button
+                                type="button"
+                                variant={isEphemeral ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setIsEphemeral(!isEphemeral)}
+                                className={cn(
+                                    "h-8 gap-1.5 text-[10px] font-bold uppercase tracking-tight transition-all",
+                                    isEphemeral && "bg-amber-500 hover:bg-amber-600 text-white border-amber-500 shadow-md scale-105"
+                                )}
+                            >
+                                <Timer className="h-3.5 w-3.5"/>
+                                {isEphemeral ? "Ephemeral ON" : "View Once"}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant={isSpoiler ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setIsSpoiler(!isSpoiler)}
+                                className={cn(
+                                    "h-8 gap-1.5 text-[10px] font-bold uppercase tracking-tight transition-all",
+                                    isSpoiler && "bg-purple-600 hover:bg-purple-700 text-white border-purple-600 shadow-md scale-105"
+                                )}
+                            >
+                                <EyeOff className="h-3.5 w-3.5"/>
+                                {isSpoiler ? "Spoiler ON" : "Spoiler"}
+                            </Button>
+                            <div className="flex-1"/>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => setShowVoiceRecorder(true)}
+                                title="Record voice message"
+                            >
+                                <Mic className="h-4 w-4"/>
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                title="Attach media (coming soon)"
+                            >
+                                <Paperclip className="h-4 w-4"/>
+                            </Button>
                         </div>
-                        <Button
-                            type="submit"
-                            disabled={!newMessage.trim() || isLoading}
-                            className={cn(
-                                "bg-royal-auburn hover:bg-royal-auburn-dark h-[62px] w-[62px] rounded-lg shrink-0 transition-all",
-                                isEphemeral && "bg-amber-500 hover:bg-amber-600",
-                                isSpoiler && !isEphemeral && "bg-purple-600 hover:bg-purple-700"
-                            )}
-                        >
-                            <Send className="h-5 w-5"/>
-                        </Button>
-                    </div>
-                </form>
+                        <div className="flex gap-2 items-end">
+                            <div className="flex-1">
+                                <RichTextEditor
+                                    value={newMessage}
+                                    onChange={handleRichTextChange}
+                                    placeholder={isEphemeral ? "Send a view-once message..." : "Type your message..."}
+                                    minHeight="60px"
+                                    disabled={isLoading}
+                                />
+                            </div>
+                            <Button
+                                type="submit"
+                                disabled={!newMessage.trim() || isLoading}
+                                className={cn(
+                                    "bg-royal-auburn hover:bg-royal-auburn-dark h-[62px] w-[62px] rounded-lg shrink-0 transition-all",
+                                    isEphemeral && "bg-amber-500 hover:bg-amber-600",
+                                    isSpoiler && !isEphemeral && "bg-purple-600 hover:bg-purple-700"
+                                )}
+                            >
+                                <Send className="h-5 w-5"/>
+                            </Button>
+                        </div>
+                    </form>
+                )}
             </div>
         </div>
     );
