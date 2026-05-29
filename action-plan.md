@@ -223,6 +223,57 @@ recommended) or Docker deploy. Strict linting and type safety.
 - [ ] Performance benchmarking and optimization.
 - [ ] Accessibility audit v2 with screen reader testing.
 
+---
+ 
+## 2026-05-28 Implementation Status
+
+### Architecture
+- i18n system (Context pattern, dictionary-based variant): `lib/i18n/config.ts`, `dictionaries.ts`, 4 locale JSON dictionaries
+- Default locale: `fr` (correct)
+- AI provider-agnostic adapter layer (`lib/ai/`) with DeepSeek V4 Flash/Pro support
+- Redis infrastructure (`lib/redis/`) with Upstash client, sliding-window rate limiting, response caching
+- Centralized error handling: error types, classification, user-friendly messages (`lib/errors.ts`)
+- Content-Security-Policy, Permissions-Policy, COOP, CORP headers in `next.config.mjs`
+
+### Fixes Applied
+- Removed `typescript.ignoreBuildErrors: true` and `images.unoptimized: true`
+- Library upgrades: Next.js 16.2.6, Vite 8.0.13, Vitest 4.1.6, ESLint 10.4.0, Stripe 22.1.1
+- CVE reduction: 42 (21 high) → 1 (moderate, bundled postcss)
+- Fixed TS2322 in `toy-viewer-3d.tsx` (contactShadow → shadows)
+
+### Features Implemented
+- Feature flagging system: `feature_flags` table, `useFeatureFlag` hook, admin management
+- Admin dashboard with platform stats and flag management
+- Velvet Market (merchandise + digital products, Stripe scaffolding)
+- Velvet Games hub with point & click adventure roadmap
+- Velvet Reviews (toy detail pages, 3D viewer, catalog, ratings)
+- Text-to-Speech for messages (Web Speech API, $0 cost)
+- Subscription tiers page (`/subscription`: Basic, Premium, Lifetime)
+- Contact forms + Help page with FAQ
+- Terms of Service and Privacy Policy pages
+- Nested comments (threaded replies)
+- Co-authorship system with invitations + post_detail display
+- Media security (anti-download, right-click protection, drag-and-drop uploader)
+- AI features foundation: content moderation, EN↔FR translation, post composer, tag suggestions (10 flags)
+- API config endpoint secured with origin checking
+- ErrorBoundary component with retry support
+
+### Tests Added
+- Playwright E2E tests for core user flows (`tests/e2e/core.spec.ts`)
+- Accessibility audit + ARIA label implementation
+
+### Flags Enabled/Changed
+- 10 AI feature flags seeded (deployment pending)
+- Feature flags: TTS, Marketplace video, AI recommendations, 3D viewer, Localized discovery
+
+### Documentation
+- `docs/gap-analysis-implementation-roadmap.md`
+- `docs/neo4j-integration-plan.md`
+- `docs/ai-features-implementation-plan.md`
+- `docs/tanstack-migration-guide.md`
+
+---
+ 
 ## Changelog (recent)
 
 - Finalized "Velvet Galaxy" implementation with high-priority backlog items.
