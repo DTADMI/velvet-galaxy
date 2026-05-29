@@ -17,7 +17,7 @@ import {MediaSpoiler} from "@/components/media-spoiler";
 import {EphemeralMedia} from "@/components/ephemeral-media";
 import {useTTS} from "@/hooks/use-tts";
 import {useFeatureFlag} from "@/hooks/use-feature-flag";
-import {VoiceRecorder, VoicePlayer} from "@nebula-forge/voice-messaging";
+import {VoiceRecorder, VoicePlayer} from "@/lib/voice";
 
 interface Message {
     id: string

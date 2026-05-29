@@ -399,8 +399,8 @@
     "guidelines": "Règles de la communauté"
   },
   "about": {
-    "about": "A? propos",
-    "aboutVelvetGalaxy": "A? propos de Velvet Galaxy",
+    "about": "À propos",
+    "aboutVelvetGalaxy": "À propos de Velvet Galaxy",
     "mission": "Mission",
     "team": "Équipe",
     "contact": "Contact"
@@ -427,5 +427,4 @@
     },
     "voiceMessageLabel": "Message vocal"
   }
-}
 }
