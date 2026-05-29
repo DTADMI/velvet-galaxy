@@ -2,6 +2,7 @@
 
 import {formatDistanceToNow} from "date-fns";
 import {Bell, BellOff, Heart, Loader2, MessageCircle, UserPlus, Users} from "lucide-react";
+import {PushSubscriptionButton} from "@/components/push-subscription";
 import Link from "next/link";
 import {useCallback, useEffect, useState} from "react";
 
@@ -120,8 +121,7 @@ export function NotificationsClient({profile, initialNotifications}: Notificatio
                         </div>
 
                         {/* Push Notification Prompt */}
-                        <Card
-                            className="border-royal-purple/30 bg-gradient-to-br from-royal-purple/10 to-royal-blue/10 backdrop-blur-sm shadow-lg">
+                        <Card className="border-royal-purple/30 bg-gradient-to-br from-royal-purple/10 to-royal-blue/10 backdrop-blur-sm shadow-lg">
                             <CardContent className="p-6">
                                 <div className="flex items-start gap-4">
                                     <div className="p-3 rounded-full bg-royal-purple/20">
@@ -133,10 +133,7 @@ export function NotificationsClient({profile, initialNotifications}: Notificatio
                                             Get real-time updates for private messages, notifications, and friend
                                             requests on this device.
                                         </p>
-                                        <div className="flex gap-2">
-                                            <Button className="bg-royal-purple hover:bg-royal-purple/90">Enable</Button>
-                                            <Button variant="ghost">Later</Button>
-                                        </div>
+                                        <PushSubscriptionButton />
                                     </div>
                                 </div>
                             </CardContent>

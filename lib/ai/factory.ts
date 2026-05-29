@@ -162,3 +162,162 @@ export async function aiSuggestTags(
 
     return [];
 }
+
+export async function aiRecommendContent(
+    userId: string,
+    userInterests: string[],
+    recentActivity: string[]
+): Promise<{ recommendations: string[]; reasoning: string }> {
+    const response = await aiComplete({
+        model: "deepseek-v4-flash",
+        messages: [
+            {
+                role: "system",
+                content: `You are a content recommendation engine for Velvet Galaxy, a social platform. Based on the user's interests and recent activity, recommend content types, topics, or communities they might enjoy. Return JSON: {"recommendations": string[], "reasoning": string}.`,
+            },
+            {
+                role: "user",
+                content: `Interests: ${userInterests.join(", ") || "none"}. Recent activity: ${recentActivity.join(", ") || "none"}. What content would you recommend?`,
+            },
+        ],
+        temperature: 0.7,
+        maxTokens: 500,
+        feature: "content_recommendations",
+        userId,
+    });
+
+    try {
+        const jsonMatch = response.content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) return JSON.parse(jsonMatch[0]);
+    } catch {}
+    return { recommendations: [], reasoning: "Unable to generate recommendations" };
+}
+
+export async function aiCaptionMedia(
+    mediaDescription: string,
+    mediaType: string,
+    userId: string
+): Promise<string> {
+    const response = await aiComplete({
+        model: "deepseek-v4-flash",
+        messages: [
+            {
+                role: "system",
+                content: `You are a media captioning assistant for Velvet Galaxy. Generate a concise, engaging caption for this ${mediaType}. Keep it under 200 characters. Return ONLY the caption text.`,
+            },
+            {
+                role: "user",
+                content: mediaDescription,
+            },
+        ],
+        temperature: 0.7,
+        maxTokens: 200,
+        feature: "media_caption",
+        userId,
+    });
+
+    return response.content.slice(0, 200);
+}
+
+export async function aiChatAssist(
+    goal: "conversation" | "icebreaker" | "profile_tips" | "social_coaching",
+    context: string,
+    userId: string
+): Promise<string> {
+    const goalPrompts: Record<string, string> = {
+        conversation: "Help the user continue a conversation naturally. Suggest a reply or talking point.",
+        icebreaker: "Suggest an engaging icebreaker or conversation starter based on shared interests.",
+        profile_tips: "Provide tips to make the user's profile more engaging and authentic.",
+        social_coaching: "Offer friendly social coaching advice for building connections on the platform.",
+    };
+
+    const response = await aiComplete({
+        model: "deepseek-v4-flash",
+        messages: [
+            {
+                role: "system",
+                content: `You are a social coaching assistant for Velvet Galaxy. ${goalPrompts[goal]} Keep advice positive, respectful, and practical. Return ONLY the suggestion or advice.`,
+            },
+            {
+                role: "user",
+                content: context,
+            },
+        ],
+        temperature: 0.8,
+        maxTokens: 512,
+        feature: "chat_assistant",
+        userId,
+    });
+
+    return response.content;
+}
+
+export async function aiOnboardUser(
+    username: string,
+    interests: string[],
+    userId: string
+): Promise<{ bioSuggestions: string[]; groupSuggestions: string[]; firstPostIdeas: string[]; welcomeMessage: string }> {
+    const response = await aiComplete({
+        model: "deepseek-v4-flash",
+        messages: [
+            {
+                role: "system",
+                content: `You are an onboarding assistant for Velvet Galaxy, a social platform. Help a new user get started. Based on their username and interests, generate: 1) 3 bio/profile suggestions, 2) 2-3 group/community suggestions, 3) 2-3 ideas for their first post, 4) a warm welcome message. Return JSON: {"bioSuggestions": string[], "groupSuggestions": string[], "firstPostIdeas": string[], "welcomeMessage": string}.`,
+            },
+            {
+                role: "user",
+                content: `Username: ${username}. Interests: ${interests.join(", ") || "general social"}.`,
+            },
+        ],
+        temperature: 0.7,
+        maxTokens: 1024,
+        feature: "onboarding_assistant",
+        userId,
+    });
+
+    try {
+        const jsonMatch = response.content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) return JSON.parse(jsonMatch[0]);
+    } catch {}
+    return {
+        bioSuggestions: ["Welcome to Velvet Galaxy!"],
+        groupSuggestions: [],
+        firstPostIdeas: ["Share what brought you here!"],
+        welcomeMessage: `Welcome to Velvet Galaxy, ${username}! We're glad you're here.`,
+    };
+}
+
+export async function aiGenerateGroupActivity(
+    groupName: string,
+    groupType: string,
+    memberInterests: string[],
+    userId: string
+): Promise<{ title: string; description: string; type: string; suggestedDate?: string }> {
+    const response = await aiComplete({
+        model: "deepseek-v4-pro",
+        messages: [
+            {
+                role: "system",
+                content: `You are an activity suggestion engine for Velvet Galaxy groups. Generate an engaging group activity or event. Return JSON: {"title": string, "description": string, "type": string, "suggestedDate": string or null}. Types: "discussion", "challenge", "virtual_meetup", "collaborative_project", "game_night", "other".`,
+            },
+            {
+                role: "user",
+                content: `Group: ${groupName} (${groupType}). Member interests: ${memberInterests.join(", ") || "general"}. Suggest an activity!`,
+            },
+        ],
+        temperature: 0.8,
+        maxTokens: 1024,
+        feature: "group_activity",
+        userId,
+    });
+
+    try {
+        const jsonMatch = response.content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) return JSON.parse(jsonMatch[0]);
+    } catch {}
+    return {
+        title: "Group Activity",
+        description: "Let's get together and have some fun!",
+        type: "discussion",
+    };
+}

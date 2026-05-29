@@ -144,15 +144,33 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
     };
 
     const handleLikeComment = async (commentId: string, isLiked: boolean) => {
-        if (isLiked) {
-            await supabase.from("comment_likes").delete().eq("comment_id", commentId).eq("user_id", currentUserId);
-        } else {
-            await supabase.from("comment_likes").insert({
-                comment_id: commentId,
-                user_id: currentUserId,
-            });
+        setComments((prev) =>
+            prev.map((c) => {
+                if (c.id === commentId) {
+                    const currentLikes = c.comment_likes || [];
+                    return {
+                        ...c,
+                        comment_likes: isLiked
+                            ? currentLikes.filter((l) => l.user_id !== currentUserId)
+                            : [...currentLikes, { user_id: currentUserId }],
+                    };
+                }
+                return c;
+            })
+        );
+
+        try {
+            if (isLiked) {
+                await supabase.from("comment_likes").delete().eq("comment_id", commentId).eq("user_id", currentUserId);
+            } else {
+                await supabase.from("comment_likes").insert({
+                    comment_id: commentId,
+                    user_id: currentUserId,
+                });
+            }
+        } catch {
+            fetchComments();
         }
-        fetchComments();
     };
 
     const handleDeleteComment = async (commentId: string) => {

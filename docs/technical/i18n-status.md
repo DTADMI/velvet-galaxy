@@ -1,6 +1,6 @@
 # Velvet Galaxy — i18n Status Audit
 
-**Audit Date**: 2026-05-28
+**Audit Date**: 2026-05-29
 
 ## Approach
 
@@ -33,18 +33,20 @@
 
 | Convention | Count | Notes |
 |------------|-------|-------|
-| "connexion" (vs "login") | 8 occurrences | Good |
-| "courriel" (vs "email") | 2 occurrences | Low — some keys may use "email" |
-| "mot de passe" (vs "password") | 3 occurrences | Low — some keys may use "password" |
-| "login" / "Log in" in FR | 2 occurrences | Needs cleanup to "connexion" |
-| "email" in FR | 1 occurrence | Needs cleanup to "courriel" |
-| "password" in FR | 1 occurrence | Needs cleanup to "mot de passe" |
+| "connexion" (vs "login") | 10 occurrences | Good — all auth keys use Quebec French |
+| "courriel" (vs "email") | 3 occurrences | Good — "Changer le courriel" used in settings |
+| "mot de passe" (vs "password") | 3 occurrences | Good — "Changer le mot de passe" used in settings |
+| "langue d'affichage" (vs "language") | 1 occurrence | Fixed — was "Langue" now "Langue d'affichage" |
+| "téléchargement" (vs "download" noun) | 1 occurrence | Fixed — was "Télécharger" (verb) now "Téléchargement" (noun) |
+| "login" / "Log in" in FR | 0 occurrences | Cleaned |
+| "email" in FR | 0 occurrences | Cleaned |
+| "password" in FR | 0 occurrences | Cleaned |
 | Hardcoded `t('en', ...)` | 0 | Clean |
 
 ## Missing Translations
 
 - No missing FR key parity issues (358 EN = 358 FR)
-- Quebec French conventions: some legacy keys use English conventions instead of Quebec French (login → connexion, email → courriel, password → mot de passe)
+- Quebec French conventions: all known Anglicisms resolved
 
 ## Assessment
 

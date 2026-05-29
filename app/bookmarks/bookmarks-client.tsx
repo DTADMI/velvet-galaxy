@@ -8,6 +8,7 @@ import {Button} from "@/components/ui/button";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Label} from "@/components/ui/label";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {EmptyBookmarks} from "@/components/empty-states";
 import {Bookmark, ContentFilters, DEFAULT_CONTENT_FILTERS} from "@/types/bookmark";
 import type {Post} from "@/types/post";
 
@@ -143,7 +144,11 @@ export function BookmarksClient({posts}: BookmarksClientProps) {
                 return <PostCard key={p.id} post={p}/>;
             })}
 
-            {filteredPosts.length === 0 && (
+            {filteredPosts.length === 0 && posts.length === 0 && (
+                <EmptyBookmarks />
+            )}
+
+            {filteredPosts.length === 0 && posts.length > 0 && (
                 <div className="text-center py-12 text-muted-foreground">
                     <p>No bookmarks match your filters. Try adjusting your filter settings!</p>
                 </div>

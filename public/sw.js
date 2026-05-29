@@ -1,23 +1,23 @@
-// Service Worker for caching static assets and API responses
-const CACHE_NAME = "velvet_galaxy-cache-v1"
-const STATIC_CACHE = "velvet_galaxy-static-v1"
+// Service Worker for caching static assets, API responses, and push notifications
+const CACHE_NAME = "velvet_galaxy-cache-v2"
+const STATIC_CACHE = "velvet_galaxy-static-v2"
 
 // Static assets to cache immediately
 const STATIC_ASSETS = ["/", "/feed", "/discover", "/messages", "/profile", "/download", "/offline", "/manifest.json"]
 
 // Install event - cache static assets
 self.addEventListener("install", (event) => {
-    console.log("[v0] Service Worker installing...")
+    console.log("[VGSW] Service Worker installing...")
 
     event.waitUntil(
         caches
             .open(STATIC_CACHE)
             .then((cache) => {
-                console.log("[v0] Caching static assets")
-                return cache.addAll(STATIC_ASSETS.map((url) => new Request(url, {cache: "reload"})))
+                console.log("[VGSW] Caching static assets")
+                return cache.addAll(STATIC_ASSETS.map((url) => new Request(url, { cache: "reload" })))
             })
             .catch((err) => {
-                console.error("[v0] Failed to cache static assets:", err)
+                console.error("[VGSW] Failed to cache static assets:", err)
             }),
     )
 
@@ -27,14 +27,14 @@ self.addEventListener("install", (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener("activate", (event) => {
-    console.log("[v0] Service Worker activating...")
+    console.log("[VGSW] Service Worker activating...")
 
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
                     if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE) {
-                        console.log("[v0] Deleting old cache:", cacheName)
+                        console.log("[VGSW] Deleting old cache:", cacheName)
                         return caches.delete(cacheName)
                     }
                 }),
@@ -48,7 +48,7 @@ self.addEventListener("activate", (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener("fetch", (event) => {
-    const {request} = event
+    const { request } = event
     const url = new URL(request.url)
 
     // Skip non-GET requests
@@ -131,6 +131,91 @@ self.addEventListener("fetch", (event) => {
     )
 })
 
+// Push event - handle incoming push notifications
+self.addEventListener("push", (event) => {
+    console.log("[VGSW] Push received:", event)
+
+    let payload = {
+        title: "Velvet Galaxy",
+        body: "You have a new notification",
+        icon: "/icon-192x192.png",
+        badge: "/icon-72x72.png",
+        data: {},
+    }
+
+    if (event.data) {
+        try {
+            const data = event.data.json()
+            payload = {
+                title: data.title || payload.title,
+                body: data.body || payload.body,
+                icon: data.icon || payload.icon,
+                badge: data.badge || payload.badge,
+                data: data.data || {},
+                tag: data.tag || "velvet-galaxy",
+                requireInteraction: data.requireInteraction || false,
+                vibrate: data.vibrate || [200, 100, 200],
+                timestamp: data.timestamp || Date.now(),
+            }
+        } catch (e) {
+            console.warn("[VGSW] Failed to parse push data:", e)
+            payload.body = event.data.text() || payload.body
+        }
+    }
+
+    const notificationTitle = payload.title
+    const options = {
+        body: payload.body,
+        icon: payload.icon,
+        badge: payload.badge,
+        data: payload.data,
+        tag: payload.tag,
+        requireInteraction: payload.requireInteraction,
+        vibrate: payload.vibrate,
+        timestamp: payload.timestamp,
+        actions: [
+            { action: "open", title: "Open" },
+            { action: "close", title: "Dismiss" },
+        ],
+    }
+
+    event.waitUntil(self.registration.showNotification(notificationTitle, options))
+})
+
+// Notification click event - focus or open a window
+self.addEventListener("notificationclick", (event) => {
+    console.log("[VGSW] Notification clicked:", event)
+
+    event.notification.close()
+
+    const data = event.notification.data || {}
+    let targetUrl = "/notifications"
+
+    if (data.postId) {
+        targetUrl = `/post/${data.postId}`
+    } else if (data.messageId) {
+        targetUrl = `/messages`
+    } else if (data.groupId) {
+        targetUrl = `/groups`
+    } else if (data.profileId) {
+        targetUrl = `/profile/${data.profileId}`
+    }
+
+    event.waitUntil(
+        clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
+            for (const client of windowClients) {
+                const clientUrl = new URL(client.url)
+                if (clientUrl.pathname === targetUrl && "focus" in client) {
+                    return (client as WindowClient).focus()
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow(targetUrl)
+            }
+        }),
+    )
+})
+
 // Handle messages from clients
 self.addEventListener("message", (event) => {
     if (event.data && event.data.type === "SKIP_WAITING") {
@@ -145,7 +230,7 @@ self.addEventListener("message", (event) => {
                     return Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)))
                 })
                 .then(() => {
-                    console.log("[v0] All caches cleared")
+                    console.log("[VGSW] All caches cleared")
                 }),
         )
     }

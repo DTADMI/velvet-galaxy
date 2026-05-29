@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import { aiModerate } from "@/lib/ai";
+import { aiModerate, checkAiGate } from "@/lib/ai";
 
 export async function POST(request: Request) {
     const supabase = await createServerClient();
@@ -8,6 +8,14 @@ export async function POST(request: Request) {
 
     if (!user) {
         return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const gate = await checkAiGate(user.id, "content_moderation");
+    if (!gate.allowed) {
+        return NextResponse.json(
+            { error: gate.error },
+            { status: gate.status, headers: gate.retryAfterMs ? { "Retry-After": String(Math.ceil(gate.retryAfterMs / 1000)) } : {} }
+        );
     }
 
     try {

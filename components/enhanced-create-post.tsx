@@ -33,6 +33,7 @@ import {Checkbox} from "@/components/ui/checkbox";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
+import {Progress} from "@/components/ui/progress";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/client";
@@ -750,13 +751,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                                                                 </Button>
                                                                             </div>
                                                                             {uploadProgress > 0 && uploadProgress < 100 && (
-                                                                                <div
-                                                                                    className="w-full bg-muted rounded-full h-2">
-                                                                                    <div
-                                                                                        className="bg-gradient-to-r from-royal-blue to-royal-purple h-2 rounded-full transition-all"
-                                                                                        style={{width: `${uploadProgress}%`}}
-                                                                                    />
-                                                                                </div>
+                                                                                <Progress value={uploadProgress} className="h-2 w-full" />
                                                                             )}
                                                                         </div>
                                                                     )}
