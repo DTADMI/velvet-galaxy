@@ -6,7 +6,6 @@ import type React from "react";
 
 import {ThemeProvider} from "@/components/theme-provider";
 import {TooltipProvider} from "@/components/ui/tooltip";
-import {CacheProvider} from "@/lib/cache/provider";
 import {TanstackProvider} from "@/lib/tanstack";
 import {PWAInstallPrompt} from "@/components/pwa/install-prompt";
 import {ServiceWorkerRegistration} from "@/components/pwa/service-worker-registration";
@@ -52,11 +51,9 @@ export default function RootLayout({
         <ServiceWorkerRegistration/>
         <PWAInstallPrompt/>
         <ThemeProvider defaultTheme="dark" storageKey="velvet_galaxy-theme">
-            <CacheProvider>
-                <TanstackProvider>
-                    <TooltipProvider>{children}</TooltipProvider>
-                </TanstackProvider>
-            </CacheProvider>
+            <TanstackProvider>
+                <TooltipProvider>{children}</TooltipProvider>
+            </TanstackProvider>
         </ThemeProvider>
         </body>
         </html>

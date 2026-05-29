@@ -88,7 +88,6 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
     "stripe": "^22.1.1",
-    "swr": "^2.3.8",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",

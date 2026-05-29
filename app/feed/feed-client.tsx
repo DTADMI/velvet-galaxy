@@ -12,9 +12,10 @@ import {Button} from "@/components/ui/button";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {useInfiniteScroll} from "@/hooks/use-infinite-scroll";
-import {cacheUtils, usePosts} from "@/lib/cache/hooks";
+import {queryKeys, usePosts} from "@/lib/tanstack";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import {useQueryClient} from "@tanstack/react-query";
 
 interface FeedClientProps {
     profile: {
@@ -49,7 +50,8 @@ const MAX_POSTS = 200;
 
 export function FeedClient({profile, initialPosts, isPremium = false}: FeedClientProps) {
     const [mounted, setMounted] = useState(false);
-    const {data: cachedPosts, mutate: mutatePosts} = usePosts();
+    const queryClient = useQueryClient();
+    const {data: cachedPosts} = usePosts();
     const [posts, setPosts] = useState(initialPosts);
     const [feedMode, setFeedMode] = useState<"sfw" | "all">("sfw");
     const [localOnly, setLocalOnly] = useState(false);
@@ -199,7 +201,7 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
             }));
             const newPosts = [...posts, ...mapped];
             setPosts(newPosts);
-            mutatePosts(newPosts, false);
+            queryClient.setQueryData(queryKeys.posts.byFeed(), newPosts);
             setOffset((prev) => prev + POSTS_PER_PAGE);
             setHasMore(data.length === POSTS_PER_PAGE && newPosts.length < MAX_POSTS);
         }
@@ -261,8 +263,8 @@ export function FeedClient({profile, initialPosts, isPremium = false}: FeedClien
                 author_profile: Array.isArray(p.author_profile) ? p.author_profile[0] : p.author_profile
             }));
             setPosts(mapped);
-            mutatePosts(mapped, false);
-            cacheUtils.invalidatePosts();
+            queryClient.setQueryData(queryKeys.posts.byFeed(), mapped);
+            queryClient.invalidateQueries({queryKey: queryKeys.posts.byFeed()});
             setOffset(POSTS_PER_PAGE);
             setHasMore(data.length === POSTS_PER_PAGE);
         }

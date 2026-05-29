@@ -5,12 +5,13 @@ import {useEffect, useState} from "react";
 
 import {Button} from "@/components/ui/button";
 import {Card} from "@/components/ui/card";
-import {cacheUtils} from "@/lib/cache/hooks";
 import {cacheStorage} from "@/lib/cache/storage";
+import {useQueryClient} from "@tanstack/react-query";
 
 export function CacheStatus() {
     const [cacheSize, setCacheSize] = useState<number>(0);
     const [isClearing, setIsClearing] = useState(false);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         updateCacheSize();
@@ -29,8 +30,8 @@ export function CacheStatus() {
         // Clear IndexedDB cache
         await cacheStorage.clear();
 
-        // Clear SWR cache
-        cacheUtils.invalidateAll();
+        // Clear TanStack Query cache
+        queryClient.clear();
 
         // Clear service worker cache
         if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
