@@ -252,7 +252,7 @@ export function NotificationsClient({profile, initialNotifications}: Notificatio
                                         <BellOff className="h-12 w-12 text-muted-foreground mx-auto mb-4"/>
                                         <h3 className="font-semibold text-lg mb-2">No notifications yet</h3>
                                         <p className="text-sm text-muted-foreground">
-                                            When someone interacts with your content, you'll see it here
+                                            When someone interacts with your content, you&apos;ll see it here
                                         </p>
                                     </CardContent>
                                 </Card>

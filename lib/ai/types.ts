@@ -35,7 +35,8 @@ export type AiFeature =
     | "chat_assistant"
     | "media_caption"
     | "onboarding_assistant"
-    | "group_activity";
+    | "group_activity"
+    | "people_discovery";
 
 export interface AiAdapter {
     readonly provider: string;

@@ -15,6 +15,7 @@ const FEATURE_FLAG_MAP: Record<AiFeature, string> = {
     media_caption: "ai_media_caption",
     onboarding_assistant: "ai_onboarding_assistant",
     group_activity: "ai_group_activity",
+    people_discovery: "ai_people_discovery",
 };
 
 export interface AiGateResult {

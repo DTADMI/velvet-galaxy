@@ -76,18 +76,23 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-    const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    try {
+        const supabase = await createServerClient();
+        const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        if (!user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { data } = await supabase
+            .from("push_subscriptions")
+            .select("endpoint, active, created_at")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false });
+
+        return NextResponse.json({ subscriptions: data || [] });
+    } catch (error) {
+        console.error("[VG:API:Push:GET] Error:", error);
+        return NextResponse.json({ error: "Failed to fetch subscriptions" }, { status: 500 });
     }
-
-    const { data } = await supabase
-        .from("push_subscriptions")
-        .select("endpoint, active, created_at")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-    return NextResponse.json({ subscriptions: data || [] });
 }

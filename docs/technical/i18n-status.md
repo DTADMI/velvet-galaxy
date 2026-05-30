@@ -1,24 +1,25 @@
 # Velvet Galaxy — i18n Status Audit
 
-**Audit Date**: 2026-05-29
+**Audit Date**: 2026-05-29 (updated)
 
 ## Approach
 
 | Aspect | Value |
 |--------|-------|
-| Pattern | Cross-project Context pattern (dictionary-based variant) |
+| Pattern | React Context with JSON dictionaries |
 | Config | `lib/i18n/config.ts` |
-| Provider | `lib/i18n/dictionaries.ts` (loads JSON dictionaries) |
+| Provider | `lib/i18n/provider.tsx` (I18nProvider, useI18n, useTranslation hooks) |
 | Translation format | JSON dictionaries (`lib/i18n/dictionaries/*.json`) |
-| Locale resolution | Via dictionary loader, default `fr` |
+| Default locale | `fr` (correct) |
+| Locale resolution | localStorage → navigator.language → default `fr` |
 
 ## Locale Configuration
 
 | Setting | Value |
 |---------|-------|
 | Default locale | `fr` (correct) |
-| Supported locales | en, fr, es, de |
-| Cookie name | Not explicitly named (uses React state + localStorage) |
+| Supported locales | en, fr |
+| Cookie name | `velvet_galaxy-locale` |
 
 ## Translation Key Counts
 
@@ -26,33 +27,33 @@
 |--------|------|--------|
 | EN | 358 | Baseline |
 | FR | 358 | Fully synced |
-| ES | ~358 | Available |
-| DE | ~358 | Available |
 
 ## Quebec French Conventions
 
 | Convention | Count | Notes |
 |------------|-------|-------|
-| "connexion" (vs "login") | 10 occurrences | Good — all auth keys use Quebec French |
-| "courriel" (vs "email") | 3 occurrences | Good — "Changer le courriel" used in settings |
-| "mot de passe" (vs "password") | 3 occurrences | Good — "Changer le mot de passe" used in settings |
-| "langue d'affichage" (vs "language") | 1 occurrence | Fixed — was "Langue" now "Langue d'affichage" |
-| "téléchargement" (vs "download" noun) | 1 occurrence | Fixed — was "Télécharger" (verb) now "Téléchargement" (noun) |
-| "login" / "Log in" in FR | 0 occurrences | Cleaned |
-| "email" in FR | 0 occurrences | Cleaned |
-| "password" in FR | 0 occurrences | Cleaned |
-| Hardcoded `t('en', ...)` | 0 | Clean |
+| "connexion" (vs "login") | 10 occurrences | All auth keys use Quebec French |
+| "courriel" (vs "email") | 3 occurrences | Settings keys use Quebec French |
+| "mot de passe" (vs "password") | 3 occurrences | Settings keys use Quebec French |
+| "langue d'affichage" (vs "language") | 1 occurrence | Fixed in settings key |
+| "téléchargement" (vs "download" noun) | 1 occurrence | Fixed from verb form |
 
-## Missing Translations
+## Migration Status
 
-- No missing FR key parity issues (358 EN = 358 FR)
-- Quebec French conventions: all known Anglicisms resolved
+The i18n provider (`lib/i18n/provider.tsx`) is built and ready. Components can use:
+
+```tsx
+import { useI18n } from "@/lib/i18n/provider";
+const { t, locale, setLocale } = useI18n();
+// t('auth.welcomeBack') → "Bon retour" (fr) or "Welcome Back" (en)
+```
+
+**Component migration is in progress** — most components still use hardcoded English strings. The provider, hooks, and dictionaries are fully functional.
 
 ## Assessment
 
-- FR key parity is complete (358/358)
+- Dictionary parity: Complete (358 EN = 358 FR)
 - Default locale `fr` is correct
-- Uses cross-project Context pattern (dictionary variant - functionally equivalent)
-- Quebec French conventions partially adopted; ~14 locations use Anglicisms instead
-- Multi-locale support for ES and DE is a bonus
-- No hardcoded English locale argument calls found
+- React Context provider + hooks implemented (`lib/i18n/provider.tsx`)
+- Quebec French conventions adopted in all FR dictionary values
+- Component-level i18n migration is ongoing

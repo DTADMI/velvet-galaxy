@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createServerClient } from "@/lib/supabase/server";
 import { getFeatureFlags, invalidateFlagCache } from "@/lib/feature-flags.server";
 
 export async function GET() {
@@ -13,6 +14,23 @@ export async function GET() {
 
 export async function POST() {
     try {
+        const supabase = await createServerClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+        }
+
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("is_admin")
+            .eq("id", user.id)
+            .single();
+
+        if (!profile?.is_admin) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+
         await invalidateFlagCache();
         return NextResponse.json({ success: true });
     } catch (error) {
