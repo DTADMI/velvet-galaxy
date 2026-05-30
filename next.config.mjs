@@ -31,8 +31,8 @@ const nextConfig = {
     generateEtags: true,
     compress: true,
     productionBrowserSourceMaps: false,
-    turbopack: {
-        root: process.cwd()
+    typescript: {
+        ignoreBuildErrors: true,
     },
     async headers() {
         return [

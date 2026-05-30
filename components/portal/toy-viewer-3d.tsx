@@ -6,7 +6,7 @@ import {OrbitControls, Stage, useGLTF} from "@react-three/drei";
 
 function Model({url}: { url: string }) {
     const {scene} = useGLTF(url);
-    return <primitive object={scene}/>;
+    return React.createElement("primitive", { object: scene });
 }
 
 export function ToyViewer3D({modelUrl}: { modelUrl: string }) {

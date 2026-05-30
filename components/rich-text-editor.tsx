@@ -192,12 +192,12 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                 data-placeholder={placeholder}
                 suppressContentEditableWarning
             />
-            <style jsx>{`
+            <style dangerouslySetInnerHTML={{ __html: `
                 [contenteditable]:empty:before {
                     content: attr(data-placeholder);
                     color: hsl(var(--muted-foreground));
                 }
-            `}</style>
+            ` }} />
         </div>
     );
 }
