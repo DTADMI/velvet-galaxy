@@ -29,6 +29,7 @@ INSERT INTO feature_flags (name, enabled, type, value) VALUES
   ('pg_lockout', false, 'boolean', 'false'),
   ('redis_feature_flags', false, 'boolean', 'false'),
   ('redis_cache', false, 'boolean', 'false'),
+  ('redis_lockout', false, 'boolean', 'false'),
   ('redis_sessions', false, 'boolean', 'false'),
   ('redis_pubsub', false, 'boolean', 'false'),
   ('redis_leaderboard', false, 'boolean', 'false')
