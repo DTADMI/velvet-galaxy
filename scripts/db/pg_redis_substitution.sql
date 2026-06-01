@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS feature_flags (
   updated_by TEXT
 );
 INSERT INTO feature_flags (name, enabled, type, value) VALUES
-  ('pg_rate_limit', true, 'boolean', 'true'),
+  ('redis_rate_limit', false, 'boolean', 'false'),
   ('pg_cache', false, 'boolean', 'false'),
   ('pg_flags', false, 'boolean', 'false'),
   ('pg_pubsub', false, 'boolean', 'false'),

@@ -1,16 +1,17 @@
 import {createServerClient} from "@/lib/supabase/server";
 import {checkRateLimit as redisCheckRateLimit} from "@/lib/redis/rate-limit";
+import {checkPgRateLimit} from "@/lib/security/pg-rate-limit";
 
-let _pgRateLimit: boolean | null = null;
-async function shouldUsePgRateLimit(): Promise<boolean> {
-  if (_pgRateLimit !== null) return _pgRateLimit;
-  if (process.env.PG_RATE_LIMIT === "true") { _pgRateLimit = true; return true; }
+let _redisRateLimit: boolean | null = null;
+async function shouldUseRedisRateLimit(): Promise<boolean> {
+  if (_redisRateLimit !== null) return _redisRateLimit;
+  if (process.env.REDIS_RATE_LIMIT === "true") { _redisRateLimit = true; return true; }
   try {
     const supabase = await createServerClient();
-    const { data } = await (supabase as any).from("feature_flags").select("enabled").eq("name", "pg_rate_limit").maybeSingle();
-    _pgRateLimit = data?.enabled === true;
-  } catch { _pgRateLimit = false; }
-  return _pgRateLimit;
+    const { data } = await (supabase as any).from("feature_flags").select("enabled").eq("name", "redis_rate_limit").maybeSingle();
+    _redisRateLimit = data?.enabled === true;
+  } catch { _redisRateLimit = false; }
+  return _redisRateLimit;
 }
 
 interface RateLimitConfig {
@@ -32,6 +33,23 @@ export async function checkRateLimit(
     userId: string,
     action: keyof typeof RATE_LIMITS,
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+    const config = RATE_LIMITS[action];
+    if (!config) {
+        return {allowed: true, remaining: 999, resetAt: new Date(Date.now() + 60000)};
+    }
+
+    // PG is the default
+    if (!(await shouldUseRedisRateLimit())) {
+        const windowSeconds = Math.ceil(config.windowMs / 1000);
+        const pgResult = await checkPgRateLimit(userId, { maxRequests: config.maxRequests, windowSeconds }, action);
+        return {
+            allowed: pgResult.allowed,
+            remaining: pgResult.remaining,
+            resetAt: new Date(pgResult.resetAt * 1000),
+        };
+    }
+
+    // Redis path
     const redisResult = await redisCheckRateLimit(userId, action);
     if (redisResult.resetAt < Date.now() + 5000) {
         return {
@@ -49,45 +67,11 @@ export async function checkRateLimit(
         };
     }
 
-    if (!(await shouldUsePgRateLimit())) {
-      return {
+    return {
         allowed: redisResult.allowed,
         remaining: redisResult.remaining,
         resetAt: new Date(redisResult.resetAt),
-      };
-    }
-
-    const supabase = await createServerClient();
-    const config = RATE_LIMITS[action];
-
-    if (!config) {
-        return {allowed: true, remaining: 999, resetAt: new Date(Date.now() + 60000)};
-    }
-
-    const windowStart = new Date(Date.now() - config.windowMs);
-
-    const {count} = await supabase
-        .from("rate_limits")
-        .select("*", {count: "exact", head: true})
-        .eq("user_id", userId)
-        .eq("action", action)
-        .gte("created_at", windowStart.toISOString());
-
-    const requestCount = count || 0;
-    const remaining = Math.max(0, config.maxRequests - requestCount);
-    const allowed = requestCount < config.maxRequests;
-
-    if (allowed) {
-        await supabase.from("rate_limits").insert({
-            user_id: userId,
-            action,
-            ip_address: null,
-        });
-    }
-
-    const resetAt = new Date(Date.now() + config.windowMs);
-
-    return {allowed, remaining, resetAt};
+    };
 }
 
 export async function cleanupOldRateLimits() {
