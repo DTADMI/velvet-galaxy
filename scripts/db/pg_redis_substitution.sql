@@ -1,4 +1,4 @@
--- Migration: PostgreSQL Redis Substitution Layer
+﻿-- Migration: PostgreSQL Redis Substitution Layer
 -- Replaces Upstash Redis for rate limiting, feature flags, and AI caching
 
 CREATE TABLE IF NOT EXISTS rate_limits (
@@ -49,8 +49,8 @@ BEGIN
   RETURN jsonb_build_object('allowed', v_allowed, 'remaining', v_remaining, 'resetAt', floor(EXTRACT(EPOCH FROM v_reset_at)));
 END;
 $$;
-REVOKE EXECUTE ON FUNCTION check_rate_limit(text,text,integer,integer) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION check_rate_limit(text,text,integer,integer) TO service_role;
+REVOKE EXECUTE ON FUNCTION public.check_rate_limit(text,text,integer,integer) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.check_rate_limit(text,text,integer,integer) TO service_role;
 
 CREATE OR REPLACE FUNCTION cleanup_rate_limits() RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $$ BEGIN DELETE FROM rate_limits WHERE window_start < NOW() - INTERVAL '2 hours'; DELETE FROM app_cache WHERE expires_at < NOW(); DELETE FROM account_lockouts WHERE locked_until IS NOT NULL AND locked_until < NOW(); END; $$;
@@ -77,8 +77,8 @@ BEGIN
   RETURN jsonb_build_object('locked', false, 'remainingAttempts', v_max_attempts - COALESCE(v_lockout.failed_attempts, 0));
 END;
 $$;
-REVOKE EXECUTE ON FUNCTION check_account_lockout(text) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION check_account_lockout(text) TO service_role;
+REVOKE EXECUTE ON FUNCTION public.check_account_lockout(text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.check_account_lockout(text) TO service_role;
 
 CREATE OR REPLACE FUNCTION record_failed_attempt(p_email TEXT, p_lockout_seconds INTEGER DEFAULT 900)
 RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
@@ -97,8 +97,8 @@ BEGIN
   RETURN jsonb_build_object('locked', v_locked, 'attempts', v_attempts, 'remaining', GREATEST(0, v_max_attempts - v_attempts));
 END;
 $$;
-REVOKE EXECUTE ON FUNCTION record_failed_attempt(text,integer) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION record_failed_attempt(text,integer) TO service_role;
+REVOKE EXECUTE ON FUNCTION public.record_failed_attempt(text,integer) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.record_failed_attempt(text,integer) TO service_role;
 
 CREATE OR REPLACE FUNCTION reset_account_lockout(p_email TEXT)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
@@ -106,5 +106,5 @@ AS $$
 DECLARE v_hash TEXT;
 BEGIN v_hash := encode(digest(p_email, 'sha256'), 'hex'); DELETE FROM account_lockouts WHERE email_hash = v_hash; END;
 $$;
-REVOKE EXECUTE ON FUNCTION reset_account_lockout(text) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION reset_account_lockout(text) TO service_role;
+REVOKE EXECUTE ON FUNCTION public.reset_account_lockout(text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.reset_account_lockout(text) TO service_role;

@@ -26,7 +26,7 @@ function normalizeEmail(email: string): string {
 let _pgLockout: boolean | null = null;
 let _lockoutPgModule: any = null;
 
-async function usePgLockout(): Promise<boolean> {
+async function shouldUsePgLockout(): Promise<boolean> {
   if (_pgLockout !== null) return _pgLockout;
   if (process.env.PG_LOCKOUT === "true") { _pgLockout = true; return true; }
   try {
@@ -94,7 +94,7 @@ export async function checkLockout(email: string, ip?: string): Promise<{
     if (globalLocked) return { locked: true, remainingAttempts: 0, globalLocked: true };
   }
 
-  if (await usePgLockout()) {
+  if (await shouldUsePgLockout()) {
     const mod = await getPgLockoutModule();
     const result = await mod.checkPgLockout(email);
     return { locked: result.locked, remainingAttempts: result.remainingAttempts };
@@ -109,7 +109,7 @@ export async function checkLockout(email: string, ip?: string): Promise<{
 export async function recordFailedAttempt(email: string, ip?: string): Promise<void> {
   if (ip) await checkGlobalLockout(ip);
 
-  if (await usePgLockout()) {
+  if (await shouldUsePgLockout()) {
     const mod = await getPgLockoutModule();
     await mod.recordPgFailedAttempt(email);
     return;
@@ -119,7 +119,7 @@ export async function recordFailedAttempt(email: string, ip?: string): Promise<v
 }
 
 export async function resetLockout(email: string): Promise<void> {
-  if (await usePgLockout()) {
+  if (await shouldUsePgLockout()) {
     const mod = await getPgLockoutModule();
     await mod.resetPgLockout(email);
     return;
@@ -128,7 +128,7 @@ export async function resetLockout(email: string): Promise<void> {
 }
 
 export async function getLockoutTTL(email: string): Promise<number | null> {
-  if (await usePgLockout()) {
+  if (await shouldUsePgLockout()) {
     return null; // PG path doesn't expose TTL
   }
   const r = getRedis();

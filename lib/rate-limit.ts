@@ -2,7 +2,7 @@ import {createServerClient} from "@/lib/supabase/server";
 import {checkRateLimit as redisCheckRateLimit} from "@/lib/redis/rate-limit";
 
 let _pgRateLimit: boolean | null = null;
-async function usePgRateLimit(): Promise<boolean> {
+async function shouldUsePgRateLimit(): Promise<boolean> {
   if (_pgRateLimit !== null) return _pgRateLimit;
   if (process.env.PG_RATE_LIMIT === "true") { _pgRateLimit = true; return true; }
   try {
@@ -49,7 +49,7 @@ export async function checkRateLimit(
         };
     }
 
-    if (!(await usePgRateLimit())) {
+    if (!(await shouldUsePgRateLimit())) {
       return {
         allowed: redisResult.allowed,
         remaining: redisResult.remaining,
