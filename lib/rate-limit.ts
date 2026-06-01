@@ -1,6 +1,18 @@
 import {createServerClient} from "@/lib/supabase/server";
 import {checkRateLimit as redisCheckRateLimit} from "@/lib/redis/rate-limit";
 
+let _pgRateLimit: boolean | null = null;
+async function usePgRateLimit(): Promise<boolean> {
+  if (_pgRateLimit !== null) return _pgRateLimit;
+  if (process.env.PG_RATE_LIMIT === "true") { _pgRateLimit = true; return true; }
+  try {
+    const supabase = await createServerClient();
+    const { data } = await (supabase as any).from("feature_flags").select("enabled").eq("name", "pg_rate_limit").maybeSingle();
+    _pgRateLimit = data?.enabled === true;
+  } catch { _pgRateLimit = false; }
+  return _pgRateLimit;
+}
+
 interface RateLimitConfig {
     maxRequests: number
     windowMs: number
@@ -35,6 +47,14 @@ export async function checkRateLimit(
             remaining: redisResult.remaining,
             resetAt: new Date(redisResult.resetAt),
         };
+    }
+
+    if (!(await usePgRateLimit())) {
+      return {
+        allowed: redisResult.allowed,
+        remaining: redisResult.remaining,
+        resetAt: new Date(redisResult.resetAt),
+      };
     }
 
     const supabase = await createServerClient();

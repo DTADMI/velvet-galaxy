@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS feature_flags (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_by TEXT
 );
-INSERT INTO feature_flags (name, enabled, type, value) VALUES ('pg_rate_limit', true, 'boolean', 'true'), ('pg_flags', false, 'boolean', 'false'), ('pg_cache', false, 'boolean', 'false') ON CONFLICT (name) DO NOTHING;
+INSERT INTO feature_flags (name, enabled, type, value) VALUES ('pg_rate_limit', true, 'boolean', 'true'), ('pg_flags', false, 'boolean', 'false'), ('pg_cache', false, 'boolean', 'false'), ('pg_pubsub', false, 'boolean', 'false'), ('pg_session', false, 'boolean', 'false') ON CONFLICT (name) DO NOTHING;
 CREATE INDEX IF NOT EXISTS idx_feature_flags_enabled ON feature_flags (enabled) WHERE enabled = true;
 
 CREATE TABLE IF NOT EXISTS app_cache (
