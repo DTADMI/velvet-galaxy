@@ -145,15 +145,20 @@ recommended) or Docker deploy. Strict linting and type safety.
   - Refined 3D Network Visualization with expanded node types and connection filtering.
 - ✅ Core social infrastructure, messaging, and portal verticals.
 - ✅ Full architecture, security, and performance optimizations.
+- ✅ **Security Hardening (June 2026)**:
+  - ✅ Content-Security-Policy, Permissions-Policy, COOP, CORP, and 7+ security headers in `next.config.mjs`.
+  - ✅ Removed `typescript.ignoreBuildErrors: true` and `images.unoptimized: true` from config.
+  - ✅ Secured API config endpoint with origin checking.
+  - ✅ Library upgrades: Next.js 16.2.6, Vite 8.0.13, Vitest 4.1.6, ESLint 10.4.0, Stripe 22.1.1.
+  - ✅ CVEs reduced from 42 (21 high) to 1 (moderate, Next.js bundled postcss).
+- ✅ **i18n Server Layer (June 2026)**:
+  - ✅ Created `lib/i18n/server.ts` with cookie/Accept-Language locale resolution.
+  - ✅ Created `lib/i18n/server-provider.tsx` async RSC bridge.
+  - ✅ Created `lib/i18n/index.ts` barrel export (public API surface).
+- ✅ **Migration Hygiene (June 2026)**:
+  - ✅ Created rollout + rollback pair files for migrations 046, 047, 048.
 
 ## In Progress
-
-- 🔴 **Security Hardening (May 2026)**:
-  - 🔴 Added Content-Security-Policy, Permissions-Policy, COOP, CORP headers to `next.config.mjs`.
-  - 🔴 Removed `typescript.ignoreBuildErrors: true` and `images.unoptimized: true` from config.
-  - 🔴 Secured API config endpoint with origin checking.
-  - 🔴 Upgraded all libraries: Next.js 16.2.6, Vite 8.0.13, Vitest 4.1.6, ESLint 10.4.0, Stripe 22.1.1.
-  - 🔴 Reduced CVEs from 42 (21 high) to 1 (moderate, Next.js bundled postcss).
 
 - 🔴 **Redis Infrastructure (May 2026)**:
   - 🔴 Created `lib/redis/` layer with Upstash client, sliding-window rate limiting, and response caching.
@@ -161,26 +166,16 @@ recommended) or Docker deploy. Strict linting and type safety.
   - 🔴 Added `@upstash/redis` and `@upstash/ratelimit` dependencies.
   - [ ] Deploy Upstash Redis instance and configure env vars.
 
-- 🟡 **AI Features — Foundation (May 2026)**:
-  - 🟡 Created provider-agnostic AI adapter layer (`lib/ai/`) with DeepSeek V4 Flash/Pro support.
-  - 🟡 Built API routes for content moderation, translation (EN↔FR), post composer, and tag suggestions.
-  - 🟡 Redis caching for AI responses with prompt hashing and TTL.
-  - 🟡 Tier-based rate limiting configured per feature.
-  - 🟡 Feature flags seeded for all 10 AI features.
+- 🟡 **AI Features — Phase 2 (May 2026)**:
+  - 🟡 Foundation complete: provider-agnostic AI adapter (`lib/ai/`), API routes (10 endpoints), Redis caching, feature flags.
+  - 🟡 Admin AI settings page built (`app/admin/ai/page.tsx`).
   - [ ] Deploy AI features behind feature flags.
-  - [ ] Build admin AI settings page (`app/admin/ai/page.tsx`).
   - [ ] Implement remaining AI features (recommendations, chat, onboarding, media captioning).
 
 - 🟡 **Error Handling Strategy (May 2026)**:
   - 🟡 Created centralized error types, classification, and user-friendly messages (`lib/errors.ts`).
   - 🟡 Built reusable `ErrorBoundary` component with retry support.
   - [ ] Integrate error boundaries into key page layouts.
-
-- 🟡 **Documentation (May 2026)**:
-  - 🟡 Created comprehensive gap analysis (`docs/gap-analysis-implementation-roadmap.md`).
-  - 🟡 Created Neo4J integration plan (`docs/neo4j-integration-plan.md`).
-  - 🟡 Created AI features implementation plan (`docs/ai-features-implementation-plan.md`).
-  - 🟡 Created TanStack Query migration guide (`docs/tanstack-migration-guide.md`).
 
 ## Next
 
@@ -230,6 +225,7 @@ recommended) or Docker deploy. Strict linting and type safety.
 ### Architecture
 - i18n system (Context pattern, dictionary-based variant): `lib/i18n/config.ts`, `dictionaries.ts`, 4 locale JSON dictionaries
 - Default locale: `fr` (correct)
+- i18n server layer: `lib/i18n/server.ts` (cookie/Accept-Language resolution), `server-provider.tsx` (async RSC bridge), `index.ts` (barrel export)
 - AI provider-agnostic adapter layer (`lib/ai/`) with DeepSeek V4 Flash/Pro support
 - Redis infrastructure (`lib/redis/`) with Upstash client, sliding-window rate limiting, response caching
 - Centralized error handling: error types, classification, user-friendly messages (`lib/errors.ts`)
@@ -257,6 +253,9 @@ recommended) or Docker deploy. Strict linting and type safety.
 - AI features foundation: content moderation, EN↔FR translation, post composer, tag suggestions (10 flags)
 - API config endpoint secured with origin checking
 - ErrorBoundary component with retry support
+- Edge click detection on network visualization (distance-to-line-segment algorithm)
+- Map Legend card (collapsible, dynamic custom type loading, node/relationship types)
+- Migration rollout + rollback files for migrations 046, 047, 048
 
 ### Tests Added
 - Playwright E2E tests for core user flows (`tests/e2e/core.spec.ts`)
