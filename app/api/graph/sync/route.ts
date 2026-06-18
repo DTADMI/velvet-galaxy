@@ -1,8 +1,10 @@
+﻿import { connection } from "next/server";
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { syncInitialGraph } from "@/lib/neo4j";
 
 export async function POST() {
+    await connection();
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 

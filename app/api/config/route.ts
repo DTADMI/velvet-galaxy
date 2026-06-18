@@ -1,5 +1,5 @@
+import { connection } from "next/server";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase/server";
 
 const ALLOWED_ORIGINS = new Set([
     process.env.NEXT_PUBLIC_SITE_URL,
@@ -8,14 +8,8 @@ const ALLOWED_ORIGINS = new Set([
 ].filter(Boolean) as string[]);
 
 export async function GET(request: Request) {
+    await connection();
     try {
-        const supabase = await createServerClient();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-        }
-
         const origin = request.headers.get("origin") || "";
         if (process.env.NODE_ENV === "production" && origin && !ALLOWED_ORIGINS.has(origin)) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });

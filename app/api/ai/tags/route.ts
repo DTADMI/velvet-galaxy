@@ -1,8 +1,10 @@
+﻿import { connection } from "next/server";
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { aiSuggestTags, checkAiGate } from "@/lib/ai";
 
 export async function POST(request: Request) {
+    await connection();
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 

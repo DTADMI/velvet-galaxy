@@ -1,8 +1,10 @@
+import { connection } from "next/server";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase/server";
 import { getSystemHealth } from "@/lib/health";
+import { createServerClient } from "@/lib/supabase/server";
 
 export async function GET() {
+    await connection();
     try {
         const supabase = await createServerClient();
         const { data: { user } } = await supabase.auth.getUser();

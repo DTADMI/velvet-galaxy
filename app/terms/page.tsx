@@ -1,9 +1,11 @@
+import {headers} from "next/headers";
 import {FileText} from "lucide-react";
 
 import {Navigation} from "@/components/navigation";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
-export default function TermsPage() {
+export default async function TermsPage() {
+    await headers();
     return (
         <>
             <Navigation/>

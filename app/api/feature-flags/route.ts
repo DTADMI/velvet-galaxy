@@ -1,8 +1,10 @@
+﻿import { connection } from "next/server";
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { getFeatureFlags, invalidateFlagCache } from "@/lib/feature-flags.server";
 
 export async function GET() {
+    await connection();
     try {
         const flags = await getFeatureFlags();
         return NextResponse.json(flags);
@@ -13,6 +15,7 @@ export async function GET() {
 }
 
 export async function POST() {
+    await connection();
     try {
         const supabase = await createServerClient();
         const { data: { user } } = await supabase.auth.getUser();

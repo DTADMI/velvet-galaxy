@@ -1,9 +1,11 @@
+import {headers} from "next/headers";
 import {ShieldCheck} from "lucide-react";
 
 import {Navigation} from "@/components/navigation";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+    await headers();
     return (
         <>
             <Navigation/>

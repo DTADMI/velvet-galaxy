@@ -10,8 +10,6 @@ import {createServerClient} from "@/lib/supabase/server";
 
 import {NetworkVisualization} from "./network-visualization";
 
-export const dynamic = "force-dynamic";
-
 export default async function NetworkPage() {
     const supabase = await createServerClient();
 

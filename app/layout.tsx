@@ -2,7 +2,7 @@ import "./globals.css";
 
 import type {Metadata} from "next";
 import {Inter} from "next/font/google";
-import type React from "react";
+import {Suspense, type ReactNode} from "react";
 
 import {ThemeProvider} from "@/components/theme-provider";
 import {TooltipProvider} from "@/components/ui/tooltip";
@@ -52,7 +52,11 @@ export default function RootLayout({
         <PWAInstallPrompt/>
         <ThemeProvider defaultTheme="dark" storageKey="velvet_galaxy-theme">
             <TanstackProvider>
-                <TooltipProvider>{children}</TooltipProvider>
+                <TooltipProvider>
+                    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-royal-purple"/></div>}>
+                        {children}
+                    </Suspense>
+                </TooltipProvider>
             </TanstackProvider>
         </ThemeProvider>
         </body>
