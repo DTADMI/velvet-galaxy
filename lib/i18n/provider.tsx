@@ -1,10 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import type { Locale } from "./config";
+import { defaultLocale, locales } from "./config";
 
-const SUPPORTED_LOCALES = ["en", "fr"] as const;
-type Locale = (typeof SUPPORTED_LOCALES)[number];
-const DEFAULT_LOCALE: Locale = "fr";
 const STORAGE_KEY = "velvet_galaxy-locale";
 
 type TranslationDict = Record<string, any>;
@@ -16,7 +15,7 @@ interface I18nContextValue {
 }
 
 const I18nContext = createContext<I18nContextValue>({
-    locale: DEFAULT_LOCALE,
+    locale: defaultLocale,
     setLocale: () => {},
     t: (key: string, fallback?: string) => fallback ?? key,
 });
@@ -26,28 +25,29 @@ function resolveNested(obj: TranslationDict, path: string): string | undefined {
 }
 
 function getStoredLocale(): Locale {
-    if (typeof window === "undefined") return DEFAULT_LOCALE;
+    if (typeof window === "undefined") return defaultLocale;
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored === "en" || stored === "fr") return stored;
+        if (stored && (locales as readonly string[]).includes(stored)) return stored as Locale;
     } catch {}
     if (typeof navigator !== "undefined") {
         const browserLang = navigator.language?.split("-")[0];
         if (browserLang === "fr") return "fr";
     }
-    return DEFAULT_LOCALE;
+    return defaultLocale;
 }
 
 async function loadDict(locale: Locale): Promise<TranslationDict> {
     try {
-        if (locale === "fr") {
-            const mod = await import("@/lib/i18n/dictionaries/fr.json");
-            return (mod as any).default ?? mod;
-        }
-        const mod = await import("@/lib/i18n/dictionaries/en.json");
+        const mod = await import(`@/lib/i18n/dictionaries/${locale}.json`);
         return (mod as any).default ?? mod;
     } catch {
-        return {};
+        try {
+            const mod = await import("@/lib/i18n/dictionaries/en.json");
+            return (mod as any).default ?? mod;
+        } catch {
+            return {};
+        }
     }
 }
 
