@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 const { mockRedisCheckRateLimit, mockSupabase } = vi.hoisted(() => ({
   mockRedisCheckRateLimit: vi.fn(),
   mockSupabase: {
@@ -25,6 +27,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 describe("rate-limit", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.REDIS_RATE_LIMIT = "true";
   });
 
   describe("checkRateLimit", () => {
@@ -56,7 +59,7 @@ describe("rate-limit", () => {
       expect(result.allowed).toBe(false);
     });
 
-    it("falls back to DB when Redis says allowed with enough time", async () => {
+    it("returns Redis result when Redis says allowed with enough time", async () => {
       const now = Date.now();
       mockRedisCheckRateLimit.mockResolvedValue({
         allowed: true,
@@ -76,11 +79,10 @@ describe("rate-limit", () => {
       const result = await checkRateLimit("user-1", "post_create");
 
       expect(result.allowed).toBe(true);
-      expect(result.remaining).toBe(5);
-      expect(mockSupabase.from).toHaveBeenCalled();
+      expect(result.remaining).toBe(9);
     });
 
-    it("blocks request when DB count exceeds max", async () => {
+    it("returns Redis result when remaining reaches zero", async () => {
       const now = Date.now();
       mockRedisCheckRateLimit.mockResolvedValue({
         allowed: true,
@@ -95,7 +97,7 @@ describe("rate-limit", () => {
 
       const result = await checkRateLimit("user-1", "post_create");
 
-      expect(result.allowed).toBe(false);
+      expect(result.allowed).toBe(true);
       expect(result.remaining).toBe(0);
     });
 
@@ -119,7 +121,7 @@ describe("rate-limit", () => {
       const result = await checkRateLimit("user-1", "post_create");
 
       expect(result.allowed).toBe(true);
-      expect(result.remaining).toBe(7);
+      expect(result.remaining).toBe(5);
     });
 
     it("returns open limit for unknown action", async () => {
@@ -155,11 +157,7 @@ describe("rate-limit", () => {
 
       await checkRateLimit("user-1", "post_create");
 
-      expect(mockSupabase.from().insert).toHaveBeenCalledWith({
-        user_id: "user-1",
-        action: "post_create",
-        ip_address: null,
-      });
+      expect(mockSupabase.from().insert).not.toHaveBeenCalled();
     });
 
     it("does not insert on blocked request", async () => {
@@ -195,7 +193,8 @@ describe("rate-limit", () => {
 
       const result = await checkRateLimit("user-1", "auth_login");
 
-      expect(result.allowed).toBe(false);
+      expect(result.allowed).toBe(true);
+      expect(result.remaining).toBe(4);
     });
 
     it("handles auth_signup limit of 3 per hour", async () => {

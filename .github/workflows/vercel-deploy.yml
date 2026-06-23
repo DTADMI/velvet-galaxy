@@ -1,0 +1,120 @@
+name: Vercel Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Deployment target"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - production
+      git_ref:
+        description: "Git ref to deploy"
+        required: false
+        default: ""
+  workflow_run:
+    workflows: ["CI"]
+    branches:
+      - "main"
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vercel-deploy-${{ github.event.workflow_run.head_branch || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "26.3.0"
+  PNPM_VERSION: "11.5.0"
+  VERCEL_CLI_VERSION: "54.14.5"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NF_GITHUB_GATED_VERCEL_DEPLOY: "1"
+
+jobs:
+  deploy:
+    name: Deploy prebuilt output to Vercel
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main'))
+    steps:
+      - name: Resolve deployment target
+        id: target
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            target="${{ inputs.target }}"
+            ref="${{ inputs.git_ref }}"
+            if [[ -z "$ref" ]]; then
+              ref="${{ github.ref_name }}"
+            fi
+          else
+            branch="${{ github.event.workflow_run.head_branch }}"
+            ref="${{ github.event.workflow_run.head_sha }}"
+            if [[ $branch == 'main' ]]; then
+              target="production"
+            else
+              target="preview"
+            fi
+          fi
+
+          if [[ "$target" == "production" ]]; then
+            echo "environment=production" >> "$GITHUB_OUTPUT"
+            echo "prod_flag=--prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "environment=preview" >> "$GITHUB_OUTPUT"
+            echo "prod_flag=" >> "$GITHUB_OUTPUT"
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.target.outputs.ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: false
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel environment
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: >-
+          pnpm dlx vercel@${{ env.VERCEL_CLI_VERSION }} pull --yes
+          --environment=${{ steps.target.outputs.environment }}
+          --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Vercel output locally in CI
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: >-
+          pnpm dlx vercel@${{ env.VERCEL_CLI_VERSION }} build
+          ${{ steps.target.outputs.prod_flag }}
+          --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy prebuilt output
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: >-
+          pnpm dlx vercel@${{ env.VERCEL_CLI_VERSION }} deploy --prebuilt --archive=tgz
+          ${{ steps.target.outputs.prod_flag }}
+          --token=${{ secrets.VERCEL_TOKEN }}
