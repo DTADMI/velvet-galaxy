@@ -1,0 +1,2 @@
+-- Rollback for 020_add_privacy_and_comment_settings.sql
+-- TODO: Add rollback SQL here

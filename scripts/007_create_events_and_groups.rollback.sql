@@ -1,0 +1,2 @@
+-- Rollback for 007_create_events_and_groups.sql
+-- TODO: Add rollback SQL here

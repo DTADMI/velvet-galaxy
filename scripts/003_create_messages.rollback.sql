@@ -1,0 +1,2 @@
+-- Rollback for 003_create_messages.sql
+-- TODO: Add rollback SQL here

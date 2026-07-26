@@ -1,0 +1,2 @@
+-- Rollback for 036_create_reports_table.sql
+-- TODO: Add rollback SQL here

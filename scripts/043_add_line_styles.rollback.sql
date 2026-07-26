@@ -1,0 +1,2 @@
+-- Rollback for 043_add_line_styles.sql
+-- TODO: Add rollback SQL here

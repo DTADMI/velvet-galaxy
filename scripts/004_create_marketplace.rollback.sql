@@ -1,0 +1,2 @@
+-- Rollback for 004_create_marketplace.sql
+-- TODO: Add rollback SQL here

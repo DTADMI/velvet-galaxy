@@ -1,0 +1,2 @@
+-- Rollback for 033_add_audio_to_posts.sql
+-- TODO: Add rollback SQL here

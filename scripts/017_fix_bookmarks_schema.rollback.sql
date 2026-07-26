@@ -1,0 +1,2 @@
+-- Rollback for 017_fix_bookmarks_schema.sql
+-- TODO: Add rollback SQL here

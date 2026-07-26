@@ -1,0 +1,2 @@
+-- Rollback for 040_create_feature_flags.sql
+-- TODO: Add rollback SQL here

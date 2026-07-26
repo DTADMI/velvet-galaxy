@@ -1,0 +1,2 @@
+-- Rollback for 021_enhance_marketplace.sql
+-- TODO: Add rollback SQL here

@@ -1,0 +1,2 @@
+-- Rollback for 024_create_anonymous_questions.sql
+-- TODO: Add rollback SQL here

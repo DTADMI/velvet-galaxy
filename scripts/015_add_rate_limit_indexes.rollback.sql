@@ -1,0 +1,2 @@
+-- Rollback for 015_add_rate_limit_indexes.sql
+-- TODO: Add rollback SQL here

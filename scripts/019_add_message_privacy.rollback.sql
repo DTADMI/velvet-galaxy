@@ -1,0 +1,2 @@
+-- Rollback for 019_add_message_privacy.sql
+-- TODO: Add rollback SQL here

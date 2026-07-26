@@ -1,0 +1,2 @@
+-- Rollback for 032_fix_activity_triggers.sql
+-- TODO: Add rollback SQL here

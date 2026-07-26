@@ -1,0 +1,2 @@
+-- Rollback for 028_enhance_messages_schema.sql
+-- TODO: Add rollback SQL here

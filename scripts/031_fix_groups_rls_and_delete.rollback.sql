@@ -1,0 +1,2 @@
+-- Rollback for 031_fix_groups_rls_and_delete.sql
+-- TODO: Add rollback SQL here

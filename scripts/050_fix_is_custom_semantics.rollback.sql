@@ -1,0 +1,2 @@
+-- Rollback for 050_fix_is_custom_semantics.sql
+-- TODO: Add rollback SQL here

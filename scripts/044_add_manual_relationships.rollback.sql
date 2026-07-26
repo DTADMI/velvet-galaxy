@@ -1,0 +1,2 @@
+-- Rollback for 044_add_manual_relationships.sql
+-- TODO: Add rollback SQL here

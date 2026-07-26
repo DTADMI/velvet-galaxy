@@ -1,0 +1,2 @@
+-- Rollback for 051_rename_custom_relationships_fkeys.sql
+-- TODO: Add rollback SQL here

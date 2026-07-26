@@ -1,0 +1,2 @@
+-- Rollback for 023_update_profile_trigger.sql
+-- TODO: Add rollback SQL here

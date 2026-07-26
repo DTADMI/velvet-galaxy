@@ -1,0 +1,2 @@
+-- Rollback for 002_create_posts.sql
+-- TODO: Add rollback SQL here

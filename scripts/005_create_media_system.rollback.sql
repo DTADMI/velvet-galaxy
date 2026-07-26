@@ -1,0 +1,2 @@
+-- Rollback for 005_create_media_system.sql
+-- TODO: Add rollback SQL here

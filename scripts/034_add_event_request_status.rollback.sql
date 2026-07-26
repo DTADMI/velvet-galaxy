@@ -1,0 +1,2 @@
+-- Rollback for 034_add_event_request_status.sql
+-- TODO: Add rollback SQL here

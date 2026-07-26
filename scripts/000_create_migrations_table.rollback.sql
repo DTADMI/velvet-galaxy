@@ -1,0 +1,2 @@
+-- Rollback for 000_create_migrations_table.sql
+-- TODO: Add rollback SQL here

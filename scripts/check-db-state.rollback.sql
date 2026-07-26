@@ -1,0 +1,2 @@
+-- Rollback for check-db-state.sql
+-- TODO: Add rollback SQL here

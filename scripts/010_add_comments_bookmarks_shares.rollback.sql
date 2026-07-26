@@ -1,0 +1,2 @@
+-- Rollback for 010_add_comments_bookmarks_shares.sql
+-- TODO: Add rollback SQL here

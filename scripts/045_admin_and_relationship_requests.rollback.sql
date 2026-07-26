@@ -1,0 +1,2 @@
+-- Rollback for 045_admin_and_relationship_requests.sql
+-- TODO: Add rollback SQL here

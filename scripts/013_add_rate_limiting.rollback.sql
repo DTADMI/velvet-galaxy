@@ -1,0 +1,2 @@
+-- Rollback for 013_add_rate_limiting.sql
+-- TODO: Add rollback SQL here

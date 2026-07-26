@@ -1,0 +1,2 @@
+-- Rollback for 009_create_relationships.sql
+-- TODO: Add rollback SQL here

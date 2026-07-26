@@ -1,0 +1,2 @@
+-- Rollback for 035_add_polls_to_posts.sql
+-- TODO: Add rollback SQL here

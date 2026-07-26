@@ -1,0 +1,2 @@
+-- Rollback for 053_artist_role_integration.sql
+-- TODO: Add rollback SQL here

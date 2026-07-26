@@ -1,0 +1,2 @@
+-- Rollback for 019_add_activity_tracking.sql
+-- TODO: Add rollback SQL here

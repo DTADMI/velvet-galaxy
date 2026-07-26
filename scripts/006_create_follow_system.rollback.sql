@@ -1,0 +1,2 @@
+-- Rollback for 006_create_follow_system.sql
+-- TODO: Add rollback SQL here

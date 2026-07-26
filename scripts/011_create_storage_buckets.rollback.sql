@@ -1,0 +1,2 @@
+-- Rollback for 011_create_storage_buckets.sql
+-- TODO: Add rollback SQL here

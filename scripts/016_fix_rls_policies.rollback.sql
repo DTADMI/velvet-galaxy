@@ -1,0 +1,2 @@
+-- Rollback for 016_fix_rls_policies.sql
+-- TODO: Add rollback SQL here

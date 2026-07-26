@@ -1,0 +1,2 @@
+-- Rollback for 022_add_discovery_and_account_features.sql
+-- TODO: Add rollback SQL here

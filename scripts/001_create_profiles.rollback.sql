@@ -1,0 +1,2 @@
+-- Rollback for 001_create_profiles.sql
+-- TODO: Add rollback SQL here

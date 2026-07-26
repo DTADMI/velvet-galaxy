@@ -1,0 +1,2 @@
+-- Rollback for 009_add_content_rating_and_enhancements.sql
+-- TODO: Add rollback SQL here

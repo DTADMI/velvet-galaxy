@@ -1,0 +1,2 @@
+-- Rollback for 038_fix_comment_trigger.sql
+-- TODO: Add rollback SQL here

@@ -1,0 +1,2 @@
+-- Rollback for 039_increase_storage_limits.sql
+-- TODO: Add rollback SQL here

@@ -1,0 +1,2 @@
+-- Rollback for 034_add_images_array_to_posts.sql
+-- TODO: Add rollback SQL here

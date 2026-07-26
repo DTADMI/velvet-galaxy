@@ -1,0 +1,2 @@
+-- Rollback for 037_add_post_visibility.sql
+-- TODO: Add rollback SQL here

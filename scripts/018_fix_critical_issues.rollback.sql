@@ -1,0 +1,2 @@
+-- Rollback for 018_fix_critical_issues.sql
+-- TODO: Add rollback SQL here

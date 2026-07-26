@@ -1,0 +1,2 @@
+-- Rollback for 052_create_artists_showcase.sql
+-- TODO: Add rollback SQL here

@@ -1,0 +1,2 @@
+-- Rollback for 030_fix_groups_and_rooms.sql
+-- TODO: Add rollback SQL here

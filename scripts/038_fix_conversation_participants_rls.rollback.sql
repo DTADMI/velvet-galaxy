@@ -1,0 +1,2 @@
+-- Rollback for 038_fix_conversation_participants_rls.sql
+-- TODO: Add rollback SQL here

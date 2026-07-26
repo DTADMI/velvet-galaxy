@@ -1,0 +1,2 @@
+-- Rollback for add-waiting-room.sql
+-- TODO: Add rollback SQL here

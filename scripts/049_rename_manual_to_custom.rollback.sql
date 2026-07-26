@@ -1,0 +1,2 @@
+-- Rollback for 049_rename_manual_to_custom.sql
+-- TODO: Add rollback SQL here

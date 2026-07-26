@@ -1,0 +1,2 @@
+-- Rollback for 008_create_chat_rooms.sql
+-- TODO: Add rollback SQL here

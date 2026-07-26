@@ -1,0 +1,2 @@
+-- Rollback for 014_create_comments.sql
+-- TODO: Add rollback SQL here

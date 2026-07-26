@@ -1,0 +1,2 @@
+-- Rollback for 027_add_missing_columns.sql
+-- TODO: Add rollback SQL here

@@ -1,0 +1,2 @@
+-- Rollback for 012_create_subscriptions.sql
+-- TODO: Add rollback SQL here

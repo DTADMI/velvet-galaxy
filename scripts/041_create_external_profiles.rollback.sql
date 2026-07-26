@@ -1,0 +1,2 @@
+-- Rollback for 041_create_external_profiles.sql
+-- TODO: Add rollback SQL here

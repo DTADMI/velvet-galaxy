@@ -1,0 +1,2 @@
+-- Rollback for 031_add_message_tracking.sql
+-- TODO: Add rollback SQL here
