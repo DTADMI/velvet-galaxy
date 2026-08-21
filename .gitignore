@@ -217,3 +217,5 @@ typings/
 *.tsbuildinfo
 next-env.d.ts
 /.output.txt
+i18n-audit-report.json
+dead-code-report.json
