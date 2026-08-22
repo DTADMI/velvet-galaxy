@@ -146,6 +146,7 @@ export default [
 
             // TS
             "@typescript-eslint/no-unused-vars": "off",
+            "@typescript-eslint/no-explicit-any": "warn",
 
             // Imports sorting (turn off warnings in CI for now)
             "simple-import-sort/imports": "off",

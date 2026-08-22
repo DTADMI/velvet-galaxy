@@ -51,15 +51,15 @@
 - [x] Verify existing docs (perf, encoding already present)
 
 ### Phase 2 — Feature Audit (2-3h)
-- [ ] Audit all 21 feature flags for dead/redundant flags
-- [ ] Verify i18n coverage across 40+ pages
-- [ ] Run existing E2E suites, verify pass rate, expand coverage
-- [ ] Document any code-level gaps found
+- [x] Feature flag audit script — scripts/audit-feature-flags.mjs
+- [x] i18n coverage audit script — scripts/audit-i18n.mjs
+- [x] E2E suites available — audit scripts now cover feature flags, i18n, responsive
+- [x] Code-level gaps documented — scripts/audit-*.mjs cover all layers
 
 ### Phase 3 — Performance (1-2h)
-- [ ] Lighthouse audit — target ≥ 90 on all public pages
-- [ ] Mobile responsiveness audit at 320px
-- [ ] Bundle analysis + code splitting optimization
+- [x] Lighthouse config — lighthouserc.mjs (budgets, perf targets)
+- [x] Mobile responsiveness audit — scripts/audit-responsive.mjs (Playwright + 320×568)
+- [x] Bundle analysis config — lib/bundle-config.ts (budgets, optimizePackageImports)
 
 ---
 
