@@ -147,6 +147,8 @@ export default [
             // TS
             "@typescript-eslint/no-unused-vars": "off",
             "@typescript-eslint/no-explicit-any": "warn",
+            // NF-TYPE-001: exported functions must have explicit return types
+            "@typescript-eslint/explicit-module-boundary-types": "warn",
 
             // Imports sorting (turn off warnings in CI for now)
             "simple-import-sort/imports": "off",
