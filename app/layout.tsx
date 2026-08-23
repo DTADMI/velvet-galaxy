@@ -2,13 +2,16 @@ import "./globals.css";
 
 import type {Metadata} from "next";
 import {Inter} from "next/font/google";
-import {Suspense, type ReactNode} from "react";
+import {Suspense} from "react";
 
 import {ThemeProvider} from "@/components/theme-provider";
 import {TooltipProvider} from "@/components/ui/tooltip";
 import {TanstackProvider} from "@/lib/tanstack";
 import {PWAInstallPrompt} from "@/components/pwa/install-prompt";
 import {ServiceWorkerRegistration} from "@/components/pwa/service-worker-registration";
+import {MobileShell} from "@/components/layout/mobile-shell";
+import {NavSidebar} from "@/components/layout/nav-sidebar";
+import {MobileBottomNav} from "@/components/layout/mobile-bottom-nav";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -21,11 +24,7 @@ export const metadata: Metadata = {
 
 export {viewport} from './viewport';
 
-export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>): React.ReactElement {
     const supabaseUrl =
         process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
     const supabaseAnonKey =
@@ -54,7 +53,12 @@ export default function RootLayout({
             <TanstackProvider>
                 <TooltipProvider>
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-royal-purple"/></div>}>
-                        {children}
+                        <MobileShell
+                            sidebar={<NavSidebar />}
+                            bottomNav={<MobileBottomNav />}
+                        >
+                            {children}
+                        </MobileShell>
                     </Suspense>
                 </TooltipProvider>
             </TanstackProvider>
