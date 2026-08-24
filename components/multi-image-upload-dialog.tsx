@@ -16,6 +16,7 @@ import {Label} from "@/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MultiImageUploadDialogProps {
     open: boolean
@@ -24,6 +25,7 @@ interface MultiImageUploadDialogProps {
 }
 
 export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: MultiImageUploadDialogProps) {
+  const { t } = useI18n();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [contentRating, setContentRating] = useState<"sfw" | "nsfw">("sfw");
@@ -517,7 +519,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                     {uploadedImages.length === 1 && (
                         <div className="flex items-center space-x-2">
                             <Checkbox id="use-as-profile"/>
-                            <Label htmlFor="use-as-profile">Use as profile picture</Label>
+                            <Label htmlFor="use-as-profile">{t("media.use_as_profile")}</Label>
                         </div>
                     )}
 

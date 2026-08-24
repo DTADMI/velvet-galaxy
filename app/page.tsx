@@ -9,7 +9,10 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
 import {createClient} from "@/lib/supabase/server";
 
+import { getServerTranslations } from '@/lib/i18n/server';
+
 export default async function HomePage() {
+    const { t } = await getServerTranslations();
     const supabase = await createClient();
 
     const {
@@ -55,7 +58,7 @@ export default async function HomePage() {
                                     variant="outline"
                                     className="border-royal-purple text-royal-purple hover:bg-royal-purple hover:text-white text-lg h-14 px-8"
                                 >
-                                    <Link href="/auth/login">Log In</Link>
+                                    <Link href="/auth/login">{t("common.login")}</Link>
                                 </Button>
                             </div>
                         </div>
@@ -256,7 +259,7 @@ export default async function HomePage() {
                                 variant="outline"
                                 className="border-royal-purple text-royal-purple hover:bg-royal-purple hover:text-white text-lg h-14 px-8"
                             >
-                                <Link href="/auth/login">Log In</Link>
+                                <Link href="/auth/login">{t("common.login")}</Link>
                             </Button>
                         </div>
                     </div>

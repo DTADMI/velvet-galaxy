@@ -24,6 +24,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
 import {createBrowserClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Event {
     id: string
@@ -47,6 +48,7 @@ interface Event {
 }
 
 export function EventsClient({userId}: { userId?: string }) {
+  const { t } = useI18n();
     const [events, setEvents] = useState<Event[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("upcoming");
@@ -287,7 +289,7 @@ export function EventsClient({userId}: { userId?: string }) {
                     <DialogContent className="bg-card border-royal-orange/20 max-w-2xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle className="text-2xl text-gradient">Create New Event</DialogTitle>
-                            <DialogDescription>Plan an amazing event for your community</DialogDescription>
+                            <DialogDescription>{t("events.subtitle")}</DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreateEvent} className="space-y-4">
                             <div>

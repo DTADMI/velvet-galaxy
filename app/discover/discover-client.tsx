@@ -28,6 +28,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
 import {useFeatureFlag} from "@/hooks/use-feature-flag";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface DiscoverClientProps {
     profile: {
@@ -44,6 +45,7 @@ interface DiscoverClientProps {
 }
 
 export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
+  const { t } = useI18n();
     const [activeTab, setActiveTab] = useState("popular");
     const [curatedPosts, setCuratedPosts] = useState<any[]>([]);
     const [popularPosts, setPopularPosts] = useState<any[]>([]);
@@ -340,7 +342,7 @@ export function DiscoverClient({profile, _likedTags}: DiscoverClientProps) {
                         <Sparkles className="h-8 w-8 text-royal-purple"/>
                         Discover
                     </h1>
-                    <p className="text-muted-foreground">Explore content from the community</p>
+                    <p className="text-muted-foreground">{t("discover.subtitle")}</p>
                 </div>
 
                 <div className="flex gap-2 flex-wrap">

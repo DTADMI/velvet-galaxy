@@ -9,6 +9,7 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MarketplaceItem {
     id: string
@@ -29,6 +30,7 @@ interface MarketplaceClientProps {
 }
 
 export function MarketplaceClient({items: initialItems}: MarketplaceClientProps) {
+  const { t } = useI18n();
     const [items, setItems] = useState<MarketplaceItem[]>(initialItems);
     const [searchQuery, setSearchQuery] = useState("");
     const [localOnly, setLocalOnly] = useState(false);
@@ -106,7 +108,7 @@ export function MarketplaceClient({items: initialItems}: MarketplaceClientProps)
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground">Local Marketplace</h1>
-                    <p className="text-muted-foreground">Buy and sell with your community</p>
+                    <p className="text-muted-foreground">{t("marketplace.subtitle")}</p>
                 </div>
                 <CreateListingDialog onListingCreated={refreshItems}/>
             </div>

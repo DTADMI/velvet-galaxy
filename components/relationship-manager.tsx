@@ -9,6 +9,7 @@ import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {createBrowserClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface RelationshipManagerProps {
     targetUserId: string
@@ -34,6 +35,7 @@ const RELATIONSHIP_TYPES = [
 ];
 
 export function RelationshipManager({targetUserId, currentUserId}: RelationshipManagerProps) {
+  const { t } = useI18n();
     const [relationships, setRelationships] = useState<any[]>([]);
     const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
     const [isOpen, setIsOpen] = useState(false);
@@ -208,7 +210,7 @@ export function RelationshipManager({targetUserId, currentUserId}: RelationshipM
                                 <Input
                                     value={customLabel}
                                     onChange={(e) => setCustomLabel(e.target.value)}
-                                    placeholder="Enter custom relationship label"
+                                    placeholder={t("relationships.custom_label")}
                                     className="mt-2"
                                 />
                             </div>

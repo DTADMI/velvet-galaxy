@@ -11,6 +11,7 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
+import { useI18n } from '@/lib/i18n/provider';
 
 type MediaType = "picture" | "video" | "audio" | "writing"
 
@@ -35,6 +36,7 @@ interface Album {
 }
 
 export function MediaGallery({userId, isOwnProfile}: { userId: string; isOwnProfile: boolean }) {
+  const { t } = useI18n();
     const [activeTab, setActiveTab] = useState<MediaType>("picture");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
@@ -137,11 +139,11 @@ export function MediaGallery({userId, isOwnProfile}: { userId: string; isOwnProf
                                 </div>
                                 <div>
                                     <Label>Title</Label>
-                                    <Input placeholder="Enter title" className="mt-2"/>
+                                    <Input placeholder={t("media.enter_title")} className="mt-2"/>
                                 </div>
                                 <div>
                                     <Label>Description</Label>
-                                    <Textarea placeholder="Enter description" className="mt-2"/>
+                                    <Textarea placeholder={t("media.enter_description")} className="mt-2"/>
                                 </div>
                                 <div>
                                     <Label>Tags (comma separated)</Label>
@@ -220,11 +222,11 @@ export function MediaGallery({userId, isOwnProfile}: { userId: string; isOwnProf
                                         <div className="space-y-4">
                                             <div>
                                                 <Label>Album Title</Label>
-                                                <Input placeholder="Enter album title" className="mt-2"/>
+                                                <Input placeholder={t("media.enter_album_title")} className="mt-2"/>
                                             </div>
                                             <div>
                                                 <Label>Description</Label>
-                                                <Textarea placeholder="Enter description" className="mt-2"/>
+                                                <Textarea placeholder={t("media.enter_description")} className="mt-2"/>
                                             </div>
                                             <Button className="w-full bg-gradient-to-r from-royal-purple to-royal-blue">Create
                                                 Album</Button>

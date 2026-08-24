@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useI18n } from '@/lib/i18n/provider';
 import {
     Users, MessageSquare, FileText, TrendingUp, UserPlus,
     Activity, BarChart3, PieChart, Image, Video as VideoIcon
@@ -82,6 +83,7 @@ function SkeletonCards({ count = 4 }: { count?: number }) {
 }
 
 export default function AdminAnalyticsPage() {
+  const { t } = useI18n();
     const supabase = createBrowserClient();
     const [isAdmin, setIsAdmin] = useState(false);
     const [checking, setChecking] = useState(true);
@@ -376,7 +378,7 @@ export default function AdminAnalyticsPage() {
                             <Card className="border-royal-purple/20 bg-card/50">
                                 <CardHeader>
                                     <CardTitle>User Growth (30 days)</CardTitle>
-                                    <CardDescription>Cumulative user registrations over time</CardDescription>
+                                    <CardDescription>{t("admin.analytics.cumulative_users")}</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <ResponsiveContainer width="100%" height={300}>
@@ -401,7 +403,7 @@ export default function AdminAnalyticsPage() {
                             <Card className="border-royal-purple/20 bg-card/50">
                                 <CardHeader>
                                     <CardTitle>Post & Comment Activity (14 days)</CardTitle>
-                                    <CardDescription>Daily posts and comments created</CardDescription>
+                                    <CardDescription>{t("admin.analytics.daily_posts_comments")}</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <ResponsiveContainer width="100%" height={300}>
@@ -544,7 +546,7 @@ export default function AdminAnalyticsPage() {
                                         <UserPlus className="h-5 w-5" />
                                         Recent Signups (7 days)
                                     </CardTitle>
-                                    <CardDescription>New users who joined in the last week</CardDescription>
+                                    <CardDescription>{t("admin.analytics.new_users_week")}</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     {analytics?.recentSignups && analytics.recentSignups.length > 0 ? (
@@ -586,7 +588,7 @@ export default function AdminAnalyticsPage() {
                             <Card className="border-royal-purple/20 bg-card/50">
                                 <CardHeader>
                                     <CardTitle>Content Type Distribution</CardTitle>
-                                    <CardDescription>Breakdown of uploaded media by type</CardDescription>
+                                    <CardDescription>{t("admin.analytics.media_breakdown")}</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     {analytics?.contentBreakdown && analytics.contentBreakdown.length > 0 ? (

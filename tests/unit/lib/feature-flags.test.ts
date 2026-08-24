@@ -4,21 +4,18 @@ import { FEATURE_FLAGS, getDefaultFlags } from "@/lib/feature-flags";
 describe("feature-flags", () => {
   it("FEATURE_FLAGS contains all expected flag definitions", () => {
     const keys = Object.keys(FEATURE_FLAGS);
-    expect(keys).toHaveLength(20);
+    expect(keys).toHaveLength(16);
     expect(FEATURE_FLAGS.premium_tts).toBeDefined();
     expect(FEATURE_FLAGS.ai_content_moderation).toBeDefined();
-    expect(FEATURE_FLAGS.neo4j_graph_queries).toBeDefined();
   });
 
   it("FEATURE_FLAGS has correct category assignments", () => {
     const coreFlags = Object.values(FEATURE_FLAGS).filter((f) => f.category === "core");
     const aiFlags = Object.values(FEATURE_FLAGS).filter((f) => f.category === "ai");
-    const neo4jFlags = Object.values(FEATURE_FLAGS).filter((f) => f.category === "neo4j");
 
     expect(coreFlags.length).toBeGreaterThan(0);
     expect(aiFlags.length).toBeGreaterThan(0);
-    expect(neo4jFlags.length).toBeGreaterThan(0);
-    expect(coreFlags.length + aiFlags.length + neo4jFlags.length).toBe(20);
+    expect(coreFlags.length + aiFlags.length).toBe(16);
   });
 
   it("FEATURE_FLAGS description matches id", () => {
@@ -39,7 +36,7 @@ describe("feature-flags", () => {
     const defaults = getDefaultFlags();
     const keys = Object.keys(defaults);
 
-    expect(keys).toHaveLength(20);
+    expect(keys).toHaveLength(16);
 
     for (const key of keys) {
       expect(defaults[key]).toBe(FEATURE_FLAGS[key].enabled);
@@ -79,16 +76,5 @@ describe("feature-flags", () => {
     expect(defaults.ai_chat_assistant).toBe(false);
     expect(defaults.ai_onboarding_assistant).toBe(false);
     expect(defaults.ai_group_activity).toBe(false);
-  });
-
-  it("getDefaultFlags has Neo4j flags disabled by default", () => {
-    const defaults = getDefaultFlags();
-    expect(defaults.neo4j_graph_queries).toBe(false);
-    expect(defaults.neo4j_community_detection).toBe(false);
-    expect(defaults.neo4j_recommendations).toBe(false);
-  });
-
-  it("advanced_analytics is disabled by default", () => {
-    expect(FEATURE_FLAGS.advanced_analytics.enabled).toBe(false);
   });
 });

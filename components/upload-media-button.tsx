@@ -9,8 +9,10 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
+import { useI18n } from '@/lib/i18n/provider';
 
 export function UploadMediaButton() {
+  const { t } = useI18n();
     const [open, setOpen] = useState(false);
     const [mediaType, setMediaType] = useState<"picture" | "video" | "audio" | "writing">("picture");
 
@@ -50,12 +52,12 @@ export function UploadMediaButton() {
                     <TabsContent value={mediaType} className="space-y-4 mt-4">
                         <div>
                             <Label>Title</Label>
-                            <Input placeholder="Enter title" className="mt-2"/>
+                            <Input placeholder={t("media.enter_title")} className="mt-2"/>
                         </div>
 
                         <div>
                             <Label>Description</Label>
-                            <Textarea placeholder="Enter description" className="mt-2" rows={3}/>
+                            <Textarea placeholder={t("media.enter_description")} className="mt-2" rows={3}/>
                         </div>
 
                         {mediaType === "writing" ? (

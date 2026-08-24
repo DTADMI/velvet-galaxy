@@ -8,8 +8,10 @@ import {useEffect, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import { useI18n } from '@/lib/i18n/provider';
 
 export function SimpleSearch() {
+  const { t } = useI18n();
     const [query, setQuery] = useState("");
     const [searchHistory, setSearchHistory] = useState<string[]>([]);
     const [isOpen, setIsOpen] = useState(false);
@@ -54,7 +56,7 @@ export function SimpleSearch() {
             <PopoverTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2 hover:bg-royal-purple/10">
                     <Search className="h-4 w-4"/>
-                    <span className="hidden sm:inline">Search</span>
+                    <span className="hidden sm:inline">{t("common.search")}</span>
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="start">
@@ -94,7 +96,7 @@ export function SimpleSearch() {
                         <div className="p-8 text-center text-sm text-muted-foreground">
                             <Search className="h-8 w-8 mx-auto mb-2 opacity-50"/>
                             <p>No recent searches</p>
-                            <p className="text-xs mt-1">Start searching to see your history</p>
+                            <p className="text-xs mt-1">{t("search.start_hint")}</p>
                         </div>
                     )}
                 </div>

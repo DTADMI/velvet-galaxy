@@ -36,6 +36,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Slider} from "@/components/ui/slider";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
 import {createBrowserClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface RelationshipEdge {
     type: string;
@@ -187,6 +188,7 @@ const calculateMouseReference = (canvas: HTMLCanvasElement, e: React.MouseEvent,
 };
 
 export function NetworkVisualization({userId}: { userId: string }) {
+  const { t } = useI18n();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [nodes, setNodes] = useState<NetworkNode[]>([]);
@@ -1764,7 +1766,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                                         value={[nodeSpacing]}
                                         onValueChange={(value) => setNodeSpacing(value[0])}
                                     />
-                                    <p className="text-xs text-muted-foreground">Adjust distance between nodes</p>
+                                    <p className="text-xs text-muted-foreground">{t("network.adjust_distance")}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2">
@@ -1822,7 +1824,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                                         value={[nodeSize]}
                                         onValueChange={(value) => setNodeSize(value[0])}
                                     />
-                                    <p className="text-xs text-muted-foreground">Adjust the size of network nodes</p>
+                                    <p className="text-xs text-muted-foreground">{t("network.adjust_node_size")}</p>
                                 </div>
 
                                 <div className="space-y-2">
@@ -1835,7 +1837,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                                         value={[edgeThickness]}
                                         onValueChange={(value) => setEdgeThickness(value[0])}
                                     />
-                                    <p className="text-xs text-muted-foreground">Adjust connection line thickness</p>
+                                    <p className="text-xs text-muted-foreground">{t("network.adjust_line_thickness")}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2">
@@ -2089,7 +2091,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>Close</p>
+                                    <p>{t("common.close")}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -2175,7 +2177,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                                                 </Button>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>Center and highlight connections</p>
+                                                <p>{t("network.center_highlight")}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>

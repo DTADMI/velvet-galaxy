@@ -3,10 +3,12 @@ import {notFound, redirect} from "next/navigation";
 import {MediaGallery} from "@/components/media-gallery";
 import {Navigation} from "@/components/navigation";
 import {createClient} from "@/lib/supabase/server";
+import { getServerTranslations } from '@/lib/i18n/server';
 
 export default async function GalleryPage({params}: { params: Promise<{ userId: string }> }) {
     const {userId} = await params;
     const supabase = await createClient();
+  const { t } = await getServerTranslations();
 
     const {
         data: {user},
@@ -33,7 +35,7 @@ export default async function GalleryPage({params}: { params: Promise<{ userId: 
                         <h1 className="text-3xl font-bold text-gradient mb-2">
                             {isOwnProfile ? "My Media" : `${profile.display_name}'s Media`}
                         </h1>
-                        <p className="text-muted-foreground">Browse and manage media collections</p>
+                        <p className="text-muted-foreground">{t("gallery.subtitle")}</p>
                     </div>
 
                     <MediaGallery userId={userId} isOwnProfile={isOwnProfile}/>

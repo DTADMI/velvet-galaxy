@@ -11,6 +11,7 @@ import {Label} from "@/components/ui/label";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {createClient} from "@/lib/supabase/client";
 import {PollOption} from "@/types";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface PollDisplayProps {
     postId: string
@@ -22,6 +23,7 @@ interface PollDisplayProps {
 }
 
 export function PollDisplay({postId, question, options, multipleChoice, endDate, authorId}: PollDisplayProps) {
+  const { t } = useI18n();
     const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
     const [hasVoted, setHasVoted] = useState(false);
     const [pollResults, setPollResults] = useState<PollOption[]>(options);
@@ -217,7 +219,7 @@ export function PollDisplay({postId, question, options, multipleChoice, endDate,
                 </div>
 
                 {multipleChoice && !hasVoted && !pollEnded && (
-                    <p className="text-xs text-muted-foreground">You can select multiple options</p>
+                    <p className="text-xs text-muted-foreground">{t("polls.multi_select")}</p>
                 )}
             </CardContent>
         </Card>

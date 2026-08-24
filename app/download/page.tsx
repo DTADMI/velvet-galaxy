@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-export default function DownloadPage() {
+import { getServerTranslations } from '@/lib/i18n/server';
+
+export default async function DownloadPage() {
+  const { t } = await getServerTranslations();
   return (
     <main className="mx-auto w-full max-w-3xl space-y-6 px-4 py-8">
       <section className="rounded-xl border border-border bg-card p-6">
@@ -31,7 +34,7 @@ export default function DownloadPage() {
       </section>
 
       <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-lg font-semibold">Offline fallback</h2>
+        <h2 className="text-lg font-semibold">{t("download.offline_fallback")}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           When network connectivity is unavailable, Velvet Galaxy can serve an offline fallback.
         </p>

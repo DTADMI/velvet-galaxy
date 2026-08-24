@@ -2,7 +2,7 @@ export interface FeatureFlagDef {
     id: string;
     description: string;
     enabled: boolean;
-    category: "core" | "ai" | "neo4j";
+    category: "core" | "ai";
 }
 
 export const FEATURE_FLAGS: Record<string, FeatureFlagDef> = {
@@ -10,12 +10,6 @@ export const FEATURE_FLAGS: Record<string, FeatureFlagDef> = {
         id: "premium_tts",
         description: "Enable high-quality AI Text-to-Speech for premium users",
         enabled: true,
-        category: "core",
-    },
-    advanced_analytics: {
-        id: "advanced_analytics",
-        description: "Show detailed post and profile analytics",
-        enabled: false,
         category: "core",
     },
     beta_chat_rooms: {
@@ -107,24 +101,6 @@ export const FEATURE_FLAGS: Record<string, FeatureFlagDef> = {
         description: "AI activity and event suggestion generator for groups",
         enabled: false,
         category: "ai",
-    },
-    neo4j_graph_queries: {
-        id: "neo4j_graph_queries",
-        description: "Neo4j-backed social graph queries for galaxy visualization and recommendations",
-        enabled: false,
-        category: "neo4j",
-    },
-    neo4j_community_detection: {
-        id: "neo4j_community_detection",
-        description: "Neo4j community detection algorithms for discovery",
-        enabled: false,
-        category: "neo4j",
-    },
-    neo4j_recommendations: {
-        id: "neo4j_recommendations",
-        description: "Neo4j-powered friend and content recommendations",
-        enabled: false,
-        category: "neo4j",
     },
 };
 

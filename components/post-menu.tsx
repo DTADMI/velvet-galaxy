@@ -24,6 +24,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {createBrowserClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface PostMenuProps {
     postId: string
@@ -33,6 +34,7 @@ interface PostMenuProps {
 }
 
 export function PostMenu({postId, authorId, currentUserId, createdAt}: PostMenuProps) {
+  const { t } = useI18n();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
@@ -123,7 +125,7 @@ export function PostMenu({postId, authorId, currentUserId, createdAt}: PostMenuP
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
                             disabled={isDeleting}

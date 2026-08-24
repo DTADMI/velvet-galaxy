@@ -2,6 +2,7 @@
 
 import { Component, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import enDict from "@/lib/i18n/dictionaries/en.json";
 
 interface ErrorBoundaryProps {
     children: ReactNode;
@@ -34,6 +35,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     };
 
     render() {
+        const dict = enDict as Record<string, unknown>;
         if (this.state.hasError) {
             if (this.props.fallback) {
                 return this.props.fallback;
@@ -57,7 +59,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         </svg>
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold">Something went wrong</h2>
+                        <h2 className="text-lg font-semibold">{(dict as any).error?.something_went_wrong || "Something went wrong"}</h2>
                         <p className="mt-1 text-sm text-muted-foreground">
                             {this.state.error?.message || "An unexpected error occurred."}
                         </p>

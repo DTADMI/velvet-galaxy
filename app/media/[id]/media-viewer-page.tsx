@@ -25,6 +25,7 @@ import {Card, CardContent} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {createBrowserClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MediaViewerPageProps {
     mediaItem: any
@@ -47,6 +48,7 @@ const MediaViewerPage = ({
                              currentIndex,
                              totalMediaCount,
                          }: MediaViewerPageProps) => {
+  const { t } = useI18n();
     const router = useRouter();
     const supabase = createBrowserClient();
     const [liked, setLiked] = useState(false);
@@ -317,7 +319,7 @@ const MediaViewerPage = ({
                                                     }
                                                 }}
                                                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white h-14 w-14 rounded-full shadow-2xl border-2 border-white/20 opacity-70 group-hover:opacity-100 transition-all"
-                                                aria-label="Previous media"
+                                                aria-label={t("media.viewer.previous")}
                                             >
                                                 <ChevronLeft className="h-7 w-7"/>
                                             </Button>
@@ -333,7 +335,7 @@ const MediaViewerPage = ({
                                                     }
                                                 }}
                                                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white h-14 w-14 rounded-full shadow-2xl border-2 border-white/20 opacity-70 group-hover:opacity-100 transition-all"
-                                                aria-label="Next media"
+                                                aria-label={t("media.viewer.next")}
                                             >
                                                 <ChevronRight className="h-7 w-7"/>
                                             </Button>
@@ -404,7 +406,7 @@ const MediaViewerPage = ({
                                             variant="ghost"
                                             size="icon"
                                             className="text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-                                            aria-label="More options"
+                                            aria-label={t("media.viewer.more_options")}
                                         >
                                             <MoreHorizontal className="h-5 w-5"/>
                                         </Button>
@@ -433,13 +435,13 @@ const MediaViewerPage = ({
                                                 value={newComment}
                                                 onChange={(e) => setNewComment(e.target.value)}
                                                 className="border-royal-purple/30 focus-visible:ring-royal-purple"
-                                                aria-label="Comment input"
+                                                aria-label={t("media.viewer.comment_input")}
                                             />
                                             <Button
                                                 size="icon"
                                                 disabled={!newComment.trim()}
                                                 className="bg-royal-purple hover:bg-royal-purple/90"
-                                                aria-label="Send comment"
+                                                aria-label={t("media.viewer.send_comment")}
                                             >
                                                 <Send className="h-4 w-4"/>
                                             </Button>
@@ -512,7 +514,7 @@ const MediaViewerPage = ({
                                 </div>
                                 <div className="space-y-1">
                                     <p className="font-semibold text-sm">Premium Content</p>
-                                    <p className="text-xs text-muted-foreground">Discover exclusive features</p>
+                                    <p className="text-xs text-muted-foreground">{t("media.viewer.exclusive_features")}</p>
                                 </div>
                             </CardContent>
                         </Card>

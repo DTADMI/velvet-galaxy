@@ -11,8 +11,10 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Switch} from "@/components/ui/switch";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 export function SettingsClient() {
+  const { t } = useI18n();
     const [theme, setTheme] = useState<"light" | "dark">("dark");
     const [language, setLanguage] = useState("en");
     const [settings, setSettings] = useState({
@@ -147,7 +149,7 @@ export function SettingsClient() {
                 <Card className="border-royal-purple/20 bg-card/50">
                     <CardHeader>
                         <CardTitle className="text-gradient">Privacy & Security</CardTitle>
-                        <CardDescription>Control who can see your profile and interact with you</CardDescription>
+                        <CardDescription>{t("settings.privacy_desc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="space-y-4">
@@ -214,7 +216,7 @@ export function SettingsClient() {
                 <Card className="border-royal-blue/20 bg-card/50">
                     <CardHeader>
                         <CardTitle className="text-gradient">Messaging Authorizations</CardTitle>
-                        <CardDescription>Define who can send you different types of messages</CardDescription>
+                        <CardDescription>{t("settings.messages_desc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="space-y-4">
@@ -312,7 +314,7 @@ export function SettingsClient() {
                 <Card className="border-royal-purple/20 bg-card/50">
                     <CardHeader>
                         <CardTitle className="text-gradient">Comment Settings</CardTitle>
-                        <CardDescription>Control who can comment on your posts</CardDescription>
+                        <CardDescription>{t("settings.comments_desc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="space-y-4">
@@ -367,7 +369,7 @@ export function SettingsClient() {
                 <Card className="border-royal-purple/20 bg-card/50">
                     <CardHeader>
                         <CardTitle className="text-gradient">Appearance Settings</CardTitle>
-                        <CardDescription>Customize how the app looks</CardDescription>
+                        <CardDescription>{t("settings.appearance_desc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="space-y-4">
@@ -432,7 +434,7 @@ export function SettingsClient() {
                 <Card className="border-royal-purple/20 bg-card/50">
                     <CardHeader>
                         <CardTitle className="text-gradient">Notification Preferences</CardTitle>
-                        <CardDescription>Choose what notifications you want to receive</CardDescription>
+                        <CardDescription>{t("settings.notifications_desc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {[
@@ -460,7 +462,7 @@ export function SettingsClient() {
                 <Card className="border-royal-purple/20 bg-card/50">
                     <CardHeader>
                         <CardTitle className="text-gradient">Account Management</CardTitle>
-                        <CardDescription>Manage your account settings and data</CardDescription>
+                        <CardDescription>{t("settings.account_desc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-4">

@@ -36,6 +36,7 @@ import {Switch} from "@/components/ui/switch";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createBrowserClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Message {
     id: string
@@ -68,6 +69,7 @@ interface ChatRoomViewProps {
 }
 
 export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewProps) {
+  const { t } = useI18n();
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [participants, setParticipants] = useState<any[]>([]);
@@ -745,7 +747,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                             <Input
                                                                 value={userDisplayName}
                                                                 onChange={(e) => setUserDisplayName(e.target.value)}
-                                                                placeholder="How you appear to others"
+                                                                placeholder={t("chatRooms.room.appearance_hint")}
                                                                 className="mt-2 border-royal-blue/30"
                                                             />
                                                         </div>
@@ -832,7 +834,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                                         >
                                                                             <SelectTrigger className="mt-2">
                                                                                 <SelectValue
-                                                                                    placeholder="Select camera"/>
+                                                                                    placeholder={t("chatRooms.room.select_camera")}/>
                                                                             </SelectTrigger>
                                                                             <SelectContent>
                                                                                 {videoDevices.map((device) => (
@@ -859,7 +861,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                                         >
                                                                             <SelectTrigger className="mt-2">
                                                                                 <SelectValue
-                                                                                    placeholder="Select microphone"/>
+                                                                                    placeholder={t("chatRooms.room.select_microphone")}/>
                                                                             </SelectTrigger>
                                                                             <SelectContent>
                                                                                 {audioDevices.map((device) => (
@@ -898,7 +900,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                                     <Select value={selectedAudioOutput}
                                                                             onValueChange={setSelectedAudioOutput}>
                                                                         <SelectTrigger className="mt-2">
-                                                                            <SelectValue placeholder="Select speakers"/>
+                                                                            <SelectValue placeholder={t("chatRooms.room.select_speakers")}/>
                                                                         </SelectTrigger>
                                                                         <SelectContent>
                                                                             {audioOutputDevices.map((device) => (
@@ -1001,7 +1003,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                             className="h-32 bg-linear-to-br from-royal-purple/20 to-royal-blue/20 flex items-center justify-center border-b border-royal-purple/20">
                             <div className="text-center text-muted-foreground">
                                 <Mic className="h-12 w-12 mx-auto mb-2"/>
-                                <p>Audio chat active</p>
+                                <p>{t("chatRooms.room.audio_active")}</p>
                                 <p className="text-xs mt-1">{isMuted ? "Microphone muted" : "Microphone active"}</p>
                             </div>
                         </div>

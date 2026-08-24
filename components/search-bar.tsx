@@ -11,6 +11,7 @@ import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/
 import {Input} from "@/components/ui/input";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface SearchResult {
     users: any[]
@@ -24,6 +25,7 @@ interface SearchResult {
 }
 
 export function SearchBar() {
+  const { t } = useI18n();
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<SearchResult>({
@@ -177,7 +179,7 @@ export function SearchBar() {
             <Button variant="ghost" size="sm" onClick={() => setIsOpen(true)}
                     className="gap-2 hover:bg-royal-purple/10">
                 <Search className="h-4 w-4"/>
-                <span className="hidden sm:inline">Search</span>
+                <span className="hidden sm:inline">{t("common.search")}</span>
             </Button>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>

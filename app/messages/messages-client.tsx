@@ -29,6 +29,7 @@ import {Card} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createBrowserClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 type MessageWithConversation = {
     conversation_id: string;
@@ -78,6 +79,7 @@ export type GroupMember = {
 }
 
 export function MessagesClient({conversations, currentUserId}: MessagesClientProps) {
+  const { t } = useI18n();
     const [selectedConversation, setSelectedConversation] = useState<string | undefined>();
     const [activeTab, setActiveTab] = useState("normal");
     const [activeInbox, setActiveInbox] = useState("all");
@@ -694,7 +696,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                                                     size="icon"
                                                     className="h-8 w-8"
                                                     onClick={(e) => markAsUnread(conv.id, e)}
-                                                    title="Mark as unread"
+                                                    title={t("messages.mark_unread")}
                                                 >
                                                     <Mail className="h-4 w-4"/>
                                                 </Button>

@@ -6,6 +6,7 @@ import { createBrowserClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface HealthData {
     timestamp: number;
@@ -43,6 +44,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function AdminHealthPage() {
+  const { t } = useI18n();
     const supabase = createBrowserClient();
     const [isAdmin, setIsAdmin] = useState(false);
     const [checking, setChecking] = useState(true);
@@ -96,7 +98,7 @@ export default function AdminHealthPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold">System Health</h1>
-                    <p className="text-muted-foreground">Monitor service status and platform statistics</p>
+                    <p className="text-muted-foreground">{t("admin.health.subtitle")}</p>
                 </div>
                 <button
                     onClick={() => refetch()}
@@ -156,7 +158,7 @@ export default function AdminHealthPage() {
                                 </CardHeader>
                                 <CardContent>
                                     {health.services.redis.status === "not_configured" ? (
-                                        <p className="text-sm text-muted-foreground">Not configured</p>
+                                        <p className="text-sm text-muted-foreground">{t("admin.health.not_configured")}</p>
                                     ) : (
                                         <>
                                             <p className="text-2xl font-bold">
@@ -182,7 +184,7 @@ export default function AdminHealthPage() {
                                 </CardHeader>
                                 <CardContent>
                                     {health.services.neo4j.status === "not_configured" ? (
-                                        <p className="text-sm text-muted-foreground">Not configured</p>
+                                        <p className="text-sm text-muted-foreground">{t("admin.health.not_configured")}</p>
                                     ) : (
                                         <>
                                             <p className="text-sm">

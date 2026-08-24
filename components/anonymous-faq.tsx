@@ -9,6 +9,7 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Textarea} from "@/components/ui/textarea";
 import {createClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface AnonymousFAQProps {
     profileId: string
@@ -16,6 +17,7 @@ interface AnonymousFAQProps {
 }
 
 export function AnonymousFAQ({profileId, isOwnProfile}: AnonymousFAQProps) {
+  const { t } = useI18n();
     const [questions, setQuestions] = useState<any[]>([]);
     const [newQuestion, setNewQuestion] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -129,7 +131,7 @@ export function AnonymousFAQ({profileId, isOwnProfile}: AnonymousFAQProps) {
                         <MessageCircle className="h-5 w-5 text-royal-purple"/>
                         Anonymous Questions
                     </CardTitle>
-                    <CardDescription>Ask questions anonymously or answer questions from others</CardDescription>
+                    <CardDescription>{t("faq.subtitle")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {!isOwnProfile && (

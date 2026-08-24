@@ -28,7 +28,11 @@
     "searchPlaceholder": "Search...",
     "noResults": "No results found",
     "loadMore": "Load More",
-    "theme": "Theme"
+    "theme": "Theme",
+    "previous": "previous",
+    "toggle_theme": "toggle_theme",
+    "dialog_content": "dialog_content",
+    "more_pages": "More pages"
   },
   "navigation": {
     "home": "Home",
@@ -98,7 +102,11 @@
     "switchAccount": "Switch Account",
     "enterTheGalaxy": "Enter the Galaxy",
     "logIn": "Log In",
-    "logout": "Logout"
+    "logout": "Logout",
+    "login": {
+      "subtitle": "Sign in to your account to continue"
+    },
+    "nav_label": "Authentication navigation"
   },
   "chat": {
     "rooms": "Chat Rooms",
@@ -128,7 +136,10 @@
     "supportUs": "Support Us",
     "editProfile": "Edit Profile",
     "viewProfile": "View Profile",
-    "myProfile": "My Profile"
+    "myProfile": "My Profile",
+    "edit_desc": "Update your profile information",
+    "username_readonly": "Username cannot be changed",
+    "display_name_label": "Your display name"
   },
   "settings": {
     "privacy": "Privacy",
@@ -200,7 +211,17 @@
     "saving": "Saving...",
     "settingsSavedSuccess": "Settings saved successfully!",
     "settingsSavedError": "Failed to save settings. Please try again.",
-    "messageSettings": "Message Settings"
+    "messageSettings": "Message Settings",
+    "subtitle": "Manage your account preferences",
+    "privacy_desc": "Control who can see your profile and interact with you",
+    "messages_desc": "Define who can send you different types of messages",
+    "comments_desc": "Control who can comment on your posts",
+    "appearance_desc": "Customize how the app looks",
+    "notifications_desc": "Choose what notifications you want to receive",
+    "account_desc": "Manage your account settings and data",
+    "verify": {
+      "under_review": "Your verification request is being reviewed"
+    }
   },
   "messages": {
     "normal": "Normal",
@@ -226,7 +247,9 @@
     "searchPlaceholder": "Search...",
     "unnamedRoom": "Unnamed Room",
     "participantsCount": "participants",
-    "deleteConversationConfirm": "Are you sure you want to delete this conversation?"
+    "deleteConversationConfirm": "Are you sure you want to delete this conversation?",
+    "mark_unread": "Mark as unread",
+    "record_voice": "record_voice"
   },
   "feed": {
     "feed": "Feed",
@@ -237,7 +260,8 @@
     "showNsfw": "Show NSFW content",
     "hideNsfw": "Hide NSFW content",
     "localOnly": "Local Only",
-    "filter": "Filter"
+    "filter": "Filter",
+    "empty": "Your feed is empty"
   },
   "groups": {
     "groups": "Groups",
@@ -269,7 +293,11 @@
     "inPerson": "In Person",
     "going": "Going",
     "interested": "Interested",
-    "noEvents": "No events found"
+    "noEvents": "No events found",
+    "detail": {
+      "hosted_by": "Hosted by"
+    },
+    "subtitle": "Plan an amazing event for your community"
   },
   "notifications": {
     "notifications": "Notifications",
@@ -280,7 +308,12 @@
     "follow": "started following you",
     "mention": "mentioned you",
     "group": "group notification",
-    "unreadCount": "unread"
+    "unreadCount": "unread",
+    "mentions_you": "Mentions you",
+    "follows_you": "Follows you",
+    "accepts_friend_request": "Accepts your friend request",
+    "relationship_change": "Changes their relationship status with you",
+    "upgrade_cta": "Upgrade for exclusive benefits"
   },
   "upload": {
     "upload": "Upload",
@@ -317,7 +350,9 @@
     "location": "Location",
     "searchPlaceholder": "Search marketplace...",
     "localOnly": "Local Only",
-    "noItems": "No items found"
+    "noItems": "No items found",
+    "subtitle": "Buy and sell with your community",
+    "create_listing_desc": "List an item for sale in your local community"
   },
   "subscription": {
     "subscribe": "Subscribe",
@@ -338,7 +373,10 @@
     "unfollow": "Unfollow",
     "block": "Block",
     "unblock": "Unblock",
-    "noRelationships": "No relationships"
+    "noRelationships": "No relationships",
+    "subtitle": "Manage your connections and relationships",
+    "enter_name": "Enter name",
+    "custom_label": "custom_label"
   },
   "onboarding": {
     "welcome": "Welcome to Velvet Galaxy",
@@ -347,7 +385,9 @@
     "findFriends": "Find friends",
     "complete": "Complete",
     "skip": "Skip",
-    "finish": "Finish"
+    "finish": "Finish",
+    "individual_account": "Individual account for personal use",
+    "visible_on_profile": "This will be visible on your profile"
   },
   "search": {
     "search": "Search",
@@ -355,21 +395,43 @@
     "searchPosts": "Search posts",
     "searchGroups": "Search groups",
     "noResults": "No results found",
-    "recent": "Recent"
+    "recent": "Recent",
+    "start_hint": "start_hint"
   },
   "media": {
     "view": "View",
     "download": "Download",
-    "share": "Share",
+    "share": "share",
     "report": "Report",
     "fullscreen": "Fullscreen",
     "previousImage": "Previous",
     "nextImage": "Next",
-    "noMedia": "No media found"
+    "noMedia": "No media found",
+    "viewer": {
+      "previous": "Previous media",
+      "next": "Next media",
+      "more_options": "More options",
+      "comment_input": "Comment input",
+      "send_comment": "Send comment",
+      "exclusive_features": "Discover exclusive features"
+    },
+    "click_to_open": "Click to open media",
+    "carousel_previous": "Previous image",
+    "carousel_next": "Next image",
+    "enter_title": "enter_title",
+    "enter_description": "Enter description",
+    "enter_album_title": "Enter album title",
+    "hide_spoiler": "hide_spoiler",
+    "close_viewer": "close_viewer",
+    "use_as_profile": "use_as_profile",
+    "describe_images": "describe_images",
+    "select_album": "select_album",
+    "add_to_album": "add_to_album"
   },
   "activity": {
     "activity": "Activity",
-    "noActivity": "No recent activity"
+    "noActivity": "No recent activity",
+    "subtitle": "See what your friends and connections are up to"
   },
   "bookmarks": {
     "bookmarks": "Bookmarks",
@@ -389,7 +451,11 @@
     "connections": "Connections",
     "noConnections": "No connections",
     "twoDView": "2D View",
-    "threeDView": "3D View"
+    "threeDView": "3D View",
+    "adjust_distance": "Adjust distance between nodes",
+    "adjust_node_size": "Adjust the size of network nodes",
+    "adjust_line_thickness": "Adjust connection line thickness",
+    "center_highlight": "Center and highlight connections"
   },
   "help": {
     "help": "Help",
@@ -426,5 +492,84 @@
       "seek": "Seek"
     },
     "voiceMessageLabel": "Voice message"
+  },
+  "admin": {
+    "analytics": {
+      "cumulative_users": "Cumulative user registrations over time",
+      "daily_posts_comments": "Daily posts and comments created",
+      "new_users_week": "New users who joined in the last week",
+      "media_breakdown": "Breakdown of uploaded media by type"
+    },
+    "health": {
+      "subtitle": "Monitor service status and platform statistics",
+      "not_configured": "Not configured"
+    },
+    "managePosts": {
+      "deletion_reason": "Reason for deletion"
+    },
+    "media": {
+      "subtitle": "Review and moderate uploaded media content",
+      "preview_unavailable": "Preview not available for this media type",
+      "deletion_reason": "Reason for deletion"
+    },
+    "moderation": {
+      "subtitle": "Review and manage reported content"
+    }
+  },
+  "artists": {
+    "browse": {
+      "subtitle": "Discover amazing creative works from the community"
+    },
+    "featured_subtitle": "Handpicked talented creators"
+  },
+  "chatRooms": {
+    "room": {
+      "appearance_hint": "How you appear to others",
+      "select_camera": "Select camera",
+      "select_microphone": "Select microphone",
+      "select_speakers": "Select speakers",
+      "audio_active": "Audio chat active"
+    },
+    "room_name_placeholder": "Enter room name",
+    "room_desc_placeholder": "Describe your room",
+    "leave_room": "Leave room",
+    "delete_room": "Delete room",
+    "subtitle": "Join public chat rooms or create your own"
+  },
+  "discover": {
+    "subtitle": "Explore content from the community"
+  },
+  "download": {
+    "offline_fallback": "Offline fallback"
+  },
+  "error": {
+    "something_went_wrong": "Something went wrong"
+  },
+  "gallery": {
+    "subtitle": "Browse and manage media collections"
+  },
+  "offline": {
+    "you_are_offline": "You are offline"
+  },
+  "posts": {
+    "about_this_post": "About this post",
+    "drop_images": "Drop images here",
+    "add_media": "Add media",
+    "describe_media": "Describe your media"
+  },
+  "faq": {
+    "subtitle": "Ask questions anonymously or answer questions from others"
+  },
+  "social": {
+    "not_following": "Not following anyone yet"
+  },
+  "nav": {
+    "main_navigation": "main_navigation"
+  },
+  "polls": {
+    "multi_select": "multi_select"
+  },
+  "editor": {
+    "enter_link_text": "enter_link_text"
   }
 }

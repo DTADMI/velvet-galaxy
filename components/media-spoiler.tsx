@@ -3,6 +3,7 @@
 import React, {useState} from "react";
 import {Eye, EyeOff} from "lucide-react";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MediaSpoilerProps {
     children: React.ReactNode;
@@ -15,6 +16,7 @@ export function MediaSpoiler({
                                  isSpoiler = false,
                                  className,
                              }: MediaSpoilerProps) {
+  const { t } = useI18n();
     const [revealed, setRevealed] = useState(!isSpoiler);
 
     if (!isSpoiler) {
@@ -55,7 +57,7 @@ export function MediaSpoiler({
                         setRevealed(false);
                     }}
                     className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
-                    title="Hide spoiler"
+                    title={t("media.hide_spoiler")}
                 >
                     <Eye className="w-4 h-4"/>
                 </button>

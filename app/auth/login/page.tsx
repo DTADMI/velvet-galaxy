@@ -13,8 +13,10 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {createClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function LoginPage() {
+  const { t } = useI18n();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -127,7 +129,7 @@ export default function LoginPage() {
                             </div>
                         </div>
                         <CardTitle className="text-2xl">Welcome Back</CardTitle>
-                        <CardDescription>Sign in to your account to continue</CardDescription>
+                        <CardDescription>{t("auth.login.subtitle")}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleLogin}>

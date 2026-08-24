@@ -15,6 +15,7 @@ import {Label} from "@/components/ui/label";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
 import {createBrowserClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface ChatRoom {
     id: string
@@ -57,6 +58,7 @@ async function getUserChatRoomIds(supabase: SupabaseClient, userId: string): Pro
 }
 
 export function ChatRoomsClient({userId}: { userId?: string }) {
+  const { t } = useI18n();
     const [rooms, setRooms] = useState<ChatRoom[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("all");
@@ -336,11 +338,11 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                         <form onSubmit={createRoom} className="space-y-4">
                             <div>
                                 <Label>Room Name</Label>
-                                <Input name="name" placeholder="Enter room name" className="mt-2" required/>
+                                <Input name="name" placeholder={t("chatRooms.room_name_placeholder")} className="mt-2" required/>
                             </div>
                             <div>
                                 <Label>Description</Label>
-                                <Textarea name="description" placeholder="Describe your room" className="mt-2"
+                                <Textarea name="description" placeholder={t("chatRooms.room_desc_placeholder")} className="mt-2"
                                           rows={3}/>
                             </div>
                             <div>
@@ -453,7 +455,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                                                                 variant="outline"
                                                                 onClick={() => leaveRoom(room.id)}
                                                                 className="border-amber-500/20 text-amber-500 hover:bg-amber-500/10"
-                                                                title="Leave room"
+                                                                title={t("chatRooms.leave_room")}
                                                             >
                                                                 <LogOut className="h-4 w-4"/>
                                                             </Button>
@@ -474,7 +476,7 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                                                         variant="outline"
                                                         onClick={() => deleteRoom(room.id)}
                                                         className="border-red-500/20 text-red-500 hover:bg-red-500/10"
-                                                        title="Delete room"
+                                                        title={t("chatRooms.delete_room")}
                                                     >
                                                         <Trash2 className="h-4 w-4"/>
                                                     </Button>

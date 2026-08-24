@@ -20,6 +20,7 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Textarea} from "@/components/ui/textarea";
 import {createClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface EditProfileDialogProps {
     profile: {
@@ -32,6 +33,7 @@ interface EditProfileDialogProps {
 }
 
 export function EditProfileDialog({profile}: EditProfileDialogProps) {
+  const { t } = useI18n();
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -132,7 +134,7 @@ export function EditProfileDialog({profile}: EditProfileDialogProps) {
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Edit Profile</DialogTitle>
-                    <DialogDescription>Update your profile information</DialogDescription>
+                    <DialogDescription>{t("profile.edit_desc")}</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="flex flex-col items-center gap-4">
@@ -171,13 +173,13 @@ export function EditProfileDialog({profile}: EditProfileDialogProps) {
                     <div className="space-y-2">
                         <Label htmlFor="username">Username</Label>
                         <Input id="username" value={profile.username} disabled className="bg-muted"/>
-                        <p className="text-xs text-muted-foreground">Username cannot be changed</p>
+                        <p className="text-xs text-muted-foreground">{t("profile.username_readonly")}</p>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="display_name">Display Name</Label>
                         <Input
                             id="display_name"
-                            placeholder="Your display name"
+                            placeholder={t("profile.display_name_label")}
                             value={formData.display_name}
                             onChange={(e) => setFormData({...formData, display_name: e.target.value})}
                         />

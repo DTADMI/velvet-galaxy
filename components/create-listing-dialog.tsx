@@ -20,12 +20,14 @@ import {Textarea} from "@/components/ui/textarea";
 import {createClient} from "@/lib/supabase/client";
 import {useFeatureFlag} from "@/hooks/use-feature-flag";
 import {toast} from "sonner";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface CreateListingDialogProps {
     onListingCreated: () => void
 }
 
 export function CreateListingDialog({onListingCreated}: CreateListingDialogProps) {
+  const { t } = useI18n();
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const {isEnabled: isVideoEnabled} = useFeatureFlag("marketplace_video");
@@ -171,7 +173,7 @@ export function CreateListingDialog({onListingCreated}: CreateListingDialogProps
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Create New Listing</DialogTitle>
-                    <DialogDescription>List an item for sale in your local community</DialogDescription>
+                    <DialogDescription>{t("marketplace.create_listing_desc")}</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">

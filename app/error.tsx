@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from '@/lib/i18n/provider';
 
 export default function ErrorPage({
     error,
@@ -10,6 +11,7 @@ export default function ErrorPage({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
+    const { t } = useI18n();
     useEffect(() => {
         console.error("[VG:Error]", error);
     }, [error]);
@@ -32,7 +34,7 @@ export default function ErrorPage({
                 </svg>
             </div>
             <div>
-                <h2 className="text-xl font-semibold">Something went wrong</h2>
+                <h2 className="text-xl font-semibold">{t("error.something_went_wrong")}</h2>
                 <p className="mt-1 text-sm text-muted-foreground max-w-md">
                     {error.message || "An unexpected error occurred. Please try again."}
                 </p>

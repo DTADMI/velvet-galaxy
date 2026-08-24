@@ -15,6 +15,7 @@ import {Progress} from "@/components/ui/progress";
 import {Textarea} from "@/components/ui/textarea";
 import {createBrowserClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface OnboardingFlowProps {
     userId: string
@@ -22,6 +23,7 @@ interface OnboardingFlowProps {
 }
 
 export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
+  const { t } = useI18n();
     const [step, setStep] = useState(1);
     const [accountType, setAccountType] = useState<"physical" | "moral">("physical");
     const [displayName, setDisplayName] = useState(existingProfile?.display_name || "");
@@ -172,7 +174,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                                     <Users className="h-8 w-8"/>
                                     <div className="text-left">
                                         <div className="font-bold">Physical Person</div>
-                                        <div className="text-xs opacity-80">Individual account for personal use</div>
+                                        <div className="text-xs opacity-80">{t("onboarding.individual_account")}</div>
                                     </div>
                                 </Button>
                                 <Button
@@ -268,7 +270,7 @@ export function OnboardingFlow({userId, existingProfile}: OnboardingFlowProps) {
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
                                 />
-                                <p className="text-xs text-muted-foreground">This will be visible on your profile</p>
+                                <p className="text-xs text-muted-foreground">{t("onboarding.visible_on_profile")}</p>
                             </div>
                         )}
 

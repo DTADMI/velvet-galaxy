@@ -16,6 +16,7 @@ import {Card, CardContent} from "@/components/ui/card";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
 import {createBrowserClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface EventDetailViewProps {
     event: any
@@ -23,6 +24,7 @@ interface EventDetailViewProps {
 }
 
 export function EventDetailView({event, userId}: EventDetailViewProps) {
+  const { t } = useI18n();
     const router = useRouter();
     const supabase = createBrowserClient();
     const [userResponse, setUserResponse] = useState<string | null>(null);
@@ -175,7 +177,7 @@ export function EventDetailView({event, userId}: EventDetailViewProps) {
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="text-sm text-muted-foreground">Hosted by</p>
+                                                <p className="text-sm text-muted-foreground">{t("events.detail.hosted_by")}</p>
                                                 <Link
                                                     href={`/profile/${event.creator_id}`}
                                                     className="font-semibold text-lg hover:text-royal-orange transition-colors"

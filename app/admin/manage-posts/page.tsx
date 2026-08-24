@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Eye, Trash2, Search, FileText, AlertTriangle, X } from "lucide-react";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Post {
     id: string;
@@ -39,6 +40,7 @@ interface PostDetail extends Post {
 }
 
 export default function AdminManagePostsPage() {
+  const { t } = useI18n();
     const supabase = createBrowserClient();
     const [isAdmin, setIsAdmin] = useState(false);
     const [checking, setChecking] = useState(true);
@@ -437,7 +439,7 @@ export default function AdminManagePostsPage() {
 
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="delete-reason">Reason for deletion</Label>
+                            <Label htmlFor="delete-reason">{t("admin.managePosts.deletion_reason")}</Label>
                             <Textarea
                                 id="delete-reason"
                                 value={deleteReason}

@@ -12,12 +12,14 @@ import {Label} from "@/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Textarea} from "@/components/ui/textarea";
 import {createClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MultiImageUploadProps {
     onComplete: () => void
 }
 
 export function MultiImageUpload({onComplete}: MultiImageUploadProps) {
+  const { t } = useI18n();
     const [files, setFiles] = useState<File[]>([]);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -191,7 +193,7 @@ export function MultiImageUpload({onComplete}: MultiImageUploadProps) {
                     <Label htmlFor="description">Description (Optional)</Label>
                     <Textarea
                         id="description"
-                        placeholder="Describe your images"
+                        placeholder={t("media.describe_images")}
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         disabled={isUploading}
@@ -203,7 +205,7 @@ export function MultiImageUpload({onComplete}: MultiImageUploadProps) {
                     <div className="flex gap-2">
                         <Select value={albumId} onValueChange={setAlbumId} disabled={isUploading}>
                             <SelectTrigger className="flex-1">
-                                <SelectValue placeholder="Select an album"/>
+                                <SelectValue placeholder={t("media.select_album")}/>
                             </SelectTrigger>
                             <SelectContent>
                                 {albums.map((album) => (

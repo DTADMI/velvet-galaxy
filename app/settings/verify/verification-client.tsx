@@ -8,6 +8,7 @@ import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {createClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface VerificationClientProps {
     profile: {
@@ -27,6 +28,7 @@ interface VerificationClientProps {
 }
 
 export function VerificationClient({profile, existingRequest}: VerificationClientProps) {
+  const { t } = useI18n();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -152,7 +154,7 @@ export function VerificationClient({profile, existingRequest}: VerificationClien
             <Card>
                 <CardHeader>
                     <CardTitle>Verification Status</CardTitle>
-                    <CardDescription>Your verification request is being reviewed</CardDescription>
+                    <CardDescription>{t("settings.verify.under_review")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-2">

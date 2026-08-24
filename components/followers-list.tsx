@@ -8,6 +8,7 @@ import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Card} from "@/components/ui/card";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createBrowserClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Profile {
     id: string
@@ -18,6 +19,7 @@ interface Profile {
 }
 
 export function FollowersList({userId, type}: { userId: string; type?: "friends" | "followers" | "following" }) {
+  const { t } = useI18n();
     const [followers, setFollowers] = useState<Profile[]>([]);
     const [following, setFollowing] = useState<Profile[]>([]);
     const [friends, setFriends] = useState<Profile[]>([]);
@@ -136,7 +138,7 @@ export function FollowersList({userId, type}: { userId: string; type?: "friends"
                 {following.length === 0 ? (
                     <div className="text-center py-12 text-muted-foreground">
                         <Users className="h-12 w-12 mx-auto mb-2 opacity-50"/>
-                        <p>Not following anyone yet</p>
+                        <p>{t("social.not_following")}</p>
                     </div>
                 ) : (
                     following.map((profile) => <ProfileCard key={profile.id} profile={profile}/>)

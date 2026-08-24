@@ -21,6 +21,7 @@ import {useToast} from "@/hooks/use-toast";
 import {PlusIcon, UserIcon} from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {RelationshipTypeSelector} from "@/components/relationship-type-selector";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface ExternalProfile {
     id: string;
@@ -59,6 +60,7 @@ export function CustomRelationshipDialog({
                                              onRelationshipCreated,
                                              onTemporaryRelationshipCreated
                                          }: CustomRelationshipDialogProps) {
+  const { t } = useI18n();
     const [isOpen, setIsOpen] = useState(false);
     const [externalProfiles, setExternalProfiles] = useState<ExternalProfile[]>([]);
     const [customTypes, setCustomTypes] = useState<CustomRelationshipType[]>([]);
@@ -604,7 +606,7 @@ export function CustomRelationshipDialog({
                                     onChange={(e) =>
                                         setNewProfileForm({...newProfileForm, display_name: e.target.value})
                                     }
-                                    placeholder="Enter name"
+                                    placeholder={t("relationships.enter_name")}
                                     required
                                 />
                             </div>

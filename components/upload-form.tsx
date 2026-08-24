@@ -17,6 +17,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Textarea} from "@/components/ui/textarea";
 import {createClient} from "@/lib/supabase/client";
 import {useTags} from "@/hooks/use-tags";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface UploadFormProps {
     profile: {
@@ -29,6 +30,7 @@ interface UploadFormProps {
 }
 
 export function UploadForm({profile, initialType}: UploadFormProps) {
+  const { t } = useI18n();
     const [uploadType, setUploadType] = useState(initialType);
     const [isUploading, setIsUploading] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
@@ -648,7 +650,7 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
                                     <Label htmlFor="album">Album (Optional)</Label>
                                     <Input
                                         id="album"
-                                        placeholder="Add to an album or create new"
+                                        placeholder={t("media.add_to_album")}
                                         value={albumInput}
                                         onChange={(e) => {
                                             setAlbumInput(e.target.value);

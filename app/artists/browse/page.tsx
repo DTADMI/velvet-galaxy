@@ -30,10 +30,12 @@ import { ArtistGrid } from "@/components/artist-grid";
 import { createClient } from "@/lib/supabase/client";
 import type { ArtworkWithStats, ArtistProfileWithStats } from "@/types/artwork";
 import { ART_MEDIUMS, COMMON_ART_TAGS } from "@/types/artwork";
+import { useI18n } from '@/lib/i18n/provider';
 
 function BrowseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useI18n();
 
   const [artworks, setArtworks] = useState<ArtworkWithStats[]>([]);
   const [artists, setArtists] = useState<ArtistProfileWithStats[]>([]);
@@ -159,7 +161,7 @@ function BrowseContent() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gradient mb-2">Browse {view === 'artworks' ? 'Artworks' : 'Artists'}</h1>
-            <p className="text-muted-foreground">Discover amazing creative works from the community</p>
+            <p className="text-muted-foreground">{t("artists.browse.subtitle")}</p>
           </div>
 
           {/* Controls */}
@@ -173,7 +175,7 @@ function BrowseContent() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
-                <Button onClick={handleSearch}>Search</Button>
+                <Button onClick={handleSearch}>{t("common.search")}</Button>
               </div>
             </div>
 

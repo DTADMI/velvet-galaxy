@@ -5,8 +5,10 @@ import {X} from "lucide-react";
 import * as React from "react";
 
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 function Dialog({...props}: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  const { t } = useI18n();
     return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
@@ -19,6 +21,7 @@ function DialogPortal({...props}: React.ComponentProps<typeof DialogPrimitive.Po
 }
 
 function DialogClose({...props}: React.ComponentProps<typeof DialogPrimitive.Close>) {
+  const { t } = useI18n();
     return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
@@ -38,7 +41,9 @@ function DialogOverlay({className, ...props}: React.ComponentProps<typeof Dialog
 const DialogContent = React.forwardRef<
     React.ElementRef<typeof DialogPrimitive.Content>,
     React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({className, children, ...props}, ref) => (
+>(({className, children, ...props}, ref) => {
+  const { t } = useI18n();
+  return (
     <DialogPortal>
         <DialogOverlay/>
         <DialogPrimitive.Content
@@ -53,14 +58,15 @@ const DialogContent = React.forwardRef<
             <DialogPrimitive.Close
                 className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none">
                 <X className="h-4 w-4"/>
-                <span className="sr-only">Close</span>
+                <span className="sr-only">{t("common.close")}</span>
             </DialogPrimitive.Close>
             {!children?.toString().includes("DialogDescription") && (
-                <DialogPrimitive.Description className="sr-only">Dialog content</DialogPrimitive.Description>
+                <DialogPrimitive.Description className="sr-only">{t("common.dialog_content")}</DialogPrimitive.Description>
             )}
         </DialogPrimitive.Content>
     </DialogPortal>
-));
+  );
+});
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 function DialogHeader({className, ...props}: React.ComponentProps<"div">) {

@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = resolve(__dirname, '..');
-const TRANSLATIONS_DIR = join(ROOT, 'lib', 'i18n', 'translations');
+const TRANSLATIONS_DIR = join(ROOT, 'lib', 'i18n', 'dictionaries');
 const SRC_DIRS = [join(ROOT, 'app'), join(ROOT, 'components'), join(ROOT, 'lib')];
 
 // ── Load Translation Files ────────────────────────────────────────────────

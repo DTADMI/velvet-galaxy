@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  * Visible only on < 768px screens (handled by MobileShell parent).
  * Mirrors the main navigation sections from NavSidebar.
  */
-export function MobileBottomNav(): JSX.Element {
+export function MobileBottomNav() {
   const pathname = usePathname();
 
   const tabs = [

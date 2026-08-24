@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { ArtistGrid } from "@/components/artist-grid";
+import { getServerTranslations } from '@/lib/i18n/server';
 
 export const metadata = {
   title: "Artists - Velvet Galaxy",
@@ -65,6 +66,7 @@ async function getTrendingArtworks() {
 }
 
 export default async function ArtistsPage() {
+  const { t } = await getServerTranslations();
   const supabase = await createClient();
 
   const {
@@ -192,7 +194,7 @@ export default async function ArtistsPage() {
                     <Sparkles className="h-6 w-6 text-amber-500" />
                     Featured Artists
                   </h2>
-                  <p className="text-muted-foreground">Handpicked talented creators</p>
+                  <p className="text-muted-foreground">{t("artists.featured_subtitle")}</p>
                 </div>
                 <Button asChild variant="outline">
                   <Link href="/artists/browse?filter=artists">View All Artists</Link>

@@ -3,11 +3,14 @@ import {VelvetLogo} from "@/components/velvet-logo";
 import {Button} from "@/components/ui/button";
 import {ThemeToggle} from "@/components/theme-toggle";
 import {LanguageSelector} from "@/components/language-selector";
+import { getServerTranslations } from '@/lib/i18n/server';
+import { useI18n } from '@/lib/i18n/provider';
 
 export function AuthNavigation() {
+  const { t } = useI18n();
     return (
         <nav
-            aria-label="Authentication navigation"
+            aria-label={t("auth.nav_label")}
             className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-gradient-to-r from-card/95 via-card/98 to-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
         >
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -23,7 +26,7 @@ export function AuthNavigation() {
                         variant="ghost"
                         className="hover:bg-royal-purple/10 hover:text-royal-purple"
                     >
-                        <Link href="/auth/login">Log In</Link>
+                        <Link href="/auth/login">{t("common.login")}</Link>
                     </Button>
                     <Button
                         asChild

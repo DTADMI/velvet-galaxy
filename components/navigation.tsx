@@ -39,8 +39,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {createClient} from "@/lib/supabase/client";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { useI18n } from '@/lib/i18n/provider';
 
 export function Navigation() {
+  const { t } = useI18n();
     const pathname = usePathname();
     const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -128,7 +130,7 @@ export function Navigation() {
 
     return (
         <nav
-            aria-label="Main navigation"
+            aria-label={t("nav.main_navigation")}
             className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-gradient-to-r from-card/95 via-card/98 to-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <Link href="/feed" className="flex items-center gap-2" aria-label="Go to feed">

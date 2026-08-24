@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Search, Trash2, Eye, Image, Video, Music, FileText, AlertTriangle, X } from "lucide-react";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MediaItem {
     id: string;
@@ -41,6 +42,7 @@ const typeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function AdminMediaPage() {
+  const { t } = useI18n();
     const supabase = createBrowserClient();
     const [isAdmin, setIsAdmin] = useState(false);
     const [checking, setChecking] = useState(true);
@@ -157,7 +159,7 @@ export default function AdminMediaPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold">Media Moderation</h1>
-                    <p className="text-muted-foreground">Review and moderate uploaded media content</p>
+                    <p className="text-muted-foreground">{t("admin.media.subtitle")}</p>
                 </div>
             </div>
 
@@ -312,7 +314,7 @@ export default function AdminMediaPage() {
                             ) : (
                                 <div className="p-8 bg-muted/30 rounded-lg text-center">
                                     <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
-                                    <p className="text-sm text-muted-foreground mt-2">Preview not available for this media type</p>
+                                    <p className="text-sm text-muted-foreground mt-2">{t("admin.media.preview_unavailable")}</p>
                                 </div>
                             )}
 
@@ -394,7 +396,7 @@ export default function AdminMediaPage() {
 
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="media-delete-reason">Reason for deletion</Label>
+                            <Label htmlFor="media-delete-reason">{t("admin.media.deletion_reason")}</Label>
                             <Textarea
                                 id="media-delete-reason"
                                 value={deleteReason}

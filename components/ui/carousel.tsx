@@ -6,6 +6,7 @@ import * as React from 'react';
 
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
+import { useI18n } from '@/lib/i18n/provider';
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -31,6 +32,7 @@ type CarouselContextProps = {
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
 function useCarousel() {
+  const { t } = useI18n();
     const context = React.useContext(CarouselContext);
 
     if (!context) {
@@ -181,6 +183,7 @@ function CarouselPrevious({
                               size = 'icon',
                               ...props
                           }: React.ComponentProps<typeof Button>) {
+    const { t } = useI18n();
     const {orientation, scrollPrev, canScrollPrev} = useCarousel();
 
     return (
@@ -200,7 +203,7 @@ function CarouselPrevious({
             {...props}
         >
             <ArrowLeft/>
-            <span className="sr-only">Previous slide</span>
+            <span className="sr-only">{t("common.previous")}</span>
         </Button>
     );
 }
@@ -211,6 +214,7 @@ function CarouselNext({
                           size = 'icon',
                           ...props
                       }: React.ComponentProps<typeof Button>) {
+  const { t } = useI18n();
     const {orientation, scrollNext, canScrollNext} = useCarousel();
 
     return (
@@ -230,7 +234,7 @@ function CarouselNext({
             {...props}
         >
             <ArrowRight/>
-            <span className="sr-only">Next slide</span>
+            <span className="sr-only">{t("common.next")}</span>
         </Button>
     );
 }

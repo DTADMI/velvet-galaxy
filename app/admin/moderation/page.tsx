@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { CheckCircle, Eye, Flag, XCircle } from "lucide-react";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Report {
     id: string;
@@ -33,6 +34,7 @@ interface Report {
 }
 
 export default function AdminModerationPage() {
+  const { t } = useI18n();
     const supabase = createBrowserClient();
     const [isAdmin, setIsAdmin] = useState(false);
     const [checking, setChecking] = useState(true);
@@ -136,7 +138,7 @@ export default function AdminModerationPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold">Content Moderation</h1>
-                    <p className="text-muted-foreground">Review and manage reported content</p>
+                    <p className="text-muted-foreground">{t("admin.moderation.subtitle")}</p>
                 </div>
             </div>
 

@@ -11,6 +11,7 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface NotificationsClientProps {
     profile: any
@@ -18,6 +19,7 @@ interface NotificationsClientProps {
 }
 
 export function NotificationsClient({profile, initialNotifications}: NotificationsClientProps) {
+  const { t } = useI18n();
     const [notifications, setNotifications] = useState(initialNotifications);
     const [mounted, setMounted] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -277,19 +279,19 @@ export function NotificationsClient({profile, initialNotifications}: Notificatio
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-royal-purple">•</span>
-                                            <span>Mentions you</span>
+                                            <span>{t("notifications.mentions_you")}</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-royal-purple">•</span>
-                                            <span>Follows you</span>
+                                            <span>{t("notifications.follows_you")}</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-royal-purple">•</span>
-                                            <span>Accepts your friend request</span>
+                                            <span>{t("notifications.accepts_friend_request")}</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-royal-purple">•</span>
-                                            <span>Changes their relationship status with you</span>
+                                            <span>{t("notifications.relationship_change")}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -309,7 +311,7 @@ export function NotificationsClient({profile, initialNotifications}: Notificatio
                                 </div>
                                 <div className="space-y-1">
                                     <p className="font-semibold text-sm">Premium Features</p>
-                                    <p className="text-xs text-muted-foreground">Upgrade for exclusive benefits</p>
+                                    <p className="text-xs text-muted-foreground">{t("notifications.upgrade_cta")}</p>
                                 </div>
                             </CardContent>
                         </Card>

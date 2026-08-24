@@ -8,6 +8,7 @@ import {toast} from "sonner";
 import {Button} from "@/components/ui/button";
 import {Dialog, DialogContent, DialogTitle} from "@/components/ui/dialog";
 import {VisuallyHidden} from "@/components/ui/visually-hidden";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface MediaViewerProps {
     open: boolean
@@ -32,6 +33,7 @@ export function MediaViewer({
                                 currentIndex = 0,
                                 onNavigate,
                             }: MediaViewerProps) {
+  const { t } = useI18n();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -137,7 +139,7 @@ export function MediaViewer({
                                 variant="ghost"
                                 onClick={handleShare}
                                 className="text-white hover:bg-white/10"
-                                aria-label="Share media"
+                                aria-label={t("media.share")}
                             >
                                 <Share2 className="h-4 w-4"/>
                             </Button>
@@ -146,7 +148,7 @@ export function MediaViewer({
                                 variant="ghost"
                                 onClick={() => onOpenChange(false)}
                                 className="text-white hover:bg-white/10"
-                                aria-label="Close viewer"
+                                aria-label={t("media.close_viewer")}
                             >
                                 <X className="h-5 w-5"/>
                             </Button>
@@ -232,7 +234,7 @@ export function MediaViewer({
                                             handlePrevious();
                                         }}
                                         className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 bg-black/40 backdrop-blur-sm h-16 w-16 rounded-full shadow-lg"
-                                        aria-label="Previous media"
+                                        aria-label={t("media.carousel_previous")}
                                     >
                                         <ChevronLeft className="h-8 w-8"/>
                                     </Button>
@@ -246,7 +248,7 @@ export function MediaViewer({
                                             handleNext();
                                         }}
                                         className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 bg-black/40 backdrop-blur-sm h-16 w-16 rounded-full shadow-lg"
-                                        aria-label="Next media"
+                                        aria-label={t("media.carousel_next")}
                                     >
                                         <ChevronRight className="h-8 w-8"/>
                                     </Button>

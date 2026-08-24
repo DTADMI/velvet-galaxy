@@ -28,7 +28,11 @@
     "searchPlaceholder": "Rechercher...",
     "noResults": "Aucun résultat trouvé",
     "loadMore": "Charger plus",
-    "theme": "Thème"
+    "theme": "Thème",
+    "previous": "Précédent",
+    "toggle_theme": "Changer le thème",
+    "dialog_content": "Contenu de la boîte de dialogue",
+    "more_pages": "Plus de pages"
   },
   "navigation": {
     "home": "Accueil",
@@ -98,7 +102,11 @@
     "switchAccount": "Changer de compte",
     "enterTheGalaxy": "Entrer dans la galaxie",
     "logIn": "Se connecter",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "login": {
+      "subtitle": "Connectez-vous à votre compte pour continuer"
+    },
+    "nav_label": "Navigation d'authentification"
   },
   "chat": {
     "rooms": "Salons de discussion",
@@ -128,7 +136,10 @@
     "supportUs": "Nous soutenir",
     "editProfile": "Modifier le profil",
     "viewProfile": "Voir le profil",
-    "myProfile": "Mon profil"
+    "myProfile": "Mon profil",
+    "edit_desc": "Mettez à jour vos informations de profil",
+    "username_readonly": "Le nom d'utilisateur ne peut pas être modifié",
+    "display_name_label": "Votre nom d'affichage"
   },
   "settings": {
     "privacy": "Confidentialité",
@@ -200,7 +211,17 @@
     "saving": "Enregistrement...",
     "settingsSavedSuccess": "Paramètres enregistrés avec succès!",
     "settingsSavedError": "Échec de l'enregistrement des paramètres. Veuillez réessayer.",
-    "messageSettings": "Paramètres de messagerie"
+    "messageSettings": "Paramètres de messagerie",
+    "subtitle": "Gérer vos préférences de compte",
+    "privacy_desc": "Contrôlez qui peut voir votre profil et interagir avec vous",
+    "messages_desc": "Définissez qui peut vous envoyer différents types de messages",
+    "comments_desc": "Contrôlez qui peut commenter vos publications",
+    "appearance_desc": "Personnalisez l'apparence de l'application",
+    "notifications_desc": "Choisissez les notifications que vous souhaitez recevoir",
+    "account_desc": "Gérez les paramètres et données de votre compte",
+    "verify": {
+      "under_review": "Votre demande de vérification est en cours d'examen"
+    }
   },
   "messages": {
     "normal": "Normal",
@@ -226,7 +247,9 @@
     "searchPlaceholder": "Rechercher...",
     "unnamedRoom": "Salon sans nom",
     "participantsCount": "participants",
-    "deleteConversationConfirm": "Êtes-vous sûr de vouloir supprimer cette conversation?"
+    "deleteConversationConfirm": "Êtes-vous sûr de vouloir supprimer cette conversation?",
+    "mark_unread": "Marquer comme non lu",
+    "record_voice": "Enregistrer un message vocal"
   },
   "feed": {
     "feed": "Fil d'actualité",
@@ -237,7 +260,8 @@
     "showNsfw": "Afficher le contenu NSFW",
     "hideNsfw": "Masquer le contenu NSFW",
     "localOnly": "Local seulement",
-    "filter": "Filtrer"
+    "filter": "Filtrer",
+    "empty": "Votre fil est vide"
   },
   "groups": {
     "groups": "Groupes",
@@ -269,7 +293,11 @@
     "inPerson": "En personne",
     "going": "Je participe",
     "interested": "Intéressé",
-    "noEvents": "Aucun événement trouvé"
+    "noEvents": "Aucun événement trouvé",
+    "detail": {
+      "hosted_by": "Organisé par"
+    },
+    "subtitle": "Organisez un événement incroyable pour votre communauté"
   },
   "notifications": {
     "notifications": "Notifications",
@@ -280,7 +308,12 @@
     "follow": "a commencé à vous suivre",
     "mention": "vous a mentionné",
     "group": "notification de groupe",
-    "unreadCount": "non lues"
+    "unreadCount": "non lues",
+    "mentions_you": "Vous mentionne",
+    "follows_you": "Vous suit",
+    "accepts_friend_request": "Accepte votre demande d'ami",
+    "relationship_change": "Change son statut de relation avec vous",
+    "upgrade_cta": "Passez à la version supérieure pour des avantages exclusifs"
   },
   "upload": {
     "upload": "Télécharger",
@@ -317,7 +350,9 @@
     "location": "Lieu",
     "searchPlaceholder": "Rechercher dans le marché...",
     "localOnly": "Local seulement",
-    "noItems": "Aucune annonce trouvée"
+    "noItems": "Aucune annonce trouvée",
+    "subtitle": "Achetez et vendez avec votre communauté",
+    "create_listing_desc": "Mettez un article en vente dans votre communauté locale"
   },
   "subscription": {
     "subscribe": "S'abonner",
@@ -338,7 +373,10 @@
     "unfollow": "Se désabonner",
     "block": "Bloquer",
     "unblock": "Débloquer",
-    "noRelationships": "Aucune relation"
+    "noRelationships": "Aucune relation",
+    "subtitle": "Gérez vos connexions et relations",
+    "enter_name": "Entrez le nom",
+    "custom_label": "Entrez une étiquette de relation personnalisée"
   },
   "onboarding": {
     "welcome": "Bienvenue sur Velvet Galaxy",
@@ -347,7 +385,9 @@
     "findFriends": "Trouvez des amis",
     "complete": "Terminer",
     "skip": "Passer",
-    "finish": "Finaliser"
+    "finish": "Finaliser",
+    "individual_account": "Compte individuel pour usage personnel",
+    "visible_on_profile": "Ceci sera visible sur votre profil"
   },
   "search": {
     "search": "Rechercher",
@@ -355,21 +395,43 @@
     "searchPosts": "Rechercher des publications",
     "searchGroups": "Rechercher des groupes",
     "noResults": "Aucun résultat trouvé",
-    "recent": "Récent"
+    "recent": "Récent",
+    "start_hint": "Commencez à chercher pour voir votre historique"
   },
   "media": {
     "view": "Voir",
     "download": "Téléchargement",
-    "share": "Partager",
+    "share": "Partager le média",
     "report": "Signaler",
     "fullscreen": "Plein écran",
     "previousImage": "Précédent",
     "nextImage": "Suivant",
-    "noMedia": "Aucun média trouvé"
+    "noMedia": "Aucun média trouvé",
+    "viewer": {
+      "previous": "Média précédent",
+      "next": "Média suivant",
+      "more_options": "Plus d'options",
+      "comment_input": "Saisie de commentaire",
+      "send_comment": "Envoyer le commentaire",
+      "exclusive_features": "Découvrez des fonctionnalités exclusives"
+    },
+    "click_to_open": "Cliquez pour ouvrir le média",
+    "carousel_previous": "Image précédente",
+    "carousel_next": "Image suivante",
+    "enter_title": "Entrez le titre",
+    "enter_description": "Entrez la description",
+    "enter_album_title": "Entrez le titre de l'album",
+    "hide_spoiler": "Masquer le spoil",
+    "close_viewer": "Fermer la visionneuse",
+    "use_as_profile": "Utiliser comme photo de profil",
+    "describe_images": "Décrivez vos images",
+    "select_album": "Sélectionner un album",
+    "add_to_album": "Ajouter à un album ou créer un nouveau"
   },
   "activity": {
     "activity": "Activité",
-    "noActivity": "Aucune activité récente"
+    "noActivity": "Aucune activité récente",
+    "subtitle": "Voyez ce que vos amis et connexions font"
   },
   "bookmarks": {
     "bookmarks": "Favoris",
@@ -389,7 +451,11 @@
     "connections": "Connexions",
     "noConnections": "Aucune connexion",
     "twoDView": "Vue 2D",
-    "threeDView": "Vue 3D"
+    "threeDView": "Vue 3D",
+    "adjust_distance": "Ajuster la distance entre les nœuds",
+    "adjust_node_size": "Ajuster la taille des nœuds du réseau",
+    "adjust_line_thickness": "Ajuster l'épaisseur des lignes de connexion",
+    "center_highlight": "Centrer et mettre en évidence les connexions"
   },
   "help": {
     "help": "Aide",
@@ -426,5 +492,84 @@
       "seek": "Rechercher"
     },
     "voiceMessageLabel": "Message vocal"
+  },
+  "admin": {
+    "analytics": {
+      "cumulative_users": "Inscriptions cumulatives au fil du temps",
+      "daily_posts_comments": "Publications et commentaires quotidiens",
+      "new_users_week": "Nouveaux utilisateurs cette semaine",
+      "media_breakdown": "Répartition des médias téléversés par type"
+    },
+    "health": {
+      "subtitle": "Surveiller l'état des services et les statistiques de la plateforme",
+      "not_configured": "Non configuré"
+    },
+    "managePosts": {
+      "deletion_reason": "Motif de suppression"
+    },
+    "media": {
+      "subtitle": "Examiner et modérer le contenu multimédia téléversé",
+      "preview_unavailable": "Aperçu non disponible pour ce type de média",
+      "deletion_reason": "Motif de suppression"
+    },
+    "moderation": {
+      "subtitle": "Examiner et gérer le contenu signalé"
+    }
+  },
+  "artists": {
+    "browse": {
+      "subtitle": "Découvrez des œuvres créatives incroyables de la communauté"
+    },
+    "featured_subtitle": "Créateurs talentueux sélectionnés"
+  },
+  "chatRooms": {
+    "room": {
+      "appearance_hint": "Comment vous apparaissez aux autres",
+      "select_camera": "Sélectionner la caméra",
+      "select_microphone": "Sélectionner le microphone",
+      "select_speakers": "Sélectionner les haut-parleurs",
+      "audio_active": "Discussion audio active"
+    },
+    "room_name_placeholder": "Nom du salon",
+    "room_desc_placeholder": "Décrivez votre salon",
+    "leave_room": "Quitter le salon",
+    "delete_room": "Supprimer le salon",
+    "subtitle": "Rejoignez des salons de discussion publics ou créez le vôtre"
+  },
+  "discover": {
+    "subtitle": "Explorez le contenu de la communauté"
+  },
+  "download": {
+    "offline_fallback": "Version hors ligne"
+  },
+  "error": {
+    "something_went_wrong": "Une erreur est survenue"
+  },
+  "gallery": {
+    "subtitle": "Parcourir et gérer les collections de médias"
+  },
+  "offline": {
+    "you_are_offline": "Vous êtes hors ligne"
+  },
+  "posts": {
+    "about_this_post": "À propos de cette publication",
+    "drop_images": "Déposez des images ici",
+    "add_media": "Ajouter un média",
+    "describe_media": "Décrivez votre média"
+  },
+  "faq": {
+    "subtitle": "Posez des questions anonymement ou répondez aux questions des autres"
+  },
+  "social": {
+    "not_following": "Vous ne suivez personne pour le moment"
+  },
+  "nav": {
+    "main_navigation": "Navigation principale"
+  },
+  "polls": {
+    "multi_select": "Vous pouvez sélectionner plusieurs options"
+  },
+  "editor": {
+    "enter_link_text": "Entrez le texte du lien"
   }
 }

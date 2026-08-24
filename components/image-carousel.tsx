@@ -7,6 +7,7 @@ import {useEffect, useState} from "react";
 import {MediaViewer} from "@/components/media-viewer";
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface ImageCarouselProps {
     images: string[]
@@ -15,6 +16,7 @@ interface ImageCarouselProps {
 }
 
 export function ImageCarousel({images, alt = "Post images", className}: ImageCarouselProps) {
+  const { t } = useI18n();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [viewerOpen, setViewerOpen] = useState(false);
     const [viewerIndex, setViewerIndex] = useState(0);
@@ -119,7 +121,7 @@ export function ImageCarousel({images, alt = "Post images", className}: ImageCar
                             size="icon"
                             className="absolute left-2 top-1/2 -translate-y-1/2 opacity-70 group-hover:opacity-100 transition-opacity bg-background/90 backdrop-blur-sm hover:bg-background shadow-lg z-10"
                             onClick={goToPrevious}
-                            aria-label="Previous image"
+                            aria-label={t("media.carousel_previous")}
                         >
                             <ChevronLeft className="h-5 w-5"/>
                         </Button>
@@ -128,7 +130,7 @@ export function ImageCarousel({images, alt = "Post images", className}: ImageCar
                             size="icon"
                             className="absolute right-2 top-1/2 -translate-y-1/2 opacity-70 group-hover:opacity-100 transition-opacity bg-background/90 backdrop-blur-sm hover:bg-background shadow-lg z-10"
                             onClick={goToNext}
-                            aria-label="Next image"
+                            aria-label={t("media.carousel_next")}
                         >
                             <ChevronRight className="h-5 w-5"/>
                         </Button>

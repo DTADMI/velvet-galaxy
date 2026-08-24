@@ -17,6 +17,7 @@ import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {Input} from "@/components/ui/input";
 import {createClient} from "@/lib/supabase/client";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface PostDetailViewProps {
     post: {
@@ -56,6 +57,7 @@ interface Comment {
 }
 
 export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
+  const { t } = useI18n();
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
     const [comments, setComments] = useState<Comment[]>([]);
@@ -449,7 +451,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                 <div className="lg:col-span-1">
                     <Card className="border-royal-purple/20 bg-card/50 backdrop-blur-sm sticky top-4">
                         <CardHeader>
-                            <h3 className="font-semibold">About this post</h3>
+                            <h3 className="font-semibold">{t("posts.about_this_post")}</h3>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>

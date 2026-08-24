@@ -39,6 +39,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils";
 import {useTags} from "@/hooks/use-tags";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface EnhancedCreatePostProps {
     userProfile: {
@@ -52,6 +53,7 @@ interface EnhancedCreatePostProps {
 }
 
 export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = false}: EnhancedCreatePostProps) {
+  const { t } = useI18n();
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -460,7 +462,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                         className="absolute inset-0 bg-royal-purple/10 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center border-2 border-dashed border-royal-purple">
                                         <div className="text-center">
                                             <Upload className="h-12 w-12 mx-auto mb-2 text-royal-purple"/>
-                                            <p className="text-sm font-medium text-royal-purple">Drop images here</p>
+                                            <p className="text-sm font-medium text-royal-purple">{t("posts.drop_images")}</p>
                                         </div>
                                     </div>
                                 )}
@@ -603,7 +605,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                                 size="sm"
                                                 className="text-muted-foreground hover:text-royal-orange hover:bg-royal-orange/10"
                                                 onClick={() => setIsDialogOpen(true)}
-                                                aria-label="Add media"
+                                                aria-label={t("posts.add_media")}
                                             >
                                                 <ImagePlus className="h-4 w-4 mr-2"/>
                                                 Add Media
@@ -656,7 +658,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                                         <RichTextEditor
                                                             value={mediaDescription}
                                                             onChange={setMediaDescription}
-                                                            placeholder="Describe your media"
+                                                            placeholder={t("posts.describe_media")}
                                                             minHeight="80px"
                                                         />
                                                     </div>

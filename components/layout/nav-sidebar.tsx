@@ -82,7 +82,7 @@ export function NavSidebar(): React.ReactElement {
   );
 }
 
-function NavSection({ items, pathname }: { items: NavItem[]; pathname: string }): JSX.Element {
+function NavSection({ items, pathname }: { items: NavItem[]; pathname: string }) {
   return (
     <nav className="space-y-0.5">
       {items.map((item) => {

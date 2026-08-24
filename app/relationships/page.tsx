@@ -3,9 +3,11 @@ import {redirect} from "next/navigation";
 import {createServerClient} from "@/lib/supabase/server";
 
 import {RelationshipsClient} from "./relationships-client";
+import { getServerTranslations } from '@/lib/i18n/server';
 
 export default async function RelationshipsPage() {
     const supabase = await createServerClient();
+  const { t } = await getServerTranslations();
 
     const {
         data: {user},
@@ -20,7 +22,7 @@ export default async function RelationshipsPage() {
             <div className="container mx-auto p-6">
                 <div className="max-w-6xl mx-auto">
                     <h1 className="text-4xl font-bold mb-2 text-gradient">Relationships</h1>
-                    <p className="text-muted-foreground mb-8">Manage your connections and relationships</p>
+                    <p className="text-muted-foreground mb-8">{t("relationships.subtitle")}</p>
                     <RelationshipsClient userId={user.id}/>
                 </div>
             </div>

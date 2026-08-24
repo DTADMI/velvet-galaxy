@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getServerTranslations } from '@/lib/i18n/server';
+import { useI18n } from '@/lib/i18n/provider';
 
 interface EmptyStateProps {
     icon?: React.ReactNode;
@@ -13,6 +15,7 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
+  const { t } = useI18n();
     return (
         <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center p-8 text-center">
@@ -38,6 +41,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
 }
 
 export function EmptyFeed() {
+  const { t } = useI18n();
     return (
         <EmptyState
             icon={
@@ -45,7 +49,7 @@ export function EmptyFeed() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
                 </svg>
             }
-            title="Your feed is empty"
+            title={t("feed.empty")}
             description="Follow people, join groups, and interact with content to populate your feed."
             action={{ label: "Discover People", href: "/discover" }}
         />
@@ -53,6 +57,7 @@ export function EmptyFeed() {
 }
 
 export function EmptyMessages() {
+  const { t } = useI18n();
     return (
         <EmptyState
             icon={
@@ -68,6 +73,7 @@ export function EmptyMessages() {
 }
 
 export function EmptyNotifications() {
+  const { t } = useI18n();
     return (
         <EmptyState
             icon={
@@ -82,6 +88,7 @@ export function EmptyNotifications() {
 }
 
 export function EmptySearch({ query }: { query?: string }) {
+  const { t } = useI18n();
     return (
         <EmptyState
             icon={
@@ -97,6 +104,7 @@ export function EmptySearch({ query }: { query?: string }) {
 }
 
 export function EmptyBookmarks() {
+  const { t } = useI18n();
     return (
         <EmptyState
             icon={
@@ -111,6 +119,7 @@ export function EmptyBookmarks() {
 }
 
 export function EmptyGroups() {
+  const { t } = useI18n();
     return (
         <EmptyState
             icon={
@@ -126,6 +135,7 @@ export function EmptyGroups() {
 }
 
 export function EmptyEvents() {
+  const { t } = useI18n();
     return (
         <EmptyState
             icon={

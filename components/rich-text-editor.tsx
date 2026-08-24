@@ -9,6 +9,7 @@ import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface RichTextEditorProps {
     value: string
@@ -19,6 +20,7 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({value, onChange, placeholder, minHeight = "100px", disabled}: RichTextEditorProps) {
+  const { t } = useI18n();
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
     const [linkDialogOpen, setLinkDialogOpen] = useState(false);
     const [linkUrl, setLinkUrl] = useState("");
@@ -150,7 +152,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                             <div>
                                 <Label>Link Text</Label>
                                 <Input
-                                    placeholder="Enter link text"
+                                    placeholder={t("editor.enter_link_text")}
                                     value={linkText}
                                     onChange={(e) => setLinkText(e.target.value)}
                                     className="mt-2"

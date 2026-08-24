@@ -4,6 +4,7 @@ import React, {useState} from "react";
 import {AlertCircle, Eye, Timer} from "lucide-react";
 import {cn} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface EphemeralMediaProps {
     children: React.ReactNode;
@@ -18,6 +19,7 @@ export function EphemeralMedia({
                                    onView,
                                    className,
                                }: EphemeralMediaProps) {
+  const { t } = useI18n();
     const [isOpen, setIsOpen] = useState(false);
 
     if (isViewed) {
@@ -45,7 +47,7 @@ export function EphemeralMedia({
                     <Timer className="w-5 h-5"/>
                     <div className="flex flex-col items-start">
                         <span className="font-bold uppercase tracking-tight text-xs">View Once</span>
-                        <span className="text-[10px] opacity-70 italic">Click to open media</span>
+                        <span className="text-[10px] opacity-70 italic">{t("media.click_to_open")}</span>
                     </div>
                 </Button>
             ) : (

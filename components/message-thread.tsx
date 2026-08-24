@@ -18,6 +18,7 @@ import {EphemeralMedia} from "@/components/ephemeral-media";
 import {useTTS} from "@/hooks/use-tts";
 import {useFeatureFlag} from "@/hooks/use-feature-flag";
 import {VoiceRecorder, VoicePlayer} from "@/lib/voice";
+import { useI18n } from '@/lib/i18n/provider';
 
 interface Message {
     id: string
@@ -40,6 +41,7 @@ interface MessageThreadProps {
 }
 
 export function MessageThread({conversationId, currentUserId, conversationType}: MessageThreadProps) {
+  const { t } = useI18n();
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [isEphemeral, setIsEphemeral] = useState(false);
@@ -480,7 +482,7 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                                 size="sm"
                                 className="h-8 w-8 p-0"
                                 onClick={() => setShowVoiceRecorder(true)}
-                                title="Record voice message"
+                                title={t("messages.record_voice")}
                             >
                                 <Mic className="h-4 w-4"/>
                             </Button>

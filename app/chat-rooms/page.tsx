@@ -2,9 +2,11 @@ import {Navigation} from "@/components/navigation";
 import {createServerClient} from "@/lib/supabase/server";
 
 import {ChatRoomsClient} from "./chat-rooms-client";
+import { getServerTranslations } from '@/lib/i18n/server';
 
 export default async function ChatRoomsPage() {
     const supabase = await createServerClient();
+  const { t } = await getServerTranslations();
 
     const {
         data: {user},
@@ -17,7 +19,7 @@ export default async function ChatRoomsPage() {
                 <div className="container mx-auto px-4">
                     <div className="mb-8">
                         <h1 className="text-3xl font-bold text-gradient mb-2">Chat Rooms</h1>
-                        <p className="text-muted-foreground">Join public chat rooms or create your own</p>
+                        <p className="text-muted-foreground">{t("chatRooms.subtitle")}</p>
                     </div>
                     <ChatRoomsClient userId={user?.id}/>
                 </div>
