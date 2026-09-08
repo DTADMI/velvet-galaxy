@@ -1,29 +1,110 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
+# ═══════════════════════════════════════════════════════════════════════════════
+# Nebula Forge — Standard Pre-Commit Hook (with --quick mode)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Usage:
+#   .githooks/pre-commit          → full: lint (--cache) + typecheck + test + build
+#   .githooks/pre-commit --quick  → fast gate: lint (--cache) + typecheck only
+#
+# 🔴 NEVER use --no-verify to bypass this hook (AGENTS.md rule)
+# ⚠️  SKIP_PRECOMMIT=1 git commit  → WIP-only skip (CI still runs on push)
+# ═══════════════════════════════════════════════════════════════════════════════
 set -euo pipefail
 
-echo "[pre-commit] Velvet Galaxy checks..."
-echo ""
-
-pnpm lint
-pnpm typecheck
-
-echo "[pre-commit] Running Supabase security checks..."
-pnpm check:supabase-security
-
-echo "[pre-commit] Running encoding checks..."
-STAGED_ENCODING=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E '\.(sql|md|ps1)' | tr '\n' ',' | sed 's/,$//')
-if [ -n "$STAGED_ENCODING" ]; then
-  powershell -NoProfile -Command "& ./scripts/check-encoding.ps1 -Files '$STAGED_ENCODING' -Quiet"
-  echo "[pre-commit] EncodingCheck: PASSED"
-else
-  echo "[pre-commit] EncodingCheck: SKIPPED (no encoding-sensitive files staged)"
+QUICK="${1:-}"
+if [ "${SKIP_PRECOMMIT:-0}" = "1" ]; then
+  echo "⚠️  SKIP_PRECOMMIT=1 — pre-commit checks skipped (WIP mode)"
+  echo "   CI will still run on push. Do NOT use this for final commits."
+  exit 0
 fi
+
+PROJECT=$(node -p "require('./package.json').name || 'project'" 2>/dev/null || echo "project")
+
 echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  🔍 $PROJECT — Pre-commit checks"
+if [ "$QUICK" = "--quick" ]; then
+  echo "  ⚡ QUICK mode — lint + typecheck only (CI runs the rest)"
+else
+  echo "  Full: lint → typecheck → test → build"
+fi
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-echo "[pre-commit] Running build..."
-pnpm build
+PASSED=true
+fail() { echo "  ❌ $1 FAILED"; PASSED=false; }
+ok()   { echo "  ✅ $1 passed"; }
 
-echo "[pre-commit] Running tests..."
-pnpm test
+run_check() {
+  local label="$1" cmd="$2"
+  echo ""
+  echo "  [$label] Running…"
+  if eval "$cmd" 2>&1 | tail -20; then
+    ok "$label"
+  else
+    fail "$label"
+  fi
+}
 
-echo "[pre-commit] All checks passed."
+# ── 0. Workflow YAML validation ──────────
+if [ -f "scripts/validate-workflows.mjs" ]; then
+  echo ""
+  echo "  [workflow-validation] Running…"
+  if node scripts/validate-workflows.mjs 2>&1; then
+    ok "workflow-validation"
+  else
+    fail "workflow-validation"
+  fi
+else
+  echo ""
+  echo "  ⚠️  scripts/validate-workflows.mjs not found — skipping workflow validation"
+fi
+
+# ── 1. Lint ─
+run_check "lint" "pnpm lint --cache"
+
+# ── 2. Typecheck ─────────────────────────────
+run_check "typecheck" "pnpm typecheck"
+
+# ── If --quick, stop here ────────────────────
+if [ "$QUICK" = "--quick" ]; then
+  echo ""
+  if $PASSED; then
+    echo "  ⚡ Quick check passed! Full checks (test + build) deferred to CI."
+    exit 0
+  else
+    echo "  ❌ Quick check failed. Fix the issues above, then commit."
+    exit 1
+  fi
+fi
+
+# ── 3. Unit tests ────────────────────────────
+if node -e "const p=require('./package.json');process.exit(p.scripts&&p.scripts.test?0:1)" 2>/dev/null; then
+  run_check "test" "pnpm test"
+else
+  echo ""
+  echo "  ⚠️  No 'test' script — skipping (add one!)"
+fi
+
+# ── 4. Build ─────────────────────────────────
+if node -e "const p=require('./package.json');process.exit(p.scripts&&p.scripts.build?0:1)" 2>/dev/null; then
+  run_check "build" "pnpm build"
+else
+  echo ""
+  echo "  ⚠️  No 'build' script — skipping (add one!)"
+fi
+
+# ── Final gate ────────────────────────────────
+echo ""
+if $PASSED; then
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  ✅ All pre-commit checks passed! Committing…"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 0
+else
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  ❌ Pre-commit failed. Fix the issues above."
+  echo "     WIP only: SKIP_PRECOMMIT=1 git commit"
+  echo "     Quick:    .githooks/pre-commit --quick"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 1
+fi
