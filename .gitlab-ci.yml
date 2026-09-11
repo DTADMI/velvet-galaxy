@@ -2,7 +2,6 @@
 stages:
   - validate
   - build
-  - deploy
 
 variables:
   PNPM_VERSION: "11.5.0"
@@ -43,17 +42,4 @@ build:
   script:
     - pnpm install --frozen-lockfile
     - pnpm build
-
-deploy:vercel:
-  <<: *node_base
-  stage: deploy
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_PIPELINE_SOURCE == "web"
-  script:
-    - pnpm install --frozen-lockfile
-    - npm i -g vercel
-    - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-    - vercel build --prod --token=$VERCEL_TOKEN
-    - vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
 
