@@ -70,7 +70,18 @@ const nextConfig = {
     env: {
         NEXT_PUBLIC_SUPABASE_URL: process.env.SUPABASE_URL,
         NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
-    }
+    },
+    async redirects() {
+        return [
+            // Legacy route consolidation: /terms was duplicated 1:1 with
+            // /policies/terms. Keep the old URL working for bookmarks/SEO.
+            {
+                source: '/terms',
+                destination: '/policies/terms',
+                permanent: true,
+            },
+        ];
+    },
 };
 
 const securityHeaders = [

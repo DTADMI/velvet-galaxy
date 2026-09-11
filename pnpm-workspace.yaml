@@ -1,3 +1,13 @@
+packages:
+  - '.'
+allowBuilds:
+  sharp: true
+  esbuild: true
+  unrs-resolver: true
+  supabase: true
+  protobufjs: true
+  '@prisma/engines': true
+  prisma: true
 onlyBuiltDependencies:
   - esbuild
   - sharp
