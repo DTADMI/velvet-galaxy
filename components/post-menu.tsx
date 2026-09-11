@@ -85,7 +85,7 @@ export function PostMenu({postId, authorId, currentUserId, createdAt}: PostMenuP
                     {isOwnPost ? (
                         <>
                             {isEditable ? (
-                                <DropdownMenuItem onClick={() => router.push(`/post/${postId}/edit`)}>
+                                <DropdownMenuItem onClick={() => router.push(`/posts/${postId}/edit`)}>
                                     <Edit className="h-4 w-4 mr-2"/>
                                     Edit Post
                                 </DropdownMenuItem>

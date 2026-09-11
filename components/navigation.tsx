@@ -69,7 +69,7 @@ export function Navigation() {
 
     const navItems = [
         {href: "/feed", icon: Home, label: "Feed", color: "royal-purple"},
-        {href: "/discovery", icon: Compass, label: "Discovery", color: "pink-600"},
+        {href: "/discover", icon: Compass, label: "Discovery", color: "pink-600"},
         {href: "/messages", icon: MessageSquare, label: "Messages", color: "royal-blue"},
         {href: "/marketplace", icon: ShoppingBag, label: "Marketplace", color: "royal-green"},
     ];

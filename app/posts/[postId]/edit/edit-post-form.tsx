@@ -48,7 +48,7 @@ export function EditPostForm({post}: EditPostFormProps) {
                 throw error;
             }
 
-            router.push(`/post/${post.id}`);
+            router.push(`/posts/${post.id}`);
         } catch (error) {
             console.error("[v0] Error updating post:", error);
             alert("Failed to update post. Please try again.");

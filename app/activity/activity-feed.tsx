@@ -175,7 +175,7 @@ export function ActivityFeed({userId}: { userId: string }) {
 
     const getActivityLink = (activity: Activity) => {
         if (activity.target_type === "post" && activity.target_id) {
-            return `/post/${activity.target_id}`;
+            return `/posts/${activity.target_id}`;
         }
         if (activity.target_type === "user" && activity.target_id) {
             return `/profile/${activity.target_id}`;

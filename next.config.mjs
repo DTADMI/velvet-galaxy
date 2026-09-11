@@ -80,6 +80,19 @@ const nextConfig = {
                 destination: '/policies/terms',
                 permanent: true,
             },
+            // Dedup: plural collection names are canonical (REST best practice).
+            // /post/* (singular) -> /posts/* (plural)
+            {
+                source: '/post/:path*',
+                destination: '/posts/:path*',
+                permanent: true,
+            },
+            // /discovery (legacy nav) -> /discover (canonical, richer)
+            {
+                source: '/discovery',
+                destination: '/discover',
+                permanent: true,
+            },
         ];
     },
 };

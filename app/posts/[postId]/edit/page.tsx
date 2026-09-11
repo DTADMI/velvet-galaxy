@@ -35,7 +35,7 @@ export default async function EditPostPage({params}: { params: Promise<{ postId:
     const isWithinEditWindow = now - postTime <= tenMinutesInMs;
 
     if (!isWithinEditWindow) {
-        redirect(`/post/${postId}`);
+        redirect(`/posts/${postId}`);
     }
 
     return <EditPostForm post={post}/>;

@@ -297,7 +297,7 @@ function ResultCard({item, type}: { item: any; type: string }) {
             case "users":
                 return `/profile/${item.id}`;
             case "posts":
-                return `/post/${item.id}`;
+                return `/posts/${item.id}`;
             case "events":
                 return `/events/${item.id}`;
             case "groups":

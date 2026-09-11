@@ -39,6 +39,6 @@ export async function createComment(postId: string, content: string, parentComme
         return {error: error.message};
     }
 
-    revalidatePath(`/post/${postId}`);
+    revalidatePath(`/posts/${postId}`);
     return {success: true, comment: data};
 }
