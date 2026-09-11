@@ -29,8 +29,8 @@ async function shouldUseRedisLockout(): Promise<boolean> {
     const { createClient } = await import("@/lib/supabase/server");
     const supabase = await createClient();
     const { data } = await (supabase as any).from("feature_flags")
-      .select("enabled").eq("name", "redis_lockout").maybeSingle();
-    _redisLockout = data?.enabled === true;
+      .select("is_enabled").eq("name", "redis_lockout").maybeSingle();
+    _redisLockout = data?.is_enabled === true;
   } catch { _redisLockout = false; }
   return _redisLockout;
 }

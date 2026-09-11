@@ -8,8 +8,8 @@ async function shouldUseRedisRateLimit(): Promise<boolean> {
   if (process.env.REDIS_RATE_LIMIT === "true") { _redisRateLimit = true; return true; }
   try {
     const supabase = await createServerClient();
-    const { data } = await (supabase as any).from("feature_flags").select("enabled").eq("name", "redis_rate_limit").maybeSingle();
-    _redisRateLimit = data?.enabled === true;
+    const { data } = await (supabase as any).from("feature_flags").select("is_enabled").eq("name", "redis_rate_limit").maybeSingle();
+    _redisRateLimit = data?.is_enabled === true;
   } catch { _redisRateLimit = false; }
   return _redisRateLimit;
 }

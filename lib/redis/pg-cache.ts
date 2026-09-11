@@ -22,8 +22,8 @@ async function shouldUseRedisCache(): Promise<boolean> {
   try {
     const supabase = await createClient();
     const { data } = await (supabase as any).from("feature_flags")
-      .select("enabled").eq("name", "redis_cache").maybeSingle();
-    _redisCacheEnabled = data?.enabled === true;
+      .select("is_enabled").eq("name", "redis_cache").maybeSingle();
+    _redisCacheEnabled = data?.is_enabled === true;
   } catch { _redisCacheEnabled = false; }
   return _redisCacheEnabled;
 }
