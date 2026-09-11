@@ -27,6 +27,16 @@ cache:
     # Node 25+ removed corepack from its distribution; install pnpm via npm.
     - npm install -g pnpm@${PNPM_VERSION}
     - pnpm config set store-dir .pnpm-store
+    # pnpm 11 blocks native build scripts (sharp/esbuild/...) unless allowBuilds is set.
+    # Approve the common native deps so `--frozen-lockfile` does not fail with
+    # ERR_PNPM_IGNORED_BUILDS. Projects that already declare allowBuilds are untouched.
+    - |
+      if [ ! -f pnpm-workspace.yaml ]; then
+        printf 'packages:\n  - .\n' > pnpm-workspace.yaml
+      fi
+      if ! grep -q '^allowBuilds:' pnpm-workspace.yaml; then
+        printf '\nallowBuilds:\n  sharp: true\n  esbuild: true\n  unrs-resolver: true\n  core-js: true\n  supabase: true\n  protobufjs: true\n' >> pnpm-workspace.yaml
+      fi
 
 validate:
   <<: *node_base
