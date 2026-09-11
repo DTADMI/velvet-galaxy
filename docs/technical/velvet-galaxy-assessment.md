@@ -69,8 +69,8 @@ Stripe 22.3, Upstash Redis 1.38, Vitest 4.1, Playwright 1.62.
 
 | # | Problème | Impact | Recommandation |
 |---|---|---|---|
-| G1 | **Routes dupliquées `post` vs `posts`** | Deux URL pour le même post ; incohérences de SEO/deeplink. 6 fichiers pointent `/post/[postId]`, 4 pointent `/posts/[postId]`. | Choisir `/posts/[postId]` (pluriel, standard), rediriger `/post/*` → `/posts/*` (301), migrer les 6 références. **Décision requise.** |
-| G2 | **Routes dupliquées `discover` vs `discovery`** | Deux navbars actives pointent vers des routes différentes : `nav-sidebar`/`mobile-bottom-nav`/`footer` → `/discover` (riche, likedTags), `navigation.tsx` (legacy, ~40 pages) → `/discovery` (simple). | Choisir `/discover` (plus riche + plus référencée), supprimer `/discovery`, migrer `navigation.tsx`. **Décision requise.** |
+| G1 | **Routes dupliquées `post` vs `posts`** | ✅ **Résolu** — `/posts/[postId]` (pluriel) est canonique (REST best practice + implémentation la plus riche). `/post/*` supprimé + 301 → `/posts/*`. | |
+| G2 | **Routes dupliquées `discover` vs `discovery`** | ✅ **Résolu** — `/discover` est canonique (référencée par la nav principale). `/discovery` supprimée + 301. | |
 | G3 | **Migrations 047 + 048 non appliquées** | Le code (line styles, types custom immédiats) attend des colonnes/contraintes qui n'existent pas encore en prod. | Appliquer via Supabase SQL Editor. Nécessite `SUPABASE_DB_URL` (connection string) que je n'ai pas en local. |
 
 ### P2 — Dette technique
