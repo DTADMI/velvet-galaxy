@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-undef -- standalone Node CLI tooling script (console/process are Node globals) */
 /**
  * ═══════════════════════════════════════════════════════════════════════════════
  * validate-workflows.mjs — GitHub Actions workflow YAML validator
@@ -25,11 +26,10 @@
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join, basename, dirname } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
 const WORKFLOW_DIR = ".github/workflows";
-const __dirname = dirname(fileURLToPath(import.meta.url));
 let errors = 0;
 
 function err(file, msg) {
