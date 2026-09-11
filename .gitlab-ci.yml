@@ -24,8 +24,8 @@ cache:
 .node_base: &node_base
   image: node:${NODE_VERSION}
   before_script:
-    - corepack enable
-    - corepack prepare pnpm@${PNPM_VERSION} --activate
+    # Node 25+ removed corepack from its distribution; install pnpm via npm.
+    - npm install -g pnpm@${PNPM_VERSION}
     - pnpm config set store-dir .pnpm-store
 
 validate:
