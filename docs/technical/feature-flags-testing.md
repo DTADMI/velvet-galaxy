@@ -8,7 +8,7 @@
 
 ## Flag Registry
 
-21 feature flags defined in `libfile:///feature-flags.ts`. Flags are persisted in Supabase (`public.feature_flags` table) with Redis caching. The admin dashboard provides toggle management.
+21 feature flags defined in `lib/feature-flags.ts`. Flags are persisted in Supabase (`public.feature_flags` table) with Redis caching. The admin dashboard provides toggle management.
 
 ## Flag Categories
 
@@ -53,7 +53,7 @@ pnpm test:e2e -- tests/e2e/core.spec.ts
 
 ## Adding a New Flag
 
-1. Add entry to `libfile:///feature-flags.ts` with unique `id`, `name`, `description`, `type`, `enabled`, `value`
+1. Add entry to `lib/feature-flags.ts` with unique `id`, `name`, `description`, `type`, `enabled`, `value`
 2. Add DB row via `sql/` seed or migration
 3. Add admin UI toggle in the flag matrix
 4. Add unit test verifying the gated behavior

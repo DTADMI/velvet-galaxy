@@ -47,7 +47,7 @@ velvet-galaxy/
 
 ## Feature Flags
 
-21 feature flags defined in `libfile:///feature-flags.ts`, Redis + DB-backed. Flags control: payments, AI features, marketplace, events, groups, notifications, media upload, and experimental features.
+21 feature flags defined in `lib/feature-flags.ts`, Redis + DB-backed. Flags control: payments, AI features, marketplace, events, groups, notifications, media upload, and experimental features.
 
 ## Getting Started
 
