@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+# =============================================================================
+# Nebula Forge - husky pre-commit entrypoint
+#
+# Husky (core.hooksPath = .husky/_) invokes this file. It delegates to the
+# canonical NF hook so the exact same checks run whether the repo is driven by
+# husky or by .githooks directly (lint -> typecheck -> test -> build).
+#
+# Usage:
+#   git commit                    -> full gate
+#   .githooks/pre-commit --quick  -> fast gate (lint + typecheck only)
+#
+# NEVER bypass this hook with --no-verify (AGENTS.md rule).
+# =============================================================================
+exec bash .githooks/pre-commit "$@"
