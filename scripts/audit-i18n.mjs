@@ -17,25 +17,48 @@ const SRC_DIRS = [join(ROOT, 'app'), join(ROOT, 'components'), join(ROOT, 'lib')
 
 // ── Load Translation Files ────────────────────────────────────────────────
 
+function collectLeafKeys(value, prefix, keys) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    if (prefix) keys.add(prefix);
+    return;
+  }
+  for (const [k, v] of Object.entries(value)) {
+    collectLeafKeys(v, prefix ? `${prefix}.${k}` : k, keys);
+  }
+}
+
 function loadTranslations(dir) {
   if (!existsSync(dir)) {
     console.error(`❌ Translations directory not found: ${dir}`);
     return {};
   }
 
-  const files = readdirSync(dir).filter(f => f.endsWith('.ts'));
+  const files = readdirSync(dir).filter(f => f.endsWith('.ts') || f.endsWith('.json'));
   const translations = {};
 
   for (const file of files) {
-    const locale = file.replace('.ts', '');
+    const locale = file.replace(/\.(ts|json)$/, '');
     const content = readFileSync(join(dir, file), 'utf-8');
 
-    // Extract all string keys
     const keys = new Set();
-    const keyPattern = /\b(\w+)\s*:\s*['"]([^'"]*)['"]/g;
-    let match;
-    while ((match = keyPattern.exec(content)) !== null) {
-      keys.add(match[1]);
+    if (file.endsWith('.json')) {
+      let data;
+      try {
+        data = JSON.parse(content);
+      } catch (error) {
+        console.error(`❌ Invalid JSON in ${file}: ${error.message}`);
+        continue;
+      }
+      // Dot-path leaf keys (e.g. common.buttons.submit) so nested sections
+      // are compared precisely across locales.
+      collectLeafKeys(data, '', keys);
+    } else {
+      // TypeScript dictionaries: extract leaf keys whose value is a string.
+      const keyPattern = /\b(\w+)\s*:\s*['"]([^'"]*)['"]/g;
+      let match;
+      while ((match = keyPattern.exec(content)) !== null) {
+        keys.add(match[1]);
+      }
     }
 
     translations[locale] = { path: join(dir, file), keys, raw: content };
@@ -73,7 +96,7 @@ function scanForHardcodedStrings(files) {
   for (const file of files) {
     try {
       const content = readFileSync(file, 'utf-8');
-      const relativePath = file.replace(ROOT + '/', '');
+      const relativePath = file.slice(ROOT.length).replace(/^[\\/]+/, '').replace(/\\/g, '/');
 
       // Skip test files and generated files
       if (relativePath.includes('.spec.') || relativePath.includes('.test.') ||
@@ -124,6 +147,10 @@ function scanForHardcodedStrings(files) {
 
 function compareTranslationCoverage(translations) {
   const locales = Object.keys(translations);
+  if (locales.length === 0) {
+    console.log('⚠️  No locales found — check TRANSLATIONS_DIR');
+    return [];
+  }
   if (locales.length < 2) {
     console.log('⚠️  Only one locale found — nothing to compare');
     return [];

@@ -29,36 +29,28 @@ function parseFeatureFlags(filePath) {
   const content = readFileSync(filePath, 'utf-8');
   const defined = [];
 
-  // Match flag definitions: FLAG_NAME = 'flag-name' or FLAG_NAME: 'flag-name'
-  const flagPatterns = [
-    /(\w+)\s*=\s*['"]([\w-]+)['"]/g,
-    /(\w+)\s*:\s*['"]([\w-]+)['"]/g,
-    /\bflags\s*[=:]\s*\{([^}]+)\}/gs,
-  ];
-
-  for (const pattern of flagPatterns) {
-    let match;
-    while ((match = pattern.exec(content)) !== null) {
-      if (match[1]) {
-        const name = match[1];
-        const value = match[2] || match[1];
-        if (!defined.find(f => f.name === name)) {
-          defined.push({ name, value, line: countLinesUpTo(content, match.index) });
-        }
-      }
+  // Primary source of truth: each flag definition declares `id: "flag_id"`.
+  // (A generic `key: "value"` regex would also match description/category/id.)
+  const idPattern = /\bid\s*:\s*['"]([\w-]+)['"]/g;
+  let idMatch;
+  while ((idMatch = idPattern.exec(content)) !== null) {
+    const name = idMatch[1];
+    if (!defined.find(f => f.name === name)) {
+      defined.push({ name, value: name, line: countLinesUpTo(content, idMatch.index) });
     }
   }
 
-  // Try to parse flag entries from flag objects
-  const objMatch = content.match(/\bflags\s*[=:]\s*\{([^}]+)\}/s);
-  if (objMatch) {
-    const inside = objMatch[1];
-    const entryPattern = /(\w+)\s*:\s*\{[^}]*\}\s*,?/g;
-    let entryMatch;
-    while ((entryMatch = entryPattern.exec(inside)) !== null) {
-      const name = entryMatch[1];
-      if (!defined.find(f => f.name === name)) {
-        defined.push({ name, value: name, line: null });
+  // Fallback: top-level keys of an exported flags object literal.
+  if (defined.length === 0) {
+    const objMatch = content.match(/(?:FEATURE_FLAGS|flags)\s*(?::[^=]*)?=\s*\{([\s\S]*)\}/);
+    if (objMatch) {
+      const keyPattern = /^\s{2,6}["']?([\w-]+)["']?\s*:\s*\{/gm;
+      let keyMatch;
+      while ((keyMatch = keyPattern.exec(objMatch[1])) !== null) {
+        const name = keyMatch[1];
+        if (!defined.find(f => f.name === name)) {
+          defined.push({ name, value: name, line: null });
+        }
       }
     }
   }
@@ -89,20 +81,26 @@ function walkDir(dir, extensions = ['.ts', '.tsx', '.js', '.jsx']) {
   return files;
 }
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function scanForFlagUsage(files, definedFlags) {
   const usage = new Map();
 
   for (const file of files) {
     try {
       const content = readFileSync(file, 'utf-8');
-      const relativePath = file.replace(ROOT + '/', '');
+      const relativePath = file.slice(ROOT.length).replace(/^[\\/]+/, '').replace(/\\/g, '/');
+
+      // The definition file references every flag by name; it is not usage.
+      if (relativePath === 'lib/feature-flags.ts') continue;
 
       for (const flag of definedFlags) {
         const patterns = [
-          new RegExp(`\\b${flag.name}\\b`),
-          new RegExp(`['"]${flag.value}['"]`),
-          new RegExp(`featureFlags\\.${flag.name}\\b`),
-          new RegExp(`getFlag\\(['"]${flag.value}['"]\\)`),
+          new RegExp(`['"\`]${escapeRegex(flag.value)}['"\`]`),
+          new RegExp(`(?:flags|featureFlags|FEATURE_FLAGS)\\.${escapeRegex(flag.name)}\\b`),
+          new RegExp(`getFlag\\(['"]${escapeRegex(flag.value)}['"]\\)`),
         ];
 
         for (const pattern of patterns) {

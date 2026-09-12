@@ -54,10 +54,18 @@ async function loadDict(locale: Locale): Promise<TranslationDict> {
 export function I18nProvider({ children, initialLocale }: { children: ReactNode; initialLocale?: Locale }) {
     const [locale, setLocaleState] = useState<Locale>(initialLocale ?? getStoredLocale);
     const [dictionary, setDictionary] = useState<TranslationDict>({});
+    const [fallbackDictionary, setFallbackDictionary] = useState<TranslationDict>({});
 
     useEffect(() => {
         loadDict(locale).then(setDictionary);
     }, [locale]);
+
+    // English is the reference dictionary. Partial locales (e.g. a locale that
+    // is still being translated) fall back to English instead of rendering the
+    // raw key, so a partially translated locale degrades gracefully.
+    useEffect(() => {
+        loadDict("en").then(setFallbackDictionary);
+    }, []);
 
     const setLocale = useCallback((next: Locale) => {
         setLocaleState(next);
@@ -69,11 +77,11 @@ export function I18nProvider({ children, initialLocale }: { children: ReactNode;
 
     const t = useCallback(
         (key: string, fallback?: string): string => {
-            const value = resolveNested(dictionary, key);
+            const value = resolveNested(dictionary, key) ?? resolveNested(fallbackDictionary, key);
             if (typeof value === "string") return value;
             return fallback ?? key;
         },
-        [dictionary]
+        [dictionary, fallbackDictionary]
     );
 
     return (
