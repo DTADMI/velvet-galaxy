@@ -47,6 +47,7 @@
 
 - [x] `scripts/audit-i18n.mjs` - was reading `dictionaries/*.ts` but the dictionaries are `.json`, so it reported 0 locales and passed vacuously. Now reads `.json`, extracts dot-path keys, and fixes Windows path relativization.
 - [x] `scripts/audit-feature-flags.mjs` - was matching any `key: "value"` pair (reported `id` and `category` as flags). Now extracts real flag ids, excludes the definition file from usage, and fixes path relativization.
+- [x] Removed the dead flag `beta_chat_rooms` (defined + seeded + tested, but no feature code): dropped from `lib/feature-flags.ts`, `sql/feature-flags.sql`, the docs and the unit tests. The flag audit is now 100% (15/15 used).
 - [x] `components/language-selector.tsx` - was wired to the legacy `lib/i18n.ts` and wrote `localStorage["velvet_galaxy-language"]` while the provider reads `localStorage["velvet_galaxy-locale"]`, so **changing the language did nothing**. Now uses the NF `I18nProvider` (`useI18n().setLocale`) and `router.refresh()`.
 - [x] `lib/i18n/provider.tsx` - added an English reference fallback so partially translated locales (ES/DE) render English instead of raw keys.
 - [x] Removed dead legacy `lib/i18n.ts` (0 importers; it shadowed the `lib/i18n/` directory barrel).
