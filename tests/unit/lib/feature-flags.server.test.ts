@@ -32,7 +32,7 @@ describe("feature-flags.server", () => {
 
   describe("getFeatureFlags", () => {
     it("returns cached flags when Redis hit", async () => {
-      const cachedFlags = { premium_tts: false, beta_chat_rooms: true };
+      const cachedFlags = { premium_tts: false, marketplace_video: true };
       mockGetCached.mockResolvedValue(cachedFlags);
 
       const result = await getFeatureFlags();

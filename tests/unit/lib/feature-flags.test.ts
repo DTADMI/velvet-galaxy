@@ -4,7 +4,7 @@ import { FEATURE_FLAGS, getDefaultFlags } from "@/lib/feature-flags";
 describe("feature-flags", () => {
   it("FEATURE_FLAGS contains all expected flag definitions", () => {
     const keys = Object.keys(FEATURE_FLAGS);
-    expect(keys).toHaveLength(16);
+    expect(keys).toHaveLength(15);
     expect(FEATURE_FLAGS.premium_tts).toBeDefined();
     expect(FEATURE_FLAGS.ai_content_moderation).toBeDefined();
   });
@@ -15,7 +15,7 @@ describe("feature-flags", () => {
 
     expect(coreFlags.length).toBeGreaterThan(0);
     expect(aiFlags.length).toBeGreaterThan(0);
-    expect(coreFlags.length + aiFlags.length).toBe(16);
+    expect(coreFlags.length + aiFlags.length).toBe(15);
   });
 
   it("FEATURE_FLAGS description matches id", () => {
@@ -36,7 +36,7 @@ describe("feature-flags", () => {
     const defaults = getDefaultFlags();
     const keys = Object.keys(defaults);
 
-    expect(keys).toHaveLength(16);
+    expect(keys).toHaveLength(15);
 
     for (const key of keys) {
       expect(defaults[key]).toBe(FEATURE_FLAGS[key].enabled);
@@ -57,7 +57,6 @@ describe("feature-flags", () => {
   it("getDefaultFlags has expected enabled core production flags", () => {
     const defaults = getDefaultFlags();
     expect(defaults.premium_tts).toBe(true);
-    expect(defaults.beta_chat_rooms).toBe(true);
     expect(defaults.toy_viewer_3d).toBe(true);
     expect(defaults.ai_recommendations).toBe(true);
     expect(defaults.localized_discovery).toBe(true);

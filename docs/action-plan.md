@@ -11,7 +11,7 @@
 | Metric | Value |
 |---|---|
 | Pages | 40+ (App Router) |
-| Feature Flags | 16 (15 used, 1 dead - see below) |
+| Feature Flags | 15 (all used, 0 dead) |
 | E2E Tests | 3 Playwright specs + unit suite |
 | Components | 80+ |
 | Supabase | ✅ (Auth, DB, Storage, Realtime) |
@@ -36,7 +36,7 @@
 | 2 | Gaps/roadmap doc | ✅ | Created Aug 2026 |
 | 3 | Feature flags testing doc | ✅ | Created Aug 2026 |
 | 4 | i18n completeness audit | ✅ | Audit script fixed (JSON dictionaries + dot-path keys); 0 hardcoded strings found |
-| 5 | Feature flag audit | ✅ | Audit script fixed; 16 flags defined, 15 used, 1 dead |
+| 5 | Feature flag audit | ✅ | Audit script fixed; 15 flags, all used, 0 dead |
 | 6 | E2E test coverage | 🔧 | 3 specs present; expand critical-path coverage |
 | 7 | Performance optimization doc | ✅ | Already present |
 | 8 | Encoding reference doc | ✅ | Already present |
@@ -56,7 +56,6 @@
 | # | Item | Priority | Effort | Notes |
 |---|---|---|---|---|
 | 1 | Complete ES/DE dictionaries (433 keys each) | 🟡 Medium | 4-6 h | English fallback is active in the meantime; either complete or drop the locales |
-| 2 | Remove or implement dead flag `beta_chat_rooms` | 🟢 Low | 30 m | Defined + seeded (SQL) + tests, but no feature code. Removal touches `sql/feature-flags.sql` and 2 unit tests |
 | 3 | Expand E2E coverage beyond 3 specs | 🟡 Medium | 2-3 h | Critical paths: auth, marketplace checkout, social graph |
 | 4 | Mobile web adaptiveness audit | 🟡 Medium | 2-3 h | `scripts/audit-responsive.mjs` exists (Playwright + 320px) |
 | 5 | Vercel preview/prod deploy verification | 🟡 Medium | 1-2 h | Requires account access |

@@ -12,12 +12,6 @@ export const FEATURE_FLAGS: Record<string, FeatureFlagDef> = {
         enabled: true,
         category: "core",
     },
-    beta_chat_rooms: {
-        id: "beta_chat_rooms",
-        description: "Access to experimental video chat rooms",
-        enabled: true,
-        category: "core",
-    },
     marketplace_video: {
         id: "marketplace_video",
         description: "Support for video previews in marketplace listings",

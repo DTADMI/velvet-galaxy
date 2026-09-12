@@ -54,7 +54,6 @@ VALUES
     -- Core platform flags
     ('premium_tts', 'Enable high-quality AI Text-to-Speech for premium users', true),
     ('advanced_analytics', 'Show detailed post and profile analytics', false),
-    ('beta_chat_rooms', 'Access to experimental video chat rooms', true),
     ('marketplace_video', 'Support for video previews in marketplace listings', true),
     ('ai_recommendations', 'Enable AI-powered content recommendations in Discovery', true),
     ('toy_viewer_3d', 'Enable 3D interactive toy viewer in reviews', true),

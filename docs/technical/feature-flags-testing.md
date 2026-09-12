@@ -16,7 +16,7 @@
 |---|---|---|
 | AI Features | 10 | `ai_recommendations`, `ai_content_moderation`, `ai_translation_assist`, `ai_post_composer`, `ai_tag_suggestions`, `ai_content_recommendations`, `ai_people_discovery`, `ai_media_caption`, `ai_chat_assistant`, `ai_onboarding_assistant`, `ai_group_activity` |
 | Premium | 3 | `premium_tts`, `advanced_analytics`, `marketplace_video` |
-| Social | 2 | `beta_chat_rooms`, `localized_discovery` |
+| Social | 1 | `localized_discovery` |
 | Graph DB | 3 | `neo4j_graph_queries`, `neo4j_community_detection`, `neo4j_recommendations` |
 | Media | 1 | `toy_viewer_3d` |
 | Core | 1 | `payments` (Stripe) |
@@ -67,7 +67,6 @@ pnpm test:e2e -- tests/e2e/core.spec.ts
 | `payments` | true | Stripe active |
 | `premium_tts` | false | Premium feature, pending rollout |
 | `advanced_analytics` | false | Premium feature, pending rollout |
-| `beta_chat_rooms` | true | Beta — active for testers |
 | `marketplace_video` | false | Video listings, pending |
 | `ai_*` (10 flags) | mixed | AI features phased rollout |
 | `neo4j_*` (3 flags) | true | Graph queries active |
