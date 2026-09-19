@@ -79,10 +79,10 @@ When generating SQL with accented characters through multiple toolchain layers:
 
 ## References
 
-- `docs/technical/encoding-reference.md` — Complete catalog of all 12 cases
-- `scripts/fix-encoding.ps1` — Reusable fix utility (check, fix-placeholders, fix-mojibake, fix-lineendings, fix-bom, docker-pipe, all)
-- `scripts/check-encoding.ps1` — CI detection script (exit 0 = clean, exit 1 = issues found)
-- `.gitattributes` — Line ending policies per file type
+- `docs/technical/encoding-reference.md` - Complete catalog of all 12 cases
+- `scripts/fix-encoding.ps1` - Reusable fix utility (check, fix-placeholders, fix-mojibake, fix-lineendings, fix-bom, docker-pipe, all)
+- `scripts/check-encoding.ps1` - CI detection script (exit 0 = clean, exit 1 = issues found)
+- `.gitattributes` - Line ending policies per file type
 
 ## Workflow
 

@@ -1,4 +1,4 @@
-# Compilation Gate — Skill
+# Compilation Gate - Skill
 
 **Owner:** Nebula Forge Digital Studio
 **Version:** 2.0
@@ -7,8 +7,8 @@
 
 ## Purpose
 
-Prevent the class of bugs where code is generated blind — written to disk without
-compilation feedback — resulting in errors only discovered when the user tries to
+Prevent the class of bugs where code is generated blind - written to disk without
+compilation feedback - resulting in errors only discovered when the user tries to
 build, deploy, or run tests.
 
 This skill was created after an August 2026 incident where a script generated
@@ -39,7 +39,7 @@ This skill fires a reminder when an agent:
 After writing or editing >= 3 compiled files, run the compiler. Fix ALL errors
 before proceeding to the next batch.
 
-### 3. Script-generated code — mandatory compilation
+### 3. Script-generated code - mandatory compilation
 
 Scripts that generate or modify compiled source files via text replacement
 MUST follow this pattern:
@@ -92,11 +92,11 @@ All three locations MUST agree.
 
 ## Defense Layers
 
-    1. AGENTS.md — NF-GATE-001 rule (must compile after every batch)
-    2. This skill — automatic reminder + procedure + pitfalls
-    3. code-generation-guard.mjs — reusable compilation wrapper
-    4. Pre-commit hook — blocks commits with compilation errors
-    5. CI workflow — blocks PRs with compilation errors
+    1. AGENTS.md - NF-GATE-001 rule (must compile after every batch)
+    2. This skill - automatic reminder + procedure + pitfalls
+    3. code-generation-guard.mjs - reusable compilation wrapper
+    4. Pre-commit hook - blocks commits with compilation errors
+    5. CI workflow - blocks PRs with compilation errors
 
 ## Enforcement
 

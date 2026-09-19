@@ -1,4 +1,4 @@
-# Velvet Galaxy — Modularity Assessment
+# Velvet Galaxy - Modularity Assessment
 
 **Date**: 2026-05-29
 **Status**: Social network project; moderate modularity, one critical monolith.
@@ -7,7 +7,7 @@
 
 ### Strengths
 - **Reasonable component sizes**: Most components under 10KB
-- **Flat component structure** (146 files, 3 dirs) — but files are generally well-scoped
+- **Flat component structure** (146 files, 3 dirs) - but files are generally well-scoped
 - **Media pipeline**: Components for upload, viewer, gallery, capture, spoiler
 - **Social features**: Relationship manager, follow/block buttons, share dialog, notifications
 
@@ -15,7 +15,7 @@
 
 | File | Size | Issue |
 |------|------|-------|
-| `app/network/network-visualization.tsx` | 113 KB | Neo4j graph visualization — all rendering, controls, export in one file. ~2,200 lines. |
+| `app/network/network-visualization.tsx` | 113 KB | Neo4j graph visualization - all rendering, controls, export in one file. ~2,200 lines. |
 | `components/enhanced-create-post.tsx` | 51 KB | Post creation with media, polls, tags, location, language. Should split by feature. |
 | `app/chat-rooms/[roomId]/chat-room-view.tsx` | 60 KB | Full chat room in one component. |
 
@@ -27,21 +27,21 @@
 
 ### Strengths
 - **Clean lib/ organization** (36 files, 7 dirs):
-  - `lib/ai/` — DeepSeek adapter with factory pattern
-  - `lib/neo4j/` — Graph database client, queries, sync
-  - `lib/redis/` — Cache, rate limiting
-  - `lib/tanstack/` — React Query provider, hooks, keys
-  - `lib/supabase/` — Client, server, middleware
-  - `lib/cache/` — Storage abstraction
-  - `lib/i18n/` — Config + dictionaries
+  - `lib/ai/` - DeepSeek adapter with factory pattern
+  - `lib/neo4j/` - Graph database client, queries, sync
+  - `lib/redis/` - Cache, rate limiting
+  - `lib/tanstack/` - React Query provider, hooks, keys
+  - `lib/supabase/` - Client, server, middleware
+  - `lib/cache/` - Storage abstraction
+  - `lib/i18n/` - Config + dictionaries
 - **Service separation**: auth, payments (stripe.ts), email, admin, roles each in dedicated files
 - **Error handling**: `lib/errors.ts` centralized
 - **Audit trail**: `lib/audit.ts`
 
 ### Concerns
-- **`lib/i18n.ts`** at root level vs `lib/i18n/` subdirectory — dual pattern confusing
-- **`lib/rate-limit.ts`** and **`lib/redis/rate-limit.ts`** — potential duplication
-- **Components flat in 3 directories** (ui/, root components/) — no domain grouping
+- **`lib/i18n.ts`** at root level vs `lib/i18n/` subdirectory - dual pattern confusing
+- **`lib/rate-limit.ts`** and **`lib/redis/rate-limit.ts`** - potential duplication
+- **Components flat in 3 directories** (ui/, root components/) - no domain grouping
 
 ## 3. Cross-Project Reuse Potential
 
@@ -60,13 +60,13 @@
 | Auth | Good | Supabase middleware + roles separated |
 | Data access | Good | Neo4j + Supabase clean separation |
 | UI rendering | Adequate | Components flat but single-responsibility |
-| Validation | Missing | No `lib/validation/` — validation likely inline in components |
+| Validation | Missing | No `lib/validation/` - validation likely inline in components |
 | Business logic | Good | lib/ files well-scoped |
 | Media handling | Good | Upload, viewer, gallery, capture components separated |
 
 ## 5. Performance Impact
 
-- **network-visualization.tsx (113KB)** — Heavy bundle impact. Needs dynamic import + code splitting.
+- **network-visualization.tsx (113KB)** - Heavy bundle impact. Needs dynamic import + code splitting.
 - Components flat structure means minimal re-export overhead
 - No translation bloat (dictionaries are JSON, much smaller than quest-hunt-web)
 

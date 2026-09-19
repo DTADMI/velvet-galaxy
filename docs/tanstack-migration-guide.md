@@ -1,6 +1,6 @@
-# TanStack Query Integration — Velvet Galaxy
+# TanStack Query Integration - Velvet Galaxy
 
-> May 15, 2026 — Pattern reference for migrating from SWR to TanStack Query
+> May 15, 2026 - Pattern reference for migrating from SWR to TanStack Query
 
 ---
 

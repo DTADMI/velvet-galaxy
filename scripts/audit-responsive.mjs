@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // =============================================================================
-// Velvet Galaxy — Mobile Responsiveness Audit
+// Velvet Galaxy - Mobile Responsiveness Audit
 // Checks all pages for horizontal overflow at 320px viewport width.
 // Run with: node scripts/audit-responsive.mjs
 // Requires: next dev running on localhost:3000
@@ -89,7 +89,7 @@ async function auditResponsive() {
 
       if (overflowingElements.length > 0) {
         for (const el of overflowingElements.slice(0, 5)) {
-          issues.push(`Element too wide: <${el.tag} class="${el.class}"> — ${el.width}px`);
+          issues.push(`Element too wide: <${el.tag} class="${el.class}"> - ${el.width}px`);
         }
       }
 
@@ -113,7 +113,7 @@ async function auditResponsive() {
       });
 
       if (hasFixedOverlay) {
-        issues.push('Fixed elements cover >40% of viewport — may block content on mobile');
+        issues.push('Fixed elements cover >40% of viewport - may block content on mobile');
       }
 
       // Report

@@ -1,4 +1,4 @@
-### Velvet Galaxy — Social platform for meaningful connections and local commerce
+### Velvet Galaxy - Social platform for meaningful connections and local commerce
 
 Velvet Galaxy is a modern, full‑stack social application built on Next.js. It brings together profiles, posts,
 messaging, notifications, activity feeds, groups/events, media sharing, and commerce integrations (Stripe) with a focus
@@ -119,28 +119,28 @@ and Edge Functions.
 #### Folder Structure
 This is a Next.js App Router project. Major directories at project root:
 
-- `app/` — Next.js route handlers and pages.
-  - `app/(auth)/` — Auth flows (login, signup, callback).
-  - `app/activity/` — Live activity feed.
-  - `app/notifications/` — Real-time notification system.
-  - `app/messages/` — DM system with ephemeral media support.
-  - `app/chat-rooms/` — WebRTC-enabled group chat rooms.
-  - `app/network/` — 3D/2D Galaxy Network visualization.
-  - `app/marketplace/` — Stripe-integrated commerce hub.
-  - `app/portal/` — **Velvet Portal** (Reviews, Market, Games).
-  - `app/api/` — Backend logic, webhooks, and integrations.
-- `components/` — Reusable UI library.
-  - `components/ui/` — Atomic design primitives (shadcn/radix).
-  - `components/portal/` — Specific components for the Velvet Portal (3D toy viewers, carousels).
-  - `components/network/` — Visualization logic for the Galaxy graph.
-- `hooks/` — Shared logic for data fetching, auth, and device sensors.
-- `lib/` — Core utilities, Supabase clients, and client-side cache (IndexedDB).
-- `types/` — Project-wide TypeScript definitions.
-- `sql/` — Database schema, migrations, and seed data.
+- `app/` - Next.js route handlers and pages.
+  - `app/(auth)/` - Auth flows (login, signup, callback).
+  - `app/activity/` - Live activity feed.
+  - `app/notifications/` - Real-time notification system.
+  - `app/messages/` - DM system with ephemeral media support.
+  - `app/chat-rooms/` - WebRTC-enabled group chat rooms.
+  - `app/network/` - 3D/2D Galaxy Network visualization.
+  - `app/marketplace/` - Stripe-integrated commerce hub.
+  - `app/portal/` - **Velvet Portal** (Reviews, Market, Games).
+  - `app/api/` - Backend logic, webhooks, and integrations.
+- `components/` - Reusable UI library.
+  - `components/ui/` - Atomic design primitives (shadcn/radix).
+  - `components/portal/` - Specific components for the Velvet Portal (3D toy viewers, carousels).
+  - `components/network/` - Visualization logic for the Galaxy graph.
+- `hooks/` - Shared logic for data fetching, auth, and device sensors.
+- `lib/` - Core utilities, Supabase clients, and client-side cache (IndexedDB).
+- `types/` - Project-wide TypeScript definitions.
+- `sql/` - Database schema, migrations, and seed data.
 
 ---
 
-### Technical stack — choices, pros/cons, rationale
+### Technical stack - choices, pros/cons, rationale
 
 #### Frontend Architecture
 

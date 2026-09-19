@@ -1,7 +1,7 @@
-# Velvet Galaxy — Assessment & Recommendations
+# Velvet Galaxy - Assessment & Recommendations
 
 > **Owner**: Nebula Forge Digital Studio | **Last Updated**: 2026-09-11
-> **Status**: Living document — mise à jour lors de chaque passe
+> **Status**: Living document - mise à jour lors de chaque passe
 
 ---
 
@@ -51,7 +51,7 @@ Stripe 22.3, Upstash Redis 1.38, Vitest 4.1, Playwright 1.62.
 | Artistes showcase | ✅ | Browse + profils artistes |
 | Admin | ✅ | Users, posts, media, moderation, AI settings, analytics, health |
 | AI (fondation) | 🟡 | 10 endpoints, adapter provider-agnostic, **derrière flags (non activé)** |
-| i18n | 🟡 | Context pattern + server layer, FR par défaut — **texte EN résiduel** |
+| i18n | 🟡 | Context pattern + server layer, FR par défaut - **texte EN résiduel** |
 | Sécurité | ✅ | RLS, CSP + 7 headers, anti-download média, rate limiting |
 | Feature flags | ✅ | 16 flags (tts, chat_rooms, marketplace_video, ai_*…) |
 
@@ -59,21 +59,21 @@ Stripe 22.3, Upstash Redis 1.38, Vitest 4.1, Playwright 1.62.
 
 ## 4. Problèmes identifiés (priorisés)
 
-### P0 — Bloquants fonctionnels
+### P0 - Bloquants fonctionnels
 
 | # | Problème | Impact | Remédiation |
 |---|---|---|---|
-| — | *(aucun bloquant détecté — le site est en HTTP 200)* | — | — |
+| - | *(aucun bloquant détecté - le site est en HTTP 200)* | - | - |
 
-### P1 — Cohérence / hygiène
+### P1 - Cohérence / hygiène
 
 | # | Problème | Impact | Recommandation |
 |---|---|---|---|
-| G1 | **Routes dupliquées `post` vs `posts`** | ✅ **Résolu** — `/posts/[postId]` (pluriel) est canonique (REST best practice + implémentation la plus riche). `/post/*` supprimé + 301 → `/posts/*`. | |
-| G2 | **Routes dupliquées `discover` vs `discovery`** | ✅ **Résolu** — `/discover` est canonique (référencée par la nav principale). `/discovery` supprimée + 301. | |
+| G1 | **Routes dupliquées `post` vs `posts`** | ✅ **Résolu** - `/posts/[postId]` (pluriel) est canonique (REST best practice + implémentation la plus riche). `/post/*` supprimé + 301 → `/posts/*`. | |
+| G2 | **Routes dupliquées `discover` vs `discovery`** | ✅ **Résolu** - `/discover` est canonique (référencée par la nav principale). `/discovery` supprimée + 301. | |
 | G3 | **Migrations 047 + 048 non appliquées** | Le code (line styles, types custom immédiats) attend des colonnes/contraintes qui n'existent pas encore en prod. | Appliquer via Supabase SQL Editor. Nécessite `SUPABASE_DB_URL` (connection string) que je n'ai pas en local. |
 
-### P2 — Dette technique
+### P2 - Dette technique
 
 | # | Problème | Impact | Recommandation |
 |---|---|---|---|
@@ -81,13 +81,13 @@ Stripe 22.3, Upstash Redis 1.38, Vitest 4.1, Playwright 1.62.
 | D2 | i18n : 5705 violations d'audit (majorité faux positifs `className`) | Du texte JSX EN résiduel reste dans les pages (about, help…). | Filtrer les faux positifs, corriger les vrais `JSX text` EN → t(). |
 | D3 | `components/navigation.tsx` legacy vs `layout/nav-sidebar.tsx` | Deux systèmes de nav cohabitent. | Migrer les ~40 pages vers le layout, supprimer l'ancien. |
 
-### P3 — Infrastructure / backlog
+### P3 - Infrastructure / backlog
 
 | # | Problème | Remédiation |
 |---|---|---|
 | I1 | Redis Upstash non provisionné | Déployer l'instance, configurer `UPSTASH_REDIS_REST_URL`/`TOKEN` |
 | I2 | AI Phase 2 non activée | Activer les flags `ai_*` après provisionnement des clés |
-| I3 | Neo4j (Phase 3) | Backlog — hors périmètre actuel |
+| I3 | Neo4j (Phase 3) | Backlog - hors périmètre actuel |
 
 ---
 
@@ -111,8 +111,8 @@ Stripe 22.3, Upstash Redis 1.38, Vitest 4.1, Playwright 1.62.
 | P1 | Appliquer migrations 047 + 048 (via SQL Editor) | 10 min | `SUPABASE_DB_URL` |
 | P1 | Consolider `post`/`posts` (décision + redirect + migration refs) | 2–3 h | décision |
 | P1 | Consolider `discover`/`discovery` (décision + migration nav) | 2–3 h | décision |
-| P2 | Purge lint `no-explicit-any` | 3–4 h | — |
-| P2 | Corriger i18n EN résiduel | 4–6 h | — |
+| P2 | Purge lint `no-explicit-any` | 3–4 h | - |
+| P2 | Corriger i18n EN résiduel | 4–6 h | - |
 | P3 | Provisionner Redis Upstash | 1 h | compte |
 | P3 | Activer AI Phase 2 (flags) | 1 h | clés API |
 

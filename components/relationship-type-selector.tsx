@@ -384,13 +384,13 @@ export function RelationshipTypeSelector({
                                     <SelectValue/>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="solid">Solid ——</SelectItem>
-                                    <SelectItem value="dashed">Dashed — — —</SelectItem>
+                                    <SelectItem value="solid">Solid --</SelectItem>
+                                    <SelectItem value="dashed">Dashed - - -</SelectItem>
                                     <SelectItem value="dotted">Dotted ····</SelectItem>
                                     <SelectItem value="double">Double ══</SelectItem>
                                     <SelectItem value="wavy">Wavy ∿∿∿</SelectItem>
-                                    <SelectItem value="dash-dot">Dash-Dot —·—·</SelectItem>
-                                    <SelectItem value="long-dash">Long Dash —— ——</SelectItem>
+                                    <SelectItem value="dash-dot">Dash-Dot -·-·</SelectItem>
+                                    <SelectItem value="long-dash">Long Dash -- --</SelectItem>
                                     <SelectItem value="short-dash">Short Dash – – –</SelectItem>
                                 </SelectContent>
                             </Select>

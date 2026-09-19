@@ -1,6 +1,6 @@
 # Vercel CI Guardrails
 
-> **See also (root canonical strategy)**: `../../docs/technical/ci-vercel-gated-deployment-strategy-2026-06-22.md` — the cross-project CI/Vercel gated-deployment strategy. This doc keeps Velvet Galaxy-specific incident postmortems only.
+> **See also (root canonical strategy)**: `../../docs/technical/ci-vercel-gated-deployment-strategy-2026-06-22.md` - the cross-project CI/Vercel gated-deployment strategy. This doc keeps Velvet Galaxy-specific incident postmortems only.
 
 ## Scope
 

@@ -1,10 +1,10 @@
-# Neo4J Integration Plan — Velvet Galaxy
+# Neo4J Integration Plan - Velvet Galaxy
 
-> May 15, 2026 — Optional feature-gated graph database for social graph queries
+> May 15, 2026 - Optional feature-gated graph database for social graph queries
 
 ---
 
-## Recommendation: YES — Neo4J is strongly recommended as a feature-gated optional DB
+## Recommendation: YES - Neo4J is strongly recommended as a feature-gated optional DB
 
 **Rationale:** Velvet Galaxy's social graph IS the core product differentiator. The custom relationship system (Dom/Sub, Partner, mutual consent), the 3D galaxy network visualization, and the highly interconnected profile/group/event data form a genuine property graph. Neo4j handles this natively where Supabase Postgres requires recursive CTEs and multiple round-trips.
 
@@ -114,7 +114,7 @@ INSERT INTO public.feature_flags (name, description, is_enabled, config) VALUES
 
 ## Concrete Cypher Queries
 
-### 1. Network Visualization — Get a profile's full social graph
+### 1. Network Visualization - Get a profile's full social graph
 
 ```cypher
 MATCH (p:Profile {id: $profileId})
@@ -126,7 +126,7 @@ RETURN p, collect(DISTINCT {rel: type(r1), props: properties(r1), other: other})
        collect(DISTINCT e) AS events
 ```
 
-### 2. People You May Know — Friends of friends, excluding existing connections
+### 2. People You May Know - Friends of friends, excluding existing connections
 
 ```cypher
 MATCH (me:Profile {id: $userId})-[:FRIENDS]-(friend:Profile)-[:FRIENDS]-(suggestion:Profile)
@@ -138,7 +138,7 @@ LIMIT 20
 RETURN suggestion, mutualFriends
 ```
 
-### 3. Content Recommendations — Posts liked by people with similar interests
+### 3. Content Recommendations - Posts liked by people with similar interests
 
 ```cypher
 MATCH (me:Profile {id: $userId})-[:INTERESTED_IN]->(tag:Tag)<-[:INTERESTED_IN]-(similar:Profile)
@@ -152,7 +152,7 @@ MATCH (author:Profile)-[:CREATED]->(post)
 RETURN post, author, likerCount
 ```
 
-### 4. Shortest Path — Connection between two profiles
+### 4. Shortest Path - Connection between two profiles
 
 ```cypher
 MATCH path = shortestPath(
@@ -161,7 +161,7 @@ MATCH path = shortestPath(
 RETURN path, length(path) AS degrees
 ```
 
-### 5. Community Detection — Find clusters in the social graph
+### 5. Community Detection - Find clusters in the social graph
 
 ```cypher
 CALL gds.louvain.stream('social-graph')
@@ -181,7 +181,7 @@ LIMIT 10
 | **1. Setup** | 15 min | Create Neo4j AuraDB instance (Free tier: 50K nodes, 175K rels) |
 | **2. Add neo4j-driver** | 5 min | `pnpm add neo4j-driver` |
 | **3. Graph schema** | 1 day | Define node labels, relationship types, indexes, constraints |
-| **4. Sync layer** | 2-3 days | `lib/neo4j/sync.ts` — Supabase webhook → Neo4j upsert |
+| **4. Sync layer** | 2-3 days | `lib/neo4j/sync.ts` - Supabase webhook → Neo4j upsert |
 | **5. Initial import** | 1 day | Batch import existing data from Supabase to Neo4j |
 | **6. Graph queries** | 3-5 days | Implement all queries above, integrate with galaxy viz |
 | **7. Feature flag** | 30 min | Gate everything behind `neo4j_graph_queries` flag |
@@ -216,11 +216,11 @@ At launch, the AuraDB Free tier is sufficient. Upgrade to Pro when approaching 5
 
 ## Conclusion
 
-Neo4j is not a replacement for Supabase — it's a specialized enhancement for the graph layer. Given VG's social graph is the core product, Neo4j provides:
+Neo4j is not a replacement for Supabase - it's a specialized enhancement for the graph layer. Given VG's social graph is the core product, Neo4j provides:
 - **100x simpler queries** for graph traversal
 - **Built-in algorithms** for community detection and recommendations  
 - **Direct integration** with the 3D galaxy visualization
-- **Zero risk** — feature-gated, gracefully degraded if unavailable
+- **Zero risk** - feature-gated, gracefully degraded if unavailable
 
 **Recommendation: Implement as Phase 3 enhancement behind the `neo4j_graph_queries` feature flag.**
 

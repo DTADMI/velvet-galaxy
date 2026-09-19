@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // =============================================================================
-// Velvet Galaxy — i18n Coverage Audit Script
+// Velvet Galaxy - i18n Coverage Audit Script
 // Scans all source files for hardcoded strings and missing translation keys.
 //
 // Usage: node scripts/audit-i18n.mjs
@@ -148,11 +148,11 @@ function scanForHardcodedStrings(files) {
 function compareTranslationCoverage(translations) {
   const locales = Object.keys(translations);
   if (locales.length === 0) {
-    console.log('⚠️  No locales found — check TRANSLATIONS_DIR');
+    console.log('⚠️  No locales found - check TRANSLATIONS_DIR');
     return [];
   }
   if (locales.length < 2) {
-    console.log('⚠️  Only one locale found — nothing to compare');
+    console.log('⚠️  Only one locale found - nothing to compare');
     return [];
   }
 
@@ -178,7 +178,7 @@ function compareTranslationCoverage(translations) {
 
 function generateReport(translations, hardcoded, gaps) {
   console.log('\n═══════════════════════════════════════════════');
-  console.log('  Velvet Galaxy — i18n Coverage Audit Report   ');
+  console.log('  Velvet Galaxy - i18n Coverage Audit Report   ');
   console.log('═══════════════════════════════════════════════\n');
 
   // Locale summary

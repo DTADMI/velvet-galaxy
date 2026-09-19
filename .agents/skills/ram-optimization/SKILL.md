@@ -1,4 +1,4 @@
-# RAM Optimization — Règle Transversale NF
+# RAM Optimization - Règle Transversale NF
 
 **Owner:** Nebula Forge Digital Studio  
 **Last Updated:** 2026-08-22  
@@ -11,7 +11,7 @@
 
 > La RAM est le facteur de coût #1 sur Vercel/Railway et la cause #1 des crashs en production. Chaque Mo économisé = fonction plus rapide, facture plus légère, moins de timeouts.
 
-Ce skill couvre **exclusivement** la mémoire vive (heap, RSS, stack) — pas le bundle size (voir `memory-optimization/SKILL.md`).
+Ce skill couvre **exclusivement** la mémoire vive (heap, RSS, stack) - pas le bundle size (voir `memory-optimization/SKILL.md`).
 
 ---
 
@@ -20,7 +20,7 @@ Ce skill couvre **exclusivement** la mémoire vive (heap, RSS, stack) — pas le
 ### Next.js → standalone output
 
 ```js
-// next.config.ts — réduit la mémoire serveur de ~40%
+// next.config.ts - réduit la mémoire serveur de ~40%
 {
   output: 'standalone',
 }
@@ -29,12 +29,12 @@ Ce skill couvre **exclusivement** la mémoire vive (heap, RSS, stack) — pas le
 ### Connection pooling → pas de fuites
 
 ```ts
-// ❌ INCORRECT — nouvelle connexion à chaque requête = fuite mémoire
+// ❌ INCORRECT - nouvelle connexion à chaque requête = fuite mémoire
 function getClient() {
   return createClient(); // jamais libéré
 }
 
-// ✅ CORRECT — cache + réutilisation
+// ✅ CORRECT - cache + réutilisation
 import { cache } from 'react';
 export const getClient = cache(() => createClient());
 ```
@@ -60,17 +60,17 @@ useEffect(() => {
 ### Upstash Redis → TTL sur chaque clé
 
 ```ts
-// ❌ INCORRECT — clé sans expiration = mémoire infinie
+// ❌ INCORRECT - clé sans expiration = mémoire infinie
 await redis.set('heavy-data', JSON.stringify(payload));
 
-// ✅ CORRECT — TTL explicite
+// ✅ CORRECT - TTL explicite
 await redis.set('heavy-data', JSON.stringify(payload), { ex: 3600 }); // 1 heure
 ```
 
 ### In-memory Map → LRU éviction
 
 ```ts
-// ✅ CORRECT — LRU cache avec limite
+// ✅ CORRECT - LRU cache avec limite
 class LRUCache<K, V> {
   #map = new Map<K, V>();
   #max: number;
@@ -100,13 +100,13 @@ class LRUCache<K, V> {
 ### API Routes → ReadableStream
 
 ```ts
-// ❌ INCORRECT — charge tout en mémoire
+// ❌ INCORRECT - charge tout en mémoire
 export async function GET() {
   const allRows = await db.select().from('large_table');
   return Response.json(allRows); // 500 MB en RAM !
 }
 
-// ✅ CORRECT — stream ligne par ligne
+// ✅ CORRECT - stream ligne par ligne
 export async function GET() {
   const stream = new ReadableStream({
     async start(controller) {
@@ -124,10 +124,10 @@ export async function GET() {
 ### File uploads → pas de buffer entier
 
 ```ts
-// ❌ INCORRECT — charge tout le fichier en RAM
+// ❌ INCORRECT - charge tout le fichier en RAM
 const buffer = Buffer.concat(chunks);
 
-// ✅ CORRECT — stream vers le stockage
+// ✅ CORRECT - stream vers le stockage
 const uploadStream = supabase.storage.from('media').upload(path, file.stream());
 ```
 
@@ -171,27 +171,27 @@ useEffect(() => {
 ### Paginer les listes
 
 ```ts
-// ❌ INCORRECT — charge tout
+// ❌ INCORRECT - charge tout
 const allItems = await db.select().from('items');
 
-// ✅ CORRECT — pagine
+// ✅ CORRECT - pagine
 const page = await db.select().from('items').limit(20).offset(skip);
 ```
 
 ### Limiter les champs sélectionnés
 
 ```ts
-// ❌ INCORRECT — charge toutes les colonnes (incluant text_content, JSONB, etc.)
+// ❌ INCORRECT - charge toutes les colonnes (incluant text_content, JSONB, etc.)
 const { data } = await supabase.from('quests').select('*');
 
-// ✅ CORRECT — seulement les colonnes nécessaires
+// ✅ CORRECT - seulement les colonnes nécessaires
 const { data } = await supabase.from('quests').select('id,title,status');
 ```
 
 ### Truncate les logs en mémoire
 
 ```ts
-// ✅ CORRECT — garde uniquement les N dernières entrées
+// ✅ CORRECT - garde uniquement les N dernières entrées
 const MAX_LOGS = 500;
 function addLog(logs: Log[], entry: Log): Log[] {
   return [...logs.slice(-(MAX_LOGS - 1)), entry];
@@ -205,7 +205,7 @@ function addLog(logs: Log[], entry: Log): Log[] {
 ### Tauri → sidecar lifecycle
 
 ```rust
-// ✅ CORRECT — kill le sidecar quand inactif > 5 min
+// ✅ CORRECT - kill le sidecar quand inactif > 5 min
 fn manage_sidecar(idle: Duration) {
     if idle > Duration::from_secs(300) {
         sidecar.kill();
@@ -217,7 +217,7 @@ fn manage_sidecar(idle: Duration) {
 ### Next.js → pas de workers inutiles
 
 ```js
-// webpack dans next.config.ts — pas de threads supplémentaires
+// webpack dans next.config.ts - pas de threads supplémentaires
 // sauf nécessité absolue
 ```
 
@@ -249,7 +249,7 @@ node scripts/audit-memory.mjs --project <name>
 
 ---
 
-## Projet par Projet — Conformité RAM
+## Projet par Projet - Conformité RAM
 
 | Projet | Standalone | React.cache | Realtime Cleanup | Pagination | TTL |
 |---|---|---|---|---|---|
@@ -262,7 +262,7 @@ node scripts/audit-memory.mjs --project <name>
 
 ---
 
-## Quick Wins — 5 min par projet
+## Quick Wins - 5 min par projet
 
 ```bash
 # 1. Standalone output
@@ -283,12 +283,12 @@ node scripts/audit-memory.mjs --project <name>
 
 ## Références
 
-- **Next.js Memory Usage** — https://nextjs.org/docs/app/guides/memory-usage  
-- **V8 Heap Profiler** — https://nodejs.org/en/learn/diagnostics/memory/using-heap-profiler  
-- **Vercel Function Limits** — https://vercel.com/docs/functions/configuring-functions/memory  
-- **Supabase Realtime Cleanup** — https://supabase.com/docs/guides/realtime  
-- **Upstash Redis TTL** — https://upstash.com/docs/redis/sdks/ts/commands/generic/expire  
+- **Next.js Memory Usage** - https://nextjs.org/docs/app/guides/memory-usage  
+- **V8 Heap Profiler** - https://nodejs.org/en/learn/diagnostics/memory/using-heap-profiler  
+- **Vercel Function Limits** - https://vercel.com/docs/functions/configuring-functions/memory  
+- **Supabase Realtime Cleanup** - https://supabase.com/docs/guides/realtime  
+- **Upstash Redis TTL** - https://upstash.com/docs/redis/sdks/ts/commands/generic/expire  
 
 ---
 
-*Skill maintenu par Nebula Forge Digital Studio — Août 2026*
+*Skill maintenu par Nebula Forge Digital Studio - Août 2026*

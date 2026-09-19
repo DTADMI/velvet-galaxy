@@ -1,4 +1,4 @@
-# Velvet Galaxy — Gaps & Roadmap
+# Velvet Galaxy - Gaps & Roadmap
 
 > **Owner**: Nebula Forge Digital Studio  
 > **Last Updated**: 2026-08-20  
@@ -20,8 +20,8 @@
 
 | # | Item | Resolution |
 |---|---|---|
-| 1 | `docs/README.md` | ✅ Created — architecture, quick links, getting started |
-| 2 | `docs/technical/feature-flags-testing.md` | ✅ Created — 21 flags documented, lifecycle, testing guide |
+| 1 | `docs/README.md` | ✅ Created - architecture, quick links, getting started |
+| 2 | `docs/technical/feature-flags-testing.md` | ✅ Created - 21 flags documented, lifecycle, testing guide |
 | 3 | `docs/technical/gaps-roadmap.md` | ✅ This document |
 
 ---
@@ -30,10 +30,10 @@
 
 | # | Priority | Gap | Impact | Recommendation |
 |---|---|---|---|---|
-| 1 | MEDIUM | Feature flag audit | 21 flags — identify dead/redundant, verify enabled states match reality | Audit each flag against actual code usage, remove unused |
-| 2 | MEDIUM | i18n completeness audit | 40+ pages — verify all use t() with complete FR translations | Systematic page-by-page audit with automated check |
-| 3 | MEDIUM | E2E test coverage expansion | 1 core E2E spec — needs critical path coverage (auth, feed, marketplace, payments) | Add 5-10 E2E specs for key flows |
-| 4 | LOW | Dead code removal | 80+ components — likely unused after feature evolution | Tree-shake analysis, remove unused components |
+| 1 | MEDIUM | Feature flag audit | 21 flags - identify dead/redundant, verify enabled states match reality | Audit each flag against actual code usage, remove unused |
+| 2 | MEDIUM | i18n completeness audit | 40+ pages - verify all use t() with complete FR translations | Systematic page-by-page audit with automated check |
+| 3 | MEDIUM | E2E test coverage expansion | 1 core E2E spec - needs critical path coverage (auth, feed, marketplace, payments) | Add 5-10 E2E specs for key flows |
+| 4 | LOW | Dead code removal | 80+ components - likely unused after feature evolution | Tree-shake analysis, remove unused components |
 | 5 | LOW | Performance optimization review | Verify ISR, cache headers, bundle splitting on all public pages | Lighthouse audit + bundle analysis |
 | 6 | LOW | Mobile responsiveness audit | Social network needs full mobile web coverage at 320px | Systematic 320px/375px audit of all pages |
 | 7 | LOW | TanStack Query migration | Migrate from legacy data fetching to TanStack Query (guide exists) | Complete migration per `tanstack-migration-guide.md` |
@@ -55,4 +55,4 @@
 
 ---
 
-*Document maintained by Nebula Forge Digital Studio — August 2026*
+*Document maintained by Nebula Forge Digital Studio - August 2026*

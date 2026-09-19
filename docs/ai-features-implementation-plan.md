@@ -1,12 +1,12 @@
-# AI Features Implementation Plan — Velvet Galaxy
+# AI Features Implementation Plan - Velvet Galaxy
 
-> May 15, 2026 — AI feature roadmap with caching, cost-efficiency, and QH reference architecture
+> May 15, 2026 - AI feature roadmap with caching, cost-efficiency, and QH reference architecture
 
 ---
 
 ## Overview
 
-Velvet Galaxy's AI features leverage DeepSeek's provider-agnostic adapter layer, Redis caching, tiered rate limiting, and feature flags — modeled on QuestHunt's proven AI architecture. All AI features are **server-side only**, **provider-agnostic**, **cost-tracked**, and **feature-flag gated**.
+Velvet Galaxy's AI features leverage DeepSeek's provider-agnostic adapter layer, Redis caching, tiered rate limiting, and feature flags - modeled on QuestHunt's proven AI architecture. All AI features are **server-side only**, **provider-agnostic**, **cost-tracked**, and **feature-flag gated**.
 
 ---
 
@@ -208,11 +208,11 @@ VG's AI architecture is directly inspired by QuestHunt's proven patterns:
 
 | QH Pattern | VG Implementation | Status |
 |---|---|---|
-| `lib/ai/types.ts` — Common types | `lib/ai/types.ts` | ✅ Implemented |
-| `lib/ai/adapter.ts` — Provider-agnostic interface | `lib/ai/deepseek-adapter.ts` | ✅ Implemented |
-| `lib/ai/factory.ts` — Provider factory | `lib/ai/factory.ts` | ✅ Implemented |
-| `lib/security/rate-limit.ts` — Redis rate limiting | `lib/redis/rate-limit.ts` | ✅ Implemented |
-| `lib/cache.ts` — Redis caching | `lib/redis/cache.ts` | ✅ Implemented |
+| `lib/ai/types.ts` - Common types | `lib/ai/types.ts` | ✅ Implemented |
+| `lib/ai/adapter.ts` - Provider-agnostic interface | `lib/ai/deepseek-adapter.ts` | ✅ Implemented |
+| `lib/ai/factory.ts` - Provider factory | `lib/ai/factory.ts` | ✅ Implemented |
+| `lib/security/rate-limit.ts` - Redis rate limiting | `lib/redis/rate-limit.ts` | ✅ Implemented |
+| `lib/cache.ts` - Redis caching | `lib/redis/cache.ts` | ✅ Implemented |
 | `docs/technical/deepseek-ai-integration-guide.md` | **This document** | ✅ Created |
 | `docs/technical/ai-tier-gating-strategy.md` | Tier limits in feature flag config | ✅ Configured |
 | `docs/technical/admin-ai-assistance-implementation.md` | `app/admin/ai/page.tsx` (to build) | 🔜 Phase 2 |

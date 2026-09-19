@@ -1,4 +1,4 @@
-# Memory Optimization — Règle Transversale NF
+# Memory Optimization - Règle Transversale NF
 
 **Owner:** Nebula Forge Digital Studio  
 **Last Updated:** 2026-08-22  
@@ -9,7 +9,7 @@
 
 ## Principe
 
-> Toute allocation mémoire dans une application NF doit être nécessaire, dimensionnée, et libérée. La mémoire est un coût — CPU, argent (Vercel/Railway), et expérience utilisateur (crashs, lenteurs).
+> Toute allocation mémoire dans une application NF doit être nécessaire, dimensionnée, et libérée. La mémoire est un coût - CPU, argent (Vercel/Railway), et expérience utilisateur (crashs, lenteurs).
 
 Cette règle couvre 4 couches :
 
@@ -76,20 +76,20 @@ Pour chaque projet Next.js, le `next.config` DOIT inclure :
 ### Composants lourds → `next/dynamic`
 
 ```tsx
-// ✅ CORRECT — La modale n'est chargée qu'à l'ouverture
+// ✅ CORRECT - La modale n'est chargée qu'à l'ouverture
 const SettingsModal = dynamic(() => import('./SettingsModal'), {
   ssr: false,
   loading: () => <Skeleton />,
 });
 
-// ❌ INCORRECT — import statique, toujours dans le bundle
+// ❌ INCORRECT - import statique, toujours dans le bundle
 import { SettingsModal } from './SettingsModal';
 ```
 
 ### Librairies lourdes → dynamic import
 
 ```tsx
-// ✅ CORRECT — Monaco n'est chargé qu'au focus de l'éditeur
+// ✅ CORRECT - Monaco n'est chargé qu'au focus de l'éditeur
 const loadMonaco = async () => {
   const monaco = await import('monaco-editor');
   return monaco;
@@ -112,7 +112,7 @@ const loadMonaco = async () => {
 ### useEffect cleanup obligatoire
 
 ```tsx
-// ✅ CORRECT — cleanup explicite
+// ✅ CORRECT - cleanup explicite
 useEffect(() => {
   const observer = new IntersectionObserver(callback);
   observer.observe(el);
@@ -152,7 +152,7 @@ useEffect(() => {
 ### React.cache() pour les fonctions serveur
 
 ```tsx
-// ✅ CORRECT — déduplique les appels dans un même render tree
+// ✅ CORRECT - déduplique les appels dans un même render tree
 import { cache } from 'react';
 
 export const getServerClient = cache(() => {
@@ -163,7 +163,7 @@ export const getServerClient = cache(() => {
 ### TanStack Query → staleTime
 
 ```tsx
-// ✅ CORRECT — évite les refetchs inutiles
+// ✅ CORRECT - évite les refetchs inutiles
 const { data } = useQuery({
   queryKey: ['user', userId],
   queryFn: () => fetchUser(userId),
@@ -175,7 +175,7 @@ const { data } = useQuery({
 ### Images → sizes + priority
 
 ```tsx
-// ✅ CORRECT — le navigateur sait quelle taille charger
+// ✅ CORRECT - le navigateur sait quelle taille charger
 <Image
   src={cover}
   sizes="(max-width: 768px) 100vw, 640px"
@@ -191,7 +191,7 @@ const { data } = useQuery({
 ### useMemo → valeurs calculées coûteuses
 
 ```tsx
-// ✅ CORRECT — filtre mémorisé, recalculé seulement si deps changent
+// ✅ CORRECT - filtre mémorisé, recalculé seulement si deps changent
 const activeUsers = useMemo(
   () => users.filter(u => u.active).sort(byName),
   [users]
@@ -201,7 +201,7 @@ const activeUsers = useMemo(
 ### useCallback → quand passé à des enfants avec React.memo
 
 ```tsx
-// ✅ CORRECT — référence stable pour React.memo
+// ✅ CORRECT - référence stable pour React.memo
 const handleClick = useCallback((id: string) => {
   setSelected(id);
 }, []);
@@ -210,7 +210,7 @@ const handleClick = useCallback((id: string) => {
 ### Jamais de setState dans le corps du render
 
 ```tsx
-// ❌ INCORRECT — boucle infinie de renders
+// ❌ INCORRECT - boucle infinie de renders
 function Component() {
   const [count, setCount] = useState(0);
   setCount(count + 1); // ← jamais ici !
@@ -221,10 +221,10 @@ function Component() {
 ### Jamais de new Object/Array dans le corps du render sans useMemo
 
 ```tsx
-// ❌ INCORRECT — nouvelle référence à chaque render → re-renders inutiles
+// ❌ INCORRECT - nouvelle référence à chaque render → re-renders inutiles
 <Child options={{ page: 1, size: 10 }} />
 
-// ✅ CORRECT — référence stable
+// ✅ CORRECT - référence stable
 const options = useMemo(() => ({ page: 1, size: 10 }), []);
 <Child options={options} />
 ```
@@ -275,7 +275,7 @@ Ce script vérifie :
 
 ---
 
-## Projet par Projet — Conformité Actuelle
+## Projet par Projet - Conformité Actuelle
 
 | Projet | NF-MEM-001 | NF-MEM-002 | NF-MEM-004 | Notes |
 |---|---|---|---|---|
@@ -290,12 +290,12 @@ Ce script vérifie :
 
 ## Références
 
-- **Next.js Memory Usage Guide** — https://nextjs.org/docs/app/guides/memory-usage
-- **Next.js Package Bundling** — https://nextjs.org/docs/app/guides/package-bundling
-- **React 19 useMemo/useCallback** — https://react.dev/reference/react/useMemo
-- **pnpm Peer Resolution Memory** — https://github.com/pnpm/pnpm/pull/13538
-- **V8 Heap Profiling** — https://nodejs.org/en/learn/diagnostics/memory/using-heap-profiler
+- **Next.js Memory Usage Guide** - https://nextjs.org/docs/app/guides/memory-usage
+- **Next.js Package Bundling** - https://nextjs.org/docs/app/guides/package-bundling
+- **React 19 useMemo/useCallback** - https://react.dev/reference/react/useMemo
+- **pnpm Peer Resolution Memory** - https://github.com/pnpm/pnpm/pull/13538
+- **V8 Heap Profiling** - https://nodejs.org/en/learn/diagnostics/memory/using-heap-profiler
 
 ---
 
-*Skill maintenu par Nebula Forge Digital Studio — Août 2026*
+*Skill maintenu par Nebula Forge Digital Studio - Août 2026*

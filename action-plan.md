@@ -166,7 +166,7 @@ recommended) or Docker deploy. Strict linting and type safety.
   - 🔴 Added `@upstash/redis` and `@upstash/ratelimit` dependencies.
   - [ ] Deploy Upstash Redis instance and configure env vars.
 
-- 🟡 **AI Features — Phase 2 (May 2026)**:
+- 🟡 **AI Features - Phase 2 (May 2026)**:
   - 🟡 Foundation complete: provider-agnostic AI adapter (`lib/ai/`), API routes (10 endpoints), Redis caching, feature flags.
   - 🟡 Admin AI settings page built (`app/admin/ai/page.tsx`).
   - [ ] Deploy AI features behind feature flags.
@@ -191,7 +191,7 @@ recommended) or Docker deploy. Strict linting and type safety.
   - 🔜 Add audit logging table and triggers.
   - 🔜 Implement email notifications for security events (MFA, suspicious device).
 
-- 🔜 **AI Features — Phase 2**:
+- 🔜 **AI Features - Phase 2**:
   - 🔜 AI content recommendations and people discovery.
   - 🔜 AI chat assistant and onboarding assistant.
   - 🔜 AI media captioning and group activity generator.

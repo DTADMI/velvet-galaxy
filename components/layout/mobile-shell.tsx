@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * MobileShell — Responsive layout shell for velvet-galaxy.
+ * MobileShell - Responsive layout shell for velvet-galaxy.
  * 
  * On mobile (< 768px): full-width, bottom tab bar, slide-out sidebar
  * On desktop (≥ 768px): sidebar visible, standard layout
@@ -29,7 +29,7 @@ export function MobileShell({ children, sidebar, bottomNav, topBar }: MobileShel
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Top bar — collapses on mobile, full on desktop */}
+      {/* Top bar - collapses on mobile, full on desktop */}
       {topBar && (
         <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto flex h-14 items-center gap-4 px-4">
@@ -82,7 +82,7 @@ export function MobileShell({ children, sidebar, bottomNav, topBar }: MobileShel
           </>
         )}
 
-        {/* Main content — full width on mobile, flex-1 on desktop */}
+        {/* Main content - full width on mobile, flex-1 on desktop */}
         <main className="flex-1 min-h-0">
           {/* Add bottom padding on mobile for tab bar */}
           <div className={`mx-auto w-full max-w-5xl px-4 py-6 ${bottomNav ? "pb-20 md:pb-6" : ""}`}>
@@ -104,7 +104,7 @@ export function MobileShell({ children, sidebar, bottomNav, topBar }: MobileShel
 }
 
 /**
- * ResponsiveGrid — auto-columns grid for card layouts.
+ * ResponsiveGrid - auto-columns grid for card layouts.
  * 1 col on mobile, 2 on tablet, 3 on desktop.
  */
 export function ResponsiveGrid({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -122,7 +122,7 @@ export function ResponsiveGrid({ children, className }: { children: React.ReactN
 }
 
 /**
- * ResponsiveCard — card with consistent padding that adapts to viewport.
+ * ResponsiveCard - card with consistent padding that adapts to viewport.
  */
 export function ResponsiveCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -136,7 +136,7 @@ export function ResponsiveCard({ children, className }: { children: React.ReactN
 }
 
 /**
- * useIsMobile — detect viewport < 768px.
+ * useIsMobile - detect viewport < 768px.
  * Use for conditional rendering that CSS can't handle.
  */
 export function useIsMobile() {

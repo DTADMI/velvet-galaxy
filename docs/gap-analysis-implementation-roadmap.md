@@ -1,6 +1,6 @@
-# Velvet Galaxy — Gap Analysis & Implementation Roadmap
+# Velvet Galaxy - Gap Analysis & Implementation Roadmap
 
-> May 15, 2026 — Comprehensive assessment based on codebase audit, reference docs (StoryForge, LibraKeep, QuestHunt), and industry best practices.
+> May 15, 2026 - Comprehensive assessment based on codebase audit, reference docs (StoryForge, LibraKeep, QuestHunt), and industry best practices.
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Area | Status | Priority | Effort | Section |
 |---|---|---|---|---|
-| **Architecture & Stack** | ✅ Solid | — | — | §1 |
+| **Architecture & Stack** | ✅ Solid | - | - | §1 |
 | **Security** | ⚠️ Multiple gaps | 🔴 Critical | 2-3 days | §2 |
 | **Caching** | ⚠️ IndexedDB only, no Redis | 🔴 High | 1-2 days | §3 |
 | **Rate Limiting** | ⚠️ DB-based, no Redis | 🟡 Medium | 1 day | §4 |
@@ -72,8 +72,8 @@
 | 1 | **Missing CSP header** | `next.config.mjs` | 🔴 Critical | Add Content-Security-Policy header |
 | 2 | **Missing Permissions-Policy** | `next.config.mjs` | 🟡 Medium | Add permissions restrictions |
 | 3 | **API config endpoint exposes env** | `app/api/config/route.ts` | 🔴 Critical | Gate with origin check, minimal exposure |
-| 4 | **`typescript.ignoreBuildErrors: true`** | `next.config.mjs` | 🔴 Critical | Remove — blocks CI from catching type errors |
-| 5 | **`images.unoptimized: true`** | `next.config.mjs` | 🟡 Medium | Remove — use Next.js Image optimization |
+| 4 | **`typescript.ignoreBuildErrors: true`** | `next.config.mjs` | 🔴 Critical | Remove - blocks CI from catching type errors |
+| 5 | **`images.unoptimized: true`** | `next.config.mjs` | 🟡 Medium | Remove - use Next.js Image optimization |
 | 6 | **No CSRF protection on API routes** | All API routes | 🟡 Medium | Add origin/referer checking middleware |
 | 7 | **Deprecated `X-XSS-Protection`** | `next.config.mjs` | 🟢 Low | Remove (modern browsers ignore it) |
 | 8 | **No input sanitization** | Posts, messages, comments | 🟡 Medium | Add DOMPurify for user content |
@@ -226,23 +226,23 @@ export const rateLimiters = {
 
 #### Phase 1: Foundation (Week 1)
 1. **AI Adapter Layer** (`lib/ai/`)
-   - `lib/ai/types.ts` — Common types (AiProvider, AiModel, AiResponse, etc.)
-   - `lib/ai/adapter.ts` — Provider-agnostic adapter interface
-   - `lib/ai/deepseek-adapter.ts` — DeepSeek V4 adapter (primary, cheapest)
-   - `lib/ai/factory.ts` — Provider factory with fallback
-   - `lib/ai/rate-limiter.ts` — Per-user, per-feature rate limits
-   - `lib/ai/cache.ts` — Redis-backed response caching with TTL
+   - `lib/ai/types.ts` - Common types (AiProvider, AiModel, AiResponse, etc.)
+   - `lib/ai/adapter.ts` - Provider-agnostic adapter interface
+   - `lib/ai/deepseek-adapter.ts` - DeepSeek V4 adapter (primary, cheapest)
+   - `lib/ai/factory.ts` - Provider factory with fallback
+   - `lib/ai/rate-limiter.ts` - Per-user, per-feature rate limits
+   - `lib/ai/cache.ts` - Redis-backed response caching with TTL
 
 2. **Feature Flags** (add to `sql/feature-flags.sql` seed)
-   - `ai_content_moderation` — AI-powered NSFW/content policy detection
-   - `ai_translation_assist` — AI-assisted EN↔FR translation
-   - `ai_content_recommendations` — AI-powered feed curation
-   - `ai_post_composer` — AI writing assistant for posts
-   - `ai_tag_suggestions` — AI tag suggestions for posts/profiles
-   - `ai_chat_assistant` — AI companion for social coaching
-   - `ai_media_caption` — AI image/video captioning
-   - `ai_onboarding_assistant` — AI-guided onboarding
-   - `ai_group_activity` — AI event/activity suggestions for groups
+   - `ai_content_moderation` - AI-powered NSFW/content policy detection
+   - `ai_translation_assist` - AI-assisted EN↔FR translation
+   - `ai_content_recommendations` - AI-powered feed curation
+   - `ai_post_composer` - AI writing assistant for posts
+   - `ai_tag_suggestions` - AI tag suggestions for posts/profiles
+   - `ai_chat_assistant` - AI companion for social coaching
+   - `ai_media_caption` - AI image/video captioning
+   - `ai_onboarding_assistant` - AI-guided onboarding
+   - `ai_group_activity` - AI event/activity suggestions for groups
 
 3. **Admin AI Settings Page** (`app/admin/ai/page.tsx`)
    - Model selection (DeepSeek V4 Flash/Pro)
@@ -252,25 +252,25 @@ export const rateLimiters = {
    - Cache settings
 
 #### Phase 2: Content Moderation (Week 1-2)
-- `app/api/ai/moderate/route.ts` — Content moderation endpoint
+- `app/api/ai/moderate/route.ts` - Content moderation endpoint
 - Integration with post creation, message sending, media upload
 - SFW/NSFW auto-classification
 - Report triage assistance
 
 #### Phase 3: Translation (Week 2)
-- `app/api/ai/translate/route.ts` — Translation endpoint
+- `app/api/ai/translate/route.ts` - Translation endpoint
 - EN↔FR bilingual support (AGENTS.md requirement)
 - Integration with post composer, messaging, UI
 - Batch translation for feed
 
 #### Phase 4: Recommendations (Week 2-3)
-- `app/api/ai/recommend/route.ts` — Content/people recommendations
+- `app/api/ai/recommend/route.ts` - Content/people recommendations
 - Feed personalization engine
 - "People You May Know" social graph analysis
 - Discovery hub AI curation
 
 #### Phase 5: Composition Assistant (Week 3)
-- `app/api/ai/compose/route.ts` — Writing assistant
+- `app/api/ai/compose/route.ts` - Writing assistant
 - Post enhancement suggestions
 - Tag generation
 - Media captioning
@@ -288,7 +288,7 @@ export const rateLimiters = {
 | **Response Reuse** | Cache common moderation results, translations | 50%+ |
 | **User Cooldowns** | Prevent rapid re-requests of same feature | 10-20% |
 | **Cost Tracking** | Per-user, per-feature cost attribution | Visibility |
-| **Admin Override** | Admins bypass rate limits, costs tracked separately | — |
+| **Admin Override** | Admins bypass rate limits, costs tracked separately | - |
 
 ### AI Cost Projections (VG scale)
 
@@ -305,7 +305,7 @@ At 10,000 users: **~$840/month** total AI costs.
 
 ## §6 Neo4J Integration Assessment
 
-### Conclusion: YES — Neo4J is pertinent and makes strong technical sense for VG
+### Conclusion: YES - Neo4J is pertinent and makes strong technical sense for VG
 
 **Rationale:** VG's social graph IS the product. The custom relationship system (Dom/Sub, Partner, mutual consent), the 3D galaxy network visualization, and the interconnections between profiles, groups, events, and artists all form a genuine property graph.
 
@@ -434,10 +434,10 @@ export interface AppError {
 ```
 
 #### User Feedback Layering
-1. **Inline validation** — Form field errors (closest to action)
-2. **Toast notifications** — Action success/failure feedback
-3. **Error boundary fallbacks** — Component-level recovery
-4. **Global error page** — Catastrophic failures
+1. **Inline validation** - Form field errors (closest to action)
+2. **Toast notifications** - Action success/failure feedback
+3. **Error boundary fallbacks** - Component-level recovery
+4. **Global error page** - Catastrophic failures
 
 ---
 
@@ -447,16 +447,16 @@ export interface AppError {
 
 | Feature | SWR (Current) | TanStack Query | Gap |
 |---|---|---|---|
-| **Data fetching** | ✅ | ✅ | — |
-| **Caching** | ✅ | ✅ | — |
+| **Data fetching** | ✅ | ✅ | - |
+| **Caching** | ✅ | ✅ | - |
 | **Mutations** | ❌ No built-in | ✅ `useMutation` | **Missing** |
 | **Optimistic updates** | ❌ Manual | ✅ Built-in | **Missing** |
 | **Infinite queries** | ❌ Manual (own hook) | ✅ `useInfiniteQuery` | **Partial** |
-| **Query invalidation** | ✅ `mutate()` | ✅ `queryClient.invalidateQueries()` | — |
+| **Query invalidation** | ✅ `mutate()` | ✅ `queryClient.invalidateQueries()` | - |
 | **DevTools** | ❌ None | ✅ React Query DevTools | **Missing** |
 | **Prefetching** | ❌ Manual | ✅ `queryClient.prefetchQuery()` | **Partial** |
-| **Garbage collection** | ✅ | ✅ | — |
-| **Bundle size** | ~5KB | ~12KB | — |
+| **Garbage collection** | ✅ | ✅ | - |
+| **Bundle size** | ~5KB | ~12KB | - |
 
 ### Recommendation
 VG currently uses SWR effectively with a custom IndexedDB caching layer. Moving to TanStack Query would add mutation management and optimistic updates but requires significant migration. **Recommended as an enhancement, not urgent.**
@@ -475,12 +475,12 @@ If migrating, follow QH's TanStack Query guidelines at `docs/technical/tanstack-
 | **Empty states** | ✅ Illustrated, actionable | ⚠️ Inconsistent | **Missing** |
 | **Error states** | ✅ Layered approach | ❌ Ad-hoc | **Missing** |
 | **Optimistic UI** | ✅ Like/unlike, follow/unfollow | ❌ None | **Missing** |
-| **Toast feedback** | ✅ sonner, categorized | ✅ sonner (installed) | — |
-| **Navigation feedback** | ✅ Active link highlight | ✅ Active colors | — |
-| **Form validation** | ✅ Zod + TanStack Form | ✅ react-hook-form + zod | — |
+| **Toast feedback** | ✅ sonner, categorized | ✅ sonner (installed) | - |
+| **Navigation feedback** | ✅ Active link highlight | ✅ Active colors | - |
+| **Form validation** | ✅ Zod + TanStack Form | ✅ react-hook-form + zod | - |
 | **Destructive confirmations** | ✅ Alert dialogs | ⚠️ Inconsistent | **Partial** |
 | **Scroll cues** | ✅ For infinite scroll | ❌ None | **Missing** |
-| **Offline feedback** | ✅ PWA offline page | ✅ offline/page.tsx | — |
+| **Offline feedback** | ✅ PWA offline page | ✅ offline/page.tsx | - |
 
 ### Required Additions
 1. **Optimistic update pattern** for likes, follows, bookmarks
@@ -533,7 +533,7 @@ CREATE TABLE public.audit_log (
 | `@supabase/ssr` | ^0.8.0 | 0.8.0 | ✅ Current |
 | `stripe` | ^20.1.2 | Check | ⚠️ Verify |
 | `@stripe/react-stripe-js` | ^5.4.1 | Check | ⚠️ Verify |
-| `three` (via fiber/drei) | — | — | ⚠️ Verify |
+| `three` (via fiber/drei) | - | - | ⚠️ Verify |
 | `zod` | ^4.3.5 | 4.3.5 | ✅ Current |
 | `tailwindcss` | ^4.1.18 | 4.1.18 | ✅ Current |
 | `typescript` | ^5.9.3 | 5.9.3 | ✅ Current |
@@ -549,9 +549,9 @@ CREATE TABLE public.audit_log (
 |---|---|---|---|
 | CVE-2025-66478 | Next.js RSC | ✅ Patched (16.0.10+) | Upgraded to 16.1.1 |
 | CVE-2025-55182 | Next.js RSC | ✅ Patched (16.0.10+) | Upgraded to 16.1.1 |
-| — | `@supabase/supabase-js` | ✅ Current | — |
-| — | `stripe` | ⚠️ Check | Run `npm audit` |
-| — | `react-three-fiber` | ⚠️ Check | Run `npm audit` |
+| - | `@supabase/supabase-js` | ✅ Current | - |
+| - | `stripe` | ⚠️ Check | Run `npm audit` |
+| - | `react-three-fiber` | ⚠️ Check | Run `npm audit` |
 
 ### Actions
 1. Run `pnpm audit` to identify remaining vulnerabilities
@@ -571,19 +571,19 @@ CREATE TABLE public.audit_log (
 | `README.md` | ✅ Good | Architecture, setup, deploy docs |
 | `IMPLEMENTATION_COMPLETE.md` | ⚠️ Stale | Last updated for network viz features |
 | `REMAINING_TASKS.md` | ⚠️ Stale | Tasks already completed |
-| `MIGRATION_GUIDE.md` | ⚠️ Needs update | — |
-| `ARTISTS_SHOWCASE_IMPLEMENTATION.md` | ✅ Good | — |
+| `MIGRATION_GUIDE.md` | ⚠️ Needs update | - |
+| `ARTISTS_SHOWCASE_IMPLEMENTATION.md` | ✅ Good | - |
 | `docs/ARTIST_ARCHITECTURE.md` | ✅ Good | 656 lines |
-| `docs/vercel-ci-guardrails.md` | ✅ Good | — |
+| `docs/vercel-ci-guardrails.md` | ✅ Good | - |
 
 ### Required New Documentation
-1. ✅ `docs/gap-analysis-implementation-roadmap.md` — **This document**
-2. `docs/neo4j-integration-plan.md` — Neo4J architecture and migration
-3. `docs/ai-features-implementation-plan.md` — AI features, caching, costs
-4. `docs/security-hardening-guide.md` — Security headers, CSRF, input sanitization
-5. `docs/redis-caching-architecture.md` — Redis cache layer design
-6. `docs/error-handling-strategy.md` — Error boundaries, user feedback
-7. `docs/tanstack-migration-guide.md` — SWR to TanStack Query migration (if pursued)
+1. ✅ `docs/gap-analysis-implementation-roadmap.md` - **This document**
+2. `docs/neo4j-integration-plan.md` - Neo4J architecture and migration
+3. `docs/ai-features-implementation-plan.md` - AI features, caching, costs
+4. `docs/security-hardening-guide.md` - Security headers, CSRF, input sanitization
+5. `docs/redis-caching-architecture.md` - Redis cache layer design
+6. `docs/error-handling-strategy.md` - Error boundaries, user feedback
+7. `docs/tanstack-migration-guide.md` - SWR to TanStack Query migration (if pursued)
 
 ---
 

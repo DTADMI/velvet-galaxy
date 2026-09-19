@@ -13,9 +13,9 @@ Use this skill for brand language quality and naming consistency in Velvet Galax
 2. Keep public and user-facing copy user-facing. Do not leak operator wording like feature flags, publishing states, or internal process labels.
 3. Preserve Velvet Galaxy naming consistency: "VG" / "Velvet Galaxy" across all UI text, metadata, and docs.
 4. Keep tone consistent with the Velvet Galaxy brand: social, connected, galaxy-themed, and community-focused.
-5. Use consistent terminology: "Feed", "Discover", "Network", "Portal", "Marketplace" — not ad-hoc synonyms.
+5. Use consistent terminology: "Feed", "Discover", "Network", "Portal", "Marketplace" - not ad-hoc synonyms.
 6. Verify that button labels, helper text, tooltips, empty states, and error messages follow the same tone and terminology.
-7. Keep subscription tier naming consistent: "Basic", "Premium", "Lifetime" — do not rename without updating all surfaces.
+7. Keep subscription tier naming consistent: "Basic", "Premium", "Lifetime" - do not rename without updating all surfaces.
 8. When security events are involved, ensure wording is appropriate for both in-app notifications and transactional email.
 
 ## Review Standard

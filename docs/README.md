@@ -1,4 +1,4 @@
-# Velvet Galaxy — Documentation
+# Velvet Galaxy - Documentation
 
 > **Owner**: Nebula Forge Digital Studio  
 > **Last Updated**: 2026-08-20  
@@ -79,4 +79,4 @@ pnpm test:e2e         # Playwright E2E
 
 ---
 
-*Document maintained by Nebula Forge Digital Studio — August 2026*
+*Document maintained by Nebula Forge Digital Studio - August 2026*

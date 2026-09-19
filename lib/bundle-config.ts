@@ -1,5 +1,5 @@
 // =============================================================================
-// Velvet Galaxy — Bundle Analysis Configuration
+// Velvet Galaxy - Bundle Analysis Configuration
 // Analyze bundle size with: pnpm build && npx vite-bundle-analyzer dist
 // Or via next.config.mjs experimental.optimizePackageImports
 // =============================================================================

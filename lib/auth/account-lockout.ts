@@ -1,4 +1,4 @@
-// Account Lockout — PG source of truth + Redis L1 when redis_lockout flag enabled
+// Account Lockout - PG source of truth + Redis L1 when redis_lockout flag enabled
 import { Redis } from "@upstash/redis";
 
 const MAX_ATTEMPTS = 5;

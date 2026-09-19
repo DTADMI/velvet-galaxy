@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // =============================================================================
-// Velvet Galaxy — Feature Flag Audit Script
+// Velvet Galaxy - Feature Flag Audit Script
 // Scans all source files for feature flag usage, compares against defined
 // flags, and reports dead/redundant/missing flags.
 //
@@ -127,7 +127,7 @@ function countLinesUpTo(content, index) {
 
 function generateReport(definedFlags, usage) {
   console.log('\n═══════════════════════════════════════════════');
-  console.log('  Velvet Galaxy — Feature Flag Audit Report    ');
+  console.log('  Velvet Galaxy - Feature Flag Audit Report    ');
   console.log('═══════════════════════════════════════════════\n');
 
   console.log(`Total flags defined: ${definedFlags.length}`);
@@ -150,7 +150,7 @@ function generateReport(definedFlags, usage) {
     const files = usage.get(flag.name) || [];
     const isUsed = files.length > 0;
     const icon = isUsed ? '✅' : '⬜';
-    console.log(`   ${icon} ${flag.name} — used in ${files.length} file(s)`);
+    console.log(`   ${icon} ${flag.name} - used in ${files.length} file(s)`);
     if (files.length > 0 && files.length <= 5) {
       for (const f of files) {
         console.log(`      ${f}`);

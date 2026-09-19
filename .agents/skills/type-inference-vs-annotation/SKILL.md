@@ -1,4 +1,4 @@
-# Typage par Inférence vs Interface — Règle Transversale NF
+# Typage par Inférence vs Interface - Règle Transversale NF
 
 **Owner:** Nebula Forge Digital Studio  
 **Last Updated:** 2026-08-22  
@@ -10,7 +10,7 @@
 
 ## Principe
 
-> Ni l'inférence partout, ni l'annotation partout. La question n'est pas « est-ce que TypeScript peut inférer ? » (il peut presque toujours) — mais « est-ce qu'une annotation explicite ajoute de la clarté que l'inférence seule ne fournit pas ? »
+> Ni l'inférence partout, ni l'annotation partout. La question n'est pas « est-ce que TypeScript peut inférer ? » (il peut presque toujours) - mais « est-ce qu'une annotation explicite ajoute de la clarté que l'inférence seule ne fournit pas ? »
 
 Cette règle établit **quand** annoter et **quand** laisser inférer, avec des critères objectifs.
 
@@ -26,7 +26,7 @@ Cette règle établit **quand** annoter et **quand** laisser inférer, avec des 
 | **Variables locales** | Inférer si RHS évident | `const x = 5` n'a pas besoin de `: number` |
 | **Litéraux d'objets** | Annoter si destinés à une interface | Attrape les propriétés manquantes au point de définition |
 | **Tableaux vides** | Toujours annoter | `[]` infère `never[]` |
-| **Callbacks** | Inférer si le contexte les type déjà | `arr.map(x => x.name)` — `x` est déjà typé |
+| **Callbacks** | Inférer si le contexte les type déjà | `arr.map(x => x.name)` - `x` est déjà typé |
 | **Constantes de config** | `as const` ou annotation | Préserve les litéraux, pas d'élargissement en `string` |
 
 ---
@@ -44,7 +44,7 @@ export async function getUser(userId: string): Promise<User | null> {
 }
 
 // ❌ Sans annotation, si on oublie une propriété, le type inféré
-//    devient le nouveau contrat — silencieusement.
+//    devient le nouveau contrat - silencieusement.
 export async function getUser(userId: string) {
   const { data } = await supabase.from("users").select("*").eq("id", userId).maybeSingle();
   return data;
@@ -59,7 +59,7 @@ export async function getUser(userId: string) {
 // ✅ Fonction privée, utilisée une seule fois, logique simple
 function formatName(first: string, last: string) {
   return `${first} ${last}`;
-  // Type inféré : string — parfaitement clair
+  // Type inféré : string - parfaitement clair
 }
 ```
 
@@ -95,7 +95,7 @@ const names = users.map((user: User) => user.name);
 ### ✅ Tableau vide → annoter
 
 ```ts
-// ❌ TypeScript infère never[] — inutilisable
+// ❌ TypeScript infère never[] - inutilisable
 const results = [];
 
 // ✅ Annoter
@@ -109,10 +109,10 @@ const results = [getDefaultQuest()];
 
 ## NF-TYPE-002 : `as const` pour les Litéraux, `satisfies` pour les Objets
 
-### `as const` — quand vous voulez le type LITTÉRAL, pas le type élargi
+### `as const` - quand vous voulez le type LITTÉRAL, pas le type élargi
 
 ```ts
-// ❌ Inféré comme string[] — l'info "north"|"south"|... est perdue
+// ❌ Inféré comme string[] - l'info "north"|"south"|... est perdue
 const DIRECTIONS = ["north", "south", "east", "west"];
 
 // ✅ Inféré comme readonly ["north", "south", "east", "west"]
@@ -128,7 +128,7 @@ const CONFIG = {
 // Type: { readonly maxRetries: 3; readonly endpoint: "https://api.example.com"; ... }
 ```
 
-### `satisfies` — valider SANS élargir (TS 4.9+)
+### `satisfies` - valider SANS élargir (TS 4.9+)
 
 ```ts
 type Palette = Record<string, string>;
@@ -142,7 +142,7 @@ const colors = { red: "#FF0000", invalid: 123 } as const; // pas d'erreur
 
 // ✅ satisfies → validation + préservation des litéraux
 const colors = { red: "#FF0000", blue: "#0000FF" } satisfies Palette;
-colors.red; // type: string (validé) — toutes les clés sont vérifiées ✅
+colors.red; // type: string (validé) - toutes les clés sont vérifiées ✅
 ```
 
 ---
@@ -178,7 +178,7 @@ function render(state: QuestState) {
 
 ---
 
-## NF-TYPE-004 : `interface` vs `type` — Quand Utiliser Quoi
+## NF-TYPE-004 : `interface` vs `type` - Quand Utiliser Quoi
 
 | Cas | Recommandation | Raison |
 |---|---|---|
@@ -206,7 +206,7 @@ type CreateQuestInput = Omit<Quest, "id" | "created_at">;
 
 ---
 
-## NF-TYPE-005 : Génériques — Inférer le Paramètre, Annoter la Contrainte
+## NF-TYPE-005 : Génériques - Inférer le Paramètre, Annoter la Contrainte
 
 ```ts
 // ✅ Le paramètre générique est inféré depuis l'appel
@@ -225,12 +225,12 @@ function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
 
 ## NF-TYPE-006 : Quand l'Inférence est Moins Performante
 
-> Source : [TypeScript Wiki — Performance](https://github.com/microsoft/TypeScript/wiki/Performance)
+> Source : [TypeScript Wiki - Performance](https://github.com/microsoft/TypeScript/wiki/Performance)
 
-Quand TypeScript infère un type complexe (objet avec 20 propriétés), il produit un type anonyme volumineux. Le déclarer explicitement avec un nom (`interface` ou `type`) produit un type nommé — plus compact, plus rapide à comparer, et plus lisible dans les messages d'erreur.
+Quand TypeScript infère un type complexe (objet avec 20 propriétés), il produit un type anonyme volumineux. Le déclarer explicitement avec un nom (`interface` ou `type`) produit un type nommé - plus compact, plus rapide à comparer, et plus lisible dans les messages d'erreur.
 
 ```ts
-// ❌ Type inféré anonyme — lent à comparer, messages d'erreur illisibles
+// ❌ Type inféré anonyme - lent à comparer, messages d'erreur illisibles
 function getConfig() {
   return {
     retries: 3,
@@ -240,7 +240,7 @@ function getConfig() {
   };
 }
 
-// ✅ Type nommé — compilation plus rapide, erreurs plus claires
+// ✅ Type nommé - compilation plus rapide, erreurs plus claires
 interface Config {
   retries: number;
   timeout: number;
@@ -271,7 +271,7 @@ Quand vous code-review, vérifiez :
 
 ---
 
-## Exemple Récapitulatif — Un Fichier Bien Typé
+## Exemple Récapitulatif - Un Fichier Bien Typé
 
 ```ts
 // ─── Types (toujours nommés, au début du fichier) ─────────
@@ -307,7 +307,7 @@ export async function fetchQuests(difficulty?: string): Promise<Quest[]> {
 
 function filterByDifficulty(quests: Quest[], diff: string) {
   return quests.filter((q) => q.difficulty === diff);
-  // Type inféré : Quest[] — parfaitement clair, pas besoin d'annotation
+  // Type inféré : Quest[] - parfaitement clair, pas besoin d'annotation
 }
 
 // ─── Hook React (props via interface) ──────────────────────
@@ -324,14 +324,14 @@ export function QuestList({ quests }: { quests: Quest[] }) {
 
 ## Références externes
 
-- [TypeScript Wiki — Performance](https://github.com/microsoft/TypeScript/wiki/Performance)
-- [TypeScript Handbook — Type Inference](https://www.typescriptlang.org/docs/handbook/type-inference.html)
-- [TypeScript Handbook — Everyday Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)
-- [typescript-eslint — explicit-module-boundary-types](https://typescript-eslint.io/rules/explicit-module-boundary-types/)
-- [David Gomes — TypeScript: Annotate vs Infer](https://davidgomes.com/annotate-vs-type-inference/)
-- [Paul Und — Type Annotations vs Type Inference](https://paulund.co.uk/notebook/typescript/type-annotations-vs-type-inference)
-- [Total TypeScript — Don't Use Return Types (Unless...)](https://www.totaltypescript.com/tips/dont-use-return-types-unless)
+- [TypeScript Wiki - Performance](https://github.com/microsoft/TypeScript/wiki/Performance)
+- [TypeScript Handbook - Type Inference](https://www.typescriptlang.org/docs/handbook/type-inference.html)
+- [TypeScript Handbook - Everyday Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)
+- [typescript-eslint - explicit-module-boundary-types](https://typescript-eslint.io/rules/explicit-module-boundary-types/)
+- [David Gomes - TypeScript: Annotate vs Infer](https://davidgomes.com/annotate-vs-type-inference/)
+- [Paul Und - Type Annotations vs Type Inference](https://paulund.co.uk/notebook/typescript/type-annotations-vs-type-inference)
+- [Total TypeScript - Don't Use Return Types (Unless...)](https://www.totaltypescript.com/tips/dont-use-return-types-unless)
 
 ---
 
-*Skill maintenu par Nebula Forge Digital Studio — Août 2026*
+*Skill maintenu par Nebula Forge Digital Studio - Août 2026*

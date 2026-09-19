@@ -1,5 +1,5 @@
 // =============================================================================
-// Velvet Galaxy — Lighthouse Audit Configuration
+// Velvet Galaxy - Lighthouse Audit Configuration
 // Run with: npx lighthouse http://localhost:3000 --output=html --output-path=./reports/lighthouse.html
 // Or CI: npx lighthouse http://localhost:3000 --output=json --chrome-flags="--headless"
 // =============================================================================

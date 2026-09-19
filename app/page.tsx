@@ -40,7 +40,7 @@ export default async function HomePage() {
                             </h1>
                             <p className="text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
                                 Your space to connect, explore, and curate the experience you desire. Whether seeking
-                                friendships, romance, lifestyle communities, or intimate connections—this is your galaxy
+                                friendships, romance, lifestyle communities, or intimate connections-this is your galaxy
                                 to explore.
                             </p>
 
@@ -243,7 +243,7 @@ export default async function HomePage() {
                         </h2>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                             Join thousands of people already connecting, sharing, and exploring on Velvet Galaxy. Your
-                            journey starts now—completely free.
+                            journey starts now-completely free.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                             <Button

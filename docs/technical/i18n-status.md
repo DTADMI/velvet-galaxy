@@ -1,4 +1,4 @@
-# Velvet Galaxy — i18n Status Audit
+# Velvet Galaxy - i18n Status Audit
 
 **Audit Date**: 2026-05-29 (updated)
 
@@ -48,7 +48,7 @@ const { t, locale, setLocale } = useI18n();
 // t('auth.welcomeBack') → "Bon retour" (fr) or "Welcome Back" (en)
 ```
 
-**Component migration is in progress** — most components still use hardcoded English strings. The provider, hooks, and dictionaries are fully functional.
+**Component migration is in progress** - most components still use hardcoded English strings. The provider, hooks, and dictionaries are fully functional.
 
 ## Assessment
 

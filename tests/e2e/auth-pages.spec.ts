@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 // ============================================================================
-// Velvet Galaxy — Auth Flow E2E Tests
+// Velvet Galaxy - Auth Flow E2E Tests
 // ============================================================================
 
-test.describe("VG — Auth Pages", () => {
+test.describe("VG - Auth Pages", () => {
   test("sign-in page loads", async ({ page }) => {
     await page.goto("/auth/login");
     await expect(page.locator("h1, h2").first()).toBeVisible();
@@ -28,7 +28,7 @@ test.describe("VG — Auth Pages", () => {
   });
 });
 
-test.describe("VG — Public Pages", () => {
+test.describe("VG - Public Pages", () => {
   test("discover page loads", async ({ page }) => {
     await page.goto("/discover");
     await expect(page.locator("body")).toBeVisible();
@@ -55,7 +55,7 @@ test.describe("VG — Public Pages", () => {
   });
 });
 
-test.describe("VG — Protected Redirects", () => {
+test.describe("VG - Protected Redirects", () => {
   const protectedPaths = [
     "/feed",
     "/profile",
@@ -77,7 +77,7 @@ test.describe("VG — Protected Redirects", () => {
   });
 });
 
-test.describe("VG — Admin Redirects", () => {
+test.describe("VG - Admin Redirects", () => {
   test("/admin redirects to auth", async ({ page }) => {
     await page.goto("/admin");
     await page.waitForURL(/\/auth\/login/);
@@ -85,7 +85,7 @@ test.describe("VG — Admin Redirects", () => {
   });
 });
 
-test.describe("VG — Responsive", () => {
+test.describe("VG - Responsive", () => {
   test("landing at 320px mobile", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
     await page.goto("/");
@@ -105,7 +105,7 @@ test.describe("VG — Responsive", () => {
   });
 });
 
-test.describe("VG — i18n", () => {
+test.describe("VG - i18n", () => {
   test("FR locale serves French by default", async ({ page }) => {
     await page.setExtraHTTPHeaders({ "Accept-Language": "fr" });
     await page.goto("/");
@@ -123,7 +123,7 @@ test.describe("VG — i18n", () => {
   });
 });
 
-test.describe("VG — Meta & SEO", () => {
+test.describe("VG - Meta & SEO", () => {
   test("home page has meta description", async ({ page }) => {
     await page.goto("/");
     const meta = page.locator("meta[name=description]").first();

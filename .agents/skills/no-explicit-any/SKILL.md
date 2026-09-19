@@ -1,4 +1,4 @@
-# No Explicit `any` — Règle Transversale NF
+# No Explicit `any` - Règle Transversale NF
 
 **Owner:** Nebula Forge Digital Studio  
 **Last Updated:** 2026-08-22  
@@ -10,7 +10,7 @@
 
 ## Principe
 
-> `any` désactive le vérificateur de type. Chaque `any` est un trou dans le filet de sécurité TypeScript — une exception qui s'accumule et rend la base de code progressivement moins sûre. Cette règle impose `"error"` sur `@typescript-eslint/no-explicit-any` avec un mécanisme d'exception documenté pour les cas légitimes.
+> `any` désactive le vérificateur de type. Chaque `any` est un trou dans le filet de sécurité TypeScript - une exception qui s'accumule et rend la base de code progressivement moins sûre. Cette règle impose `"error"` sur `@typescript-eslint/no-explicit-any` avec un mécanisme d'exception documenté pour les cas légitimes.
 
 ---
 
@@ -19,7 +19,7 @@
 ### ❌ Incorrect
 
 ```ts
-// Désactive toute vérification de type — le compilateur ne peut plus aider
+// Désactive toute vérification de type - le compilateur ne peut plus aider
 function parseResponse(data: any) {
   return data.user.name; // pas d'erreur, crash au runtime
 }
@@ -191,10 +191,10 @@ function wrapUntypedLib(...args: any[]): any {
 
 ## NF-NOANY-004 : Configuration
 
-### ESLint (flat config — tous les projets NF)
+### ESLint (flat config - tous les projets NF)
 
 ```js
-// eslint.config.mjs — ajouter dans la section rules:
+// eslint.config.mjs - ajouter dans la section rules:
 {
   rules: {
     "@typescript-eslint/no-explicit-any": "error",
@@ -210,7 +210,7 @@ pnpm eslint --fix --rule '@typescript-eslint/no-explicit-any: ["error", {"fixToU
 
 **Attention** : `--fix` remplace `any` par `unknown`, ce qui causera des erreurs de compilation. Corriger chaque occurrence manuellement après le fix.
 
-### tsconfig — bonus complémentaire
+### tsconfig - bonus complémentaire
 
 ```json
 {
@@ -256,7 +256,7 @@ rg ": any|as any|<any>" --glob '*.{ts,tsx}' --glob '!node_modules' --glob '!.nex
 
 ---
 
-## Pourquoi c'est important — en une phrase
+## Pourquoi c'est important - en une phrase
 
 > Chaque `any` dans ta codebase est un bug qui attend d'être découvert en production. `unknown` + type guard te force à le découvrir à la compilation.
 
@@ -271,4 +271,4 @@ rg ": any|as any|<any>" --glob '*.{ts,tsx}' --glob '!node_modules' --glob '!.nex
 
 ---
 
-*Skill maintenu par Nebula Forge Digital Studio — Août 2026*
+*Skill maintenu par Nebula Forge Digital Studio - Août 2026*
