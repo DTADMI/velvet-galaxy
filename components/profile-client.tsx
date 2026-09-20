@@ -192,8 +192,8 @@ export function ProfileClient({
                                 <Button asChild size="sm"
                                         className="bg-gradient-to-r from-royal-auburn to-royal-orange">
                                     <Link href="/subscribe">
-                                        <Heart className="h-4 w-4 mr-2"/>
-                                        Support Us
+                                        <Crown className="h-4 w-4 mr-2"/>
+                                        Upgrade to Premium
                                     </Link>
                                 </Button>
                             )}
