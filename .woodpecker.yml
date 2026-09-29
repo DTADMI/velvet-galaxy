@@ -1,0 +1,44 @@
+# Woodpecker CI pipeline (Forgejo + Woodpecker auto-heberge sur le DELL).
+# Compile en local et laisse Vercel uniquement heberger le prebuilt.
+when:
+  - event: push
+    branch: [main, preview]
+  - event: tag
+  - event: manual
+
+steps:
+  - name: install
+    image: node:26
+    commands:
+      - npm install -g pnpm@11.5.0
+      - pnpm install --frozen-lockfile
+
+  - name: checks
+    image: node:26
+    commands:
+      - npm install -g pnpm@11.5.0
+      - pnpm typecheck
+
+  - name: deploy
+    image: node:26
+    environment:
+      VERCEL_TOKEN:
+        from_secret: vercel_token
+      VERCEL_ORG_ID:
+        from_secret: vercel_org_id
+      VERCEL_PROJECT_ID:
+        from_secret: vercel_project_id
+    commands:
+      - npm install -g pnpm@11.5.0
+      - |
+        if [ "${CI_COMMIT_BRANCH:-}" = "main" ]; then
+          ENV_TARGET=production
+          PROD_FLAG=--prod
+        else
+          ENV_TARGET=preview
+          PROD_FLAG=
+        fi
+        echo "Vercel target: $ENV_TARGET (branch=${CI_COMMIT_BRANCH:-none})"
+        pnpm dlx vercel@54.14.5 pull --yes --environment="$ENV_TARGET"
+        pnpm dlx vercel@54.14.5 build $PROD_FLAG
+        pnpm dlx vercel@54.14.5 deploy --prebuilt $PROD_FLAG
