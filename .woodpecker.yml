@@ -10,13 +10,13 @@ steps:
   - name: install
     image: node:26
     commands:
-      - npm install -g pnpm@11.5.0
+      - npm install -g pnpm@12.8.1
       - pnpm install --frozen-lockfile
 
   - name: checks
     image: node:26
     commands:
-      - npm install -g pnpm@11.5.0
+      - npm install -g pnpm@12.8.1
       - pnpm typecheck
 
   - name: deploy
@@ -29,7 +29,7 @@ steps:
       VERCEL_PROJECT_ID:
         from_secret: vercel_project_id
     commands:
-      - npm install -g pnpm@11.5.0
+      - npm install -g pnpm@12.8.1
       - |
         if [ "${CI_COMMIT_BRANCH:-}" = "main" ]; then
           ENV_TARGET=production
