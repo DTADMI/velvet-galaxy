@@ -60,14 +60,26 @@ export const metadata: Metadata = {
 
 const WEBSITE_JSONLD = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "Velvet Galaxy",
-    url: BASE_URL,
-    potentialAction: {
-        "@type": "SearchAction",
-        target: `${BASE_URL}/search?q={search_term_string}`,
-        "query-input": "required name=search_term_string",
-    },
+    "@graph": [
+        {
+            "@type": "Organization",
+            "@id": `${BASE_URL}/#organization`,
+            name: "Nebula Forge Digital Studio",
+            url: BASE_URL,
+        },
+        {
+            "@type": "WebSite",
+            "@id": `${BASE_URL}/#website`,
+            name: "Velvet Galaxy",
+            url: BASE_URL,
+            publisher: {"@id": `${BASE_URL}/#organization`},
+            potentialAction: {
+                "@type": "SearchAction",
+                target: `${BASE_URL}/search?q={search_term_string}`,
+                "query-input": "required name=search_term_string",
+            },
+        },
+    ],
 };
 
 export {viewport} from './viewport';
