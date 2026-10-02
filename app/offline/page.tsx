@@ -1,4 +1,11 @@
+import type {Metadata} from "next";
 import { getServerTranslations } from '@/lib/i18n/server';
+
+// Page hors ligne : elle ne doit pas etre indexee par les moteurs.
+export const metadata: Metadata = {
+  title: "Offline",
+  robots: { index: false, follow: false },
+};
 
 export default async function OfflinePage() {
   const { t } = await getServerTranslations();

@@ -1,9 +1,17 @@
 import {Check, Crown, Star, Zap} from "lucide-react";
+import type {Metadata} from "next";
 
 import {Navigation} from "@/components/navigation";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {cn} from "@/lib/utils";
+
+export const metadata: Metadata = {
+    title: "Subscription",
+    description:
+        "Compare Velvet Galaxy plans and choose the subscription that fits how you connect, create and sell.",
+    alternates: {canonical: "/subscription"},
+};
 
 export default function SubscriptionPage() {
     const tiers = [
