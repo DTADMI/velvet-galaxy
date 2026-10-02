@@ -40,7 +40,9 @@ export const metadata: Metadata = {
         "artists",
     ],
     manifest: "/manifest.json",
-    alternates: {canonical: "/"},
+    // Pas de canonical global ici : un canonical unique "/" herite par toutes
+    // les pages les fait passer pour des doublons de l'accueil. Chaque page
+    // publique declare le sien (voir app/sitemap.ts pour la liste).
     robots: {index: true, follow: true},
     openGraph: {
         type: "website",

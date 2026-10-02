@@ -4,6 +4,17 @@ import {createServerClient} from "@/lib/supabase/server";
 import {ChatRoomsClient} from "./chat-rooms-client";
 import { getServerTranslations } from '@/lib/i18n/server';
 
+export const metadata = {
+    title: "Chat Rooms",
+    description: "Join live chat rooms and community conversations.",
+    alternates: {canonical: "/chat-rooms"},
+    openGraph: {
+        title: "Chat Rooms",
+        description: "Join live chat rooms and community conversations.",
+        url: "/chat-rooms",
+    },
+};
+
 export default async function ChatRoomsPage() {
     const supabase = await createServerClient();
   const { t } = await getServerTranslations();

@@ -4,6 +4,17 @@ import {FileText} from "lucide-react";
 import {Navigation} from "@/components/navigation";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
+export const metadata = {
+    title: "Terms of Service",
+    description: "The terms and conditions for using Velvet Galaxy.",
+    alternates: {canonical: "/policies/terms"},
+    openGraph: {
+        title: "Terms of Service",
+        description: "The terms and conditions for using Velvet Galaxy.",
+        url: "/policies/terms",
+    },
+};
+
 export default async function TermsPage() {
     await headers();
     return (

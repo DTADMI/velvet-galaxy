@@ -8,6 +8,17 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Textarea} from "@/components/ui/textarea";
 
+export const metadata = {
+    title: "Help",
+    description: "Get help, answers and support for Velvet Galaxy.",
+    alternates: {canonical: "/help"},
+    openGraph: {
+        title: "Help",
+        description: "Get help, answers and support for Velvet Galaxy.",
+        url: "/help",
+    },
+};
+
 export default function HelpPage() {
     return (
         <>

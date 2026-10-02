@@ -4,6 +4,17 @@ import {ShieldCheck} from "lucide-react";
 import {Navigation} from "@/components/navigation";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
+export const metadata = {
+    title: "Privacy Policy",
+    description: "How Velvet Galaxy collects, uses and protects your data.",
+    alternates: {canonical: "/policies/privacy"},
+    openGraph: {
+        title: "Privacy Policy",
+        description: "How Velvet Galaxy collects, uses and protects your data.",
+        url: "/policies/privacy",
+    },
+};
+
 export default async function PrivacyPage() {
     await headers();
     return (
