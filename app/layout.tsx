@@ -15,11 +15,59 @@ import {MobileBottomNav} from "@/components/layout/mobile-bottom-nav";
 
 const inter = Inter({subsets: ["latin"]});
 
+const BASE_URL = (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://velvetgalaxy.app"
+).replace(/\/+$/, "");
+
 export const metadata: Metadata = {
-    title: "Velvet Galaxy - Connect with Your Community",
-    description: "A social platform for meaningful connections and local commerce",
-    generator: 'v0.app',
-    manifest: '/manifest.json',
+    metadataBase: new URL(BASE_URL),
+    title: {
+        default: "Velvet Galaxy - Connect with Your Community",
+        template: "%s | Velvet Galaxy",
+    },
+    description:
+        "Velvet Galaxy is a social platform for meaningful connections, creator communities and local commerce: share posts, join events, explore the marketplace and meet people near you.",
+    applicationName: "Velvet Galaxy",
+    keywords: [
+        "social network",
+        "community",
+        "local commerce",
+        "marketplace",
+        "creators",
+        "events",
+        "artists",
+    ],
+    manifest: "/manifest.json",
+    alternates: {canonical: "/"},
+    robots: {index: true, follow: true},
+    openGraph: {
+        type: "website",
+        siteName: "Velvet Galaxy",
+        title: "Velvet Galaxy - Connect with Your Community",
+        description:
+            "A social platform for meaningful connections, creator communities and local commerce.",
+        url: BASE_URL,
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Velvet Galaxy - Connect with Your Community",
+        description:
+            "A social platform for meaningful connections, creator communities and local commerce.",
+    },
+};
+
+const WEBSITE_JSONLD = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Velvet Galaxy",
+    url: BASE_URL,
+    potentialAction: {
+        "@type": "SearchAction",
+        target: `${BASE_URL}/search?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+    },
 };
 
 export {viewport} from './viewport';
@@ -44,6 +92,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               };
             `,
                 }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{__html: JSON.stringify(WEBSITE_JSONLD)}}
             />
         </head>
         <body className={inter.className}>
