@@ -3,6 +3,17 @@ import {createServerClient} from "@/lib/supabase/server";
 
 import {GroupsClient} from "./groups-client";
 
+export const metadata = {
+    title: "Groups",
+    description: "Join groups and communities on Velvet Galaxy.",
+    alternates: {canonical: "/groups"},
+    openGraph: {
+        title: "Groups",
+        description: "Join groups and communities on Velvet Galaxy.",
+        url: "/groups",
+    },
+};
+
 export default async function GroupsPage() {
     const supabase = await createServerClient();
 

@@ -3,6 +3,17 @@ import {createServerClient} from "@/lib/supabase/server";
 
 import {EventsClient} from "./events-client";
 
+export const metadata = {
+    title: "Events",
+    description: "Discover and join community events near you.",
+    alternates: {canonical: "/events"},
+    openGraph: {
+        title: "Events",
+        description: "Discover and join community events near you.",
+        url: "/events",
+    },
+};
+
 export default async function EventsPage() {
     const supabase = await createServerClient();
 

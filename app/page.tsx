@@ -11,6 +11,10 @@ import {createClient} from "@/lib/supabase/server";
 
 import { getServerTranslations } from '@/lib/i18n/server';
 
+export const metadata = {
+    alternates: {canonical: "/"},
+};
+
 export default async function HomePage() {
     const { t } = await getServerTranslations();
     const supabase = await createClient();

@@ -13,8 +13,14 @@ import { ArtistGrid } from "@/components/artist-grid";
 import { getServerTranslations } from '@/lib/i18n/server';
 
 export const metadata = {
-  title: "Artists - Velvet Galaxy",
-  description: "Discover talented artists and their creative works",
+    title: "Artists",
+    description: "Discover talented artists and their creative works.",
+    alternates: {canonical: "/artists"},
+    openGraph: {
+        title: "Artists",
+        description: "Discover talented artists and their creative works.",
+        url: "/artists",
+    },
 };
 
 async function getFeaturedArtists() {

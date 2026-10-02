@@ -2,6 +2,17 @@ import Link from "next/link";
 
 import { getServerTranslations } from '@/lib/i18n/server';
 
+export const metadata = {
+    title: "Download",
+    description: "Download the Velvet Galaxy app for desktop and mobile.",
+    alternates: {canonical: "/download"},
+    openGraph: {
+        title: "Download",
+        description: "Download the Velvet Galaxy app for desktop and mobile.",
+        url: "/download",
+    },
+};
+
 export default async function DownloadPage() {
   const { t } = await getServerTranslations();
   return (

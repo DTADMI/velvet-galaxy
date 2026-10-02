@@ -4,6 +4,19 @@ import {VelvetLogo} from "@/components/velvet-logo";
 import {Navigation} from "@/components/navigation";
 import {Card, CardContent} from "@/components/ui/card";
 
+export const metadata = {
+    title: "About",
+    description:
+        "Why Velvet Galaxy exists: a social platform for meaningful connections, creator communities and local commerce.",
+    alternates: {canonical: "/about"},
+    openGraph: {
+        title: "About",
+        description:
+            "Why Velvet Galaxy exists: a social platform for meaningful connections, creator communities and local commerce.",
+        url: "/about",
+    },
+};
+
 export default function AboutPage() {
     return (
         <>

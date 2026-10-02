@@ -7,6 +7,17 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {SUBSCRIPTION_PRODUCTS} from "@/lib/products";
 
+export const metadata = {
+    title: "Subscribe",
+    description: "Support Velvet Galaxy and unlock premium features.",
+    alternates: {canonical: "/subscribe"},
+    openGraph: {
+        title: "Subscribe",
+        description: "Support Velvet Galaxy and unlock premium features.",
+        url: "/subscribe",
+    },
+};
+
 export default async function SubscribePage() {
     const {isPremium, tier, expiresAt} = await checkSubscriptionStatus();
 
