@@ -1,6 +1,7 @@
 "use client";
 
 import {formatDistanceToNow} from "date-fns";
+import {useTranslation} from "@/lib/i18n/provider";
 import {Heart, MessageCircle, Trash2} from "lucide-react";
 import {useCallback, useEffect, useState} from "react";
 
@@ -31,6 +32,7 @@ interface CommentSectionProps {
 }
 
 export function CommentSection({contentType: _contentType, contentId, currentUserId}: CommentSectionProps) {
+  const {t} = useTranslation();
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
     const [replyTo, setReplyTo] = useState<string | null>(null);
@@ -224,7 +226,7 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
                                 </Button>
                             )}
                             {comment.user_id === currentUserId && (
-                                <Button
+                                <Button aria-label={t("a11y.delete", "Supprimer")} title={t("a11y.delete", "Supprimer")}
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteComment(comment.id)}

@@ -322,6 +322,8 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                         <input
                             ref={fileInputRef}
                             type="file"
+                            aria-label={t("media.addMedia", "Ajouter des médias")}
+                            title={t("media.addMedia", "Ajouter des médias")}
                             accept="image/*,video/*"
                             multiple
                             onChange={(e) => handleFileUpload(e.target.files)}
@@ -363,7 +365,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                                             className="w-full h-full object-cover rounded-lg"
                                         />
                                     )}
-                                    <Button
+                                    <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                         variant="destructive"
                                         size="icon"
                                         className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -395,6 +397,8 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                         <input
                             type="file"
                             ref={fileInputRef}
+                            aria-label={t("media.addImage", "Ajouter une image")}
+                            title={t("media.addImage", "Ajouter une image")}
                             className="hidden"
                             accept="image/*"
                             multiple
@@ -420,7 +424,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                                     <div key={index}
                                          className="relative aspect-square rounded-lg overflow-hidden group">
                                         <img src={image.url} alt="" className="h-full w-full object-cover"/>
-                                        <button
+                                        <button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 removeImage(index);
@@ -541,7 +545,7 @@ export function MultiImageUploadDialog({open, onOpenChange, onPostCreated}: Mult
                                 onChange={(e) => setTagInput(e.target.value)}
                                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                             />
-                            <Button type="button" variant="outline" onClick={addTag}>
+                            <Button aria-label={t("a11y.tag", "Étiquette")} title={t("a11y.tag", "Étiquette")} type="button" variant="outline" onClick={addTag}>
                                 <Tag className="h-4 w-4"/>
                             </Button>
                         </div>

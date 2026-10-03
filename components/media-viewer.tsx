@@ -200,6 +200,8 @@ export function MediaViewer({
                                         className="absolute bottom-16 right-4 flex flex-col gap-2 bg-black/40 backdrop-blur-sm p-2 rounded-lg border border-white/10 opacity-0 hover:opacity-100 transition-opacity z-20">
                                         <p className="text-[10px] text-white font-bold uppercase text-center mb-1">Controls</p>
                                         <select
+                                            aria-label={t("media.controls", "Contrôles")}
+                                            title={t("media.controls", "Contrôles")}
                                             className="bg-transparent text-white text-xs border border-white/20 rounded px-1"
                                             onChange={(e) => {
                                                 const v = document.querySelector('video');

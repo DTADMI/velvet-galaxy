@@ -151,7 +151,7 @@ export function MediaGallery({userId, isOwnProfile}: { userId: string; isOwnProf
                                 </div>
                                 <div>
                                     <Label>Album (optional)</Label>
-                                    <select className="w-full rounded-md border border-input bg-background px-3 py-2">
+                                    <select aria-label={t("media.album", "Album")} title={t("media.album", "Album")} className="w-full rounded-md border border-input bg-background px-3 py-2">
                                         <option value="">No album</option>
                                         {albums.map((album) => (
                                             <option key={album.id} value={album.id}>

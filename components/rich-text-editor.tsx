@@ -65,7 +65,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
     return (
         <div className="border border-royal-purple/20 rounded-lg overflow-hidden bg-card">
             <div className="flex items-center gap-1 p-2 border-b border-royal-purple/20 bg-muted/30 flex-wrap">
-                <Button
+                <Button aria-label={t("a11y.bold", "Gras")} title={t("a11y.bold", "Gras")}
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -75,7 +75,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                 >
                     <Bold className="h-4 w-4"/>
                 </Button>
-                <Button
+                <Button aria-label={t("a11y.italic", "Italique")} title={t("a11y.italic", "Italique")}
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -85,7 +85,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                 >
                     <Italic className="h-4 w-4"/>
                 </Button>
-                <Button
+                <Button aria-label={t("a11y.underline", "Souligné")} title={t("a11y.underline", "Souligné")}
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -96,7 +96,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                     <Underline className="h-4 w-4"/>
                 </Button>
                 <div className="w-px h-6 bg-border mx-1"/>
-                <Button
+                <Button aria-label={t("a11y.bulletList", "Liste à puces")} title={t("a11y.bulletList", "Liste à puces")}
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -106,7 +106,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                 >
                     <List className="h-4 w-4"/>
                 </Button>
-                <Button
+                <Button aria-label={t("a11y.numberedList", "Liste numérotée")} title={t("a11y.numberedList", "Liste numérotée")}
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -117,7 +117,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                     <ListOrdered className="h-4 w-4"/>
                 </Button>
                 <div className="w-px h-6 bg-border mx-1"/>
-                <Button
+                <Button aria-label={t("a11y.quote", "Citation")} title={t("a11y.quote", "Citation")}
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -127,7 +127,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                 >
                     <Quote className="h-4 w-4"/>
                 </Button>
-                <Button
+                <Button aria-label={t("a11y.code", "Code")} title={t("a11y.code", "Code")}
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -140,7 +140,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                 <div className="w-px h-6 bg-border mx-1"/>
                 <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={disabled}>
+                        <Button aria-label={t("a11y.link", "Lien")} title={t("a11y.link", "Lien")} type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={disabled}>
                             <LinkIcon className="h-4 w-4"/>
                         </Button>
                     </DialogTrigger>
@@ -176,7 +176,7 @@ export function RichTextEditor({value, onChange, placeholder, minHeight = "100px
                 </Dialog>
                 <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
                     <PopoverTrigger asChild>
-                        <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={disabled}>
+                        <Button aria-label={t("a11y.emoji", "Émojis")} title={t("a11y.emoji", "Émojis")} type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" disabled={disabled}>
                             <Smile className="h-4 w-4"/>
                         </Button>
                     </PopoverTrigger>

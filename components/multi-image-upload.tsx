@@ -163,7 +163,7 @@ export function MultiImageUpload({onComplete}: MultiImageUploadProps) {
                                     alt={file.name}
                                     className="w-full h-32 object-cover rounded"
                                 />
-                                <Button
+                                <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                     variant="destructive"
                                     size="icon"
                                     className="absolute top-1 right-1 h-6 w-6"
@@ -217,7 +217,7 @@ export function MultiImageUpload({onComplete}: MultiImageUploadProps) {
                         </Select>
                         <Dialog open={isCreatingAlbum} onOpenChange={setIsCreatingAlbum}>
                             <DialogTrigger asChild>
-                                <Button variant="outline" size="icon" disabled={isUploading}>
+                                <Button aria-label={t("a11y.newFolder", "Nouveau dossier")} title={t("a11y.newFolder", "Nouveau dossier")} variant="outline" size="icon" disabled={isUploading}>
                                     <FolderPlus className="h-4 w-4"/>
                                 </Button>
                             </DialogTrigger>

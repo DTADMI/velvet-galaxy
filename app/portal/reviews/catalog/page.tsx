@@ -1,6 +1,7 @@
 "use client";
 
 import React, {useState} from "react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {ArrowUpDown, Filter, Heart, LayoutGrid, List, Search, Star} from "lucide-react";
 import {Navigation} from "@/components/navigation";
 import {Button} from "@/components/ui/button";
@@ -11,6 +12,7 @@ import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 import Link from "next/link";
 
 export default function ToyCatalogPage() {
+  const {t} = useTranslation();
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [sortBy, setSortBy] = useState("Popularity");
@@ -118,7 +120,7 @@ export default function ToyCatalogPage() {
                             </DropdownMenu>
 
                             <div className="flex border border-royal-purple/20 rounded-md p-1 shrink-0">
-                                <Button
+                                <Button aria-label={t("a11y.gridView", "Vue grille")} title={t("a11y.gridView", "Vue grille")}
                                     variant={viewMode === "grid" ? "default" : "ghost"}
                                     size="icon"
                                     className="h-8 w-8"
@@ -126,7 +128,7 @@ export default function ToyCatalogPage() {
                                 >
                                     <LayoutGrid className="h-4 w-4"/>
                                 </Button>
-                                <Button
+                                <Button aria-label={t("a11y.listView", "Vue liste")} title={t("a11y.listView", "Vue liste")}
                                     variant={viewMode === "list" ? "default" : "ghost"}
                                     size="icon"
                                     className="h-8 w-8"

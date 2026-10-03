@@ -1,6 +1,7 @@
 "use client";
 
 import {formatDistanceToNow} from "date-fns";
+import {useTranslation} from "@/lib/i18n/provider";
 import {Eye, Heart, Lock, MessageCircle, MoreHorizontal, Play, Share2, Volume2} from "lucide-react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
@@ -24,6 +25,7 @@ interface PostCardProps {
 }
 
 export function PostCard({post, displaySize = "normal"}: PostCardProps) {
+  const {t} = useTranslation();
     const [liked, setLiked] = useState(post.is_liked || false);
     const [likeCount, setLikeCount] = useState(post.likes_count || 0);
     const [commentCount, setCommentCount] = useState(post.comments_count || 0);
@@ -186,7 +188,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                         {currentUserId === post.author_profile?.id && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <Button aria-label={t("a11y.moreOptions", "Plus d'options")} title={t("a11y.moreOptions", "Plus d'options")} variant="ghost" size="sm" className="h-8 w-8 p-0">
                                         <MoreHorizontal className="h-4 w-4"/>
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -338,7 +340,7 @@ export function PostCard({post, displaySize = "normal"}: PostCardProps) {
                         {commentCount}
                     </Button>
                 </div>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Button aria-label={t("a11y.share", "Partager")} title={t("a11y.share", "Partager")} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                     <Share2 className="h-4 w-4"/>
                 </Button>
             </CardFooter>

@@ -5,6 +5,7 @@ import type React from "react";
 import {useEffect, useRef, useState} from "react";
 
 import {Button} from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/provider";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 
 interface VideoPlayerProps {
@@ -22,6 +23,7 @@ const QUALITY_OPTIONS = [
 ];
 
 export function VideoPlayer({src, poster, className}: VideoPlayerProps) {
+  const { t } = useTranslation();
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
@@ -122,6 +124,8 @@ export function VideoPlayer({src, poster, className}: VideoPlayerProps) {
                 {/* Progress bar */}
                 <input
                     type="range"
+                    aria-label={t("video.seek", "Position de lecture")}
+                    title={t("video.seek", "Position de lecture")}
                     min="0"
                     max={duration || 0}
                     value={currentTime}
@@ -150,7 +154,7 @@ export function VideoPlayer({src, poster, className}: VideoPlayerProps) {
                         {/* Quality selector */}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                                <Button aria-label={t("a11y.settings", "Paramètres")} title={t("a11y.settings", "Paramètres")} variant="ghost" size="icon" className="text-white hover:bg-white/20">
                                     <Settings className="h-5 w-5"/>
                                 </Button>
                             </DropdownMenuTrigger>
@@ -171,7 +175,7 @@ export function VideoPlayer({src, poster, className}: VideoPlayerProps) {
                             </DropdownMenuContent>
                         </DropdownMenu>
 
-                        <Button variant="ghost" size="icon" onClick={toggleFullscreen}
+                        <Button aria-label={t("a11y.fullscreen", "Plein écran")} title={t("a11y.fullscreen", "Plein écran")} variant="ghost" size="icon" onClick={toggleFullscreen}
                                 className="text-white hover:bg-white/20">
                             <Maximize className="h-5 w-5"/>
                         </Button>

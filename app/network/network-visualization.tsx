@@ -1733,7 +1733,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
 
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button size="icon" variant="secondary" className="bg-card/90 backdrop-blur" type="button">
+                            <Button aria-label={t("a11y.settings", "Paramètres")} title={t("a11y.settings", "Paramètres")} size="icon" variant="secondary" className="bg-card/90 backdrop-blur" type="button">
                                 <SettingsIcon className="h-4 w-4"/>
                             </Button>
                         </DialogTrigger>
@@ -1913,7 +1913,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <PopoverTrigger asChild>
-                                        <Button size="icon" variant="secondary" className="bg-card/90 backdrop-blur">
+                                        <Button aria-label={t("a11y.filter", "Filtrer")} title={t("a11y.filter", "Filtrer")} size="icon" variant="secondary" className="bg-card/90 backdrop-blur">
                                             <Filter className="h-4 w-4"/>
                                         </Button>
                                     </PopoverTrigger>
@@ -1974,7 +1974,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button
+                                <Button aria-label={t("a11y.download", "Télécharger")} title={t("a11y.download", "Télécharger")}
                                     size="icon"
                                     variant="secondary"
                                     onClick={handleExportImage}
@@ -1992,7 +1992,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button size="icon" variant="secondary" onClick={handleZoomIn}
+                                <Button aria-label={t("a11y.zoomIn", "Zoom avant")} title={t("a11y.zoomIn", "Zoom avant")} size="icon" variant="secondary" onClick={handleZoomIn}
                                         className="bg-card/90 backdrop-blur">
                                     <ZoomIn className="h-4 w-4"/>
                                 </Button>
@@ -2006,7 +2006,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button size="icon" variant="secondary" onClick={handleZoomOut}
+                                <Button aria-label={t("a11y.zoomOut", "Zoom arrière")} title={t("a11y.zoomOut", "Zoom arrière")} size="icon" variant="secondary" onClick={handleZoomOut}
                                         className="bg-card/90 backdrop-blur">
                                     <ZoomOut className="h-4 w-4"/>
                                 </Button>
@@ -2020,7 +2020,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button size="icon" variant="secondary" onClick={handleReset}
+                                <Button aria-label={t("a11y.reset", "Réinitialiser")} title={t("a11y.reset", "Réinitialiser")} size="icon" variant="secondary" onClick={handleReset}
                                         className="bg-card/90 backdrop-blur">
                                     <RotateCcw className="h-4 w-4"/>
                                 </Button>
@@ -2081,7 +2081,7 @@ export function NetworkVisualization({userId}: { userId: string }) {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button
+                                    <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                         variant="ghost"
                                         size="sm"
                                         className="absolute top-2 right-2 h-6 w-6 p-0"

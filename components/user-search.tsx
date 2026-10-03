@@ -7,6 +7,7 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Card} from "@/components/ui/card";
 import {createClient} from "@/lib/supabase/client";
+import { useTranslation } from "@/lib/i18n/provider";
 
 interface UserSearchProps {
     onSelect: (user: any) => void;
@@ -15,6 +16,7 @@ interface UserSearchProps {
 }
 
 export function UserSearch({onSelect, excludeIds = [], placeholder = "Search for users..."}: UserSearchProps) {
+  const { t } = useTranslation();
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +95,7 @@ export function UserSearch({onSelect, excludeIds = [], placeholder = "Search for
                                         <p className="text-xs text-muted-foreground">@{user.username}</p>
                                     </div>
                                 </div>
-                                <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                <Button aria-label={t("a11y.follow", "Suivre")} title={t("a11y.follow", "Suivre")} size="sm" variant="ghost" className="h-8 w-8 p-0">
                                     <UserPlus className="h-4 w-4 text-royal-purple"/>
                                 </Button>
                             </div>

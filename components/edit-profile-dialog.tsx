@@ -166,6 +166,8 @@ export function EditProfileDialog({profile}: EditProfileDialogProps) {
                                 )}
                             </Button>
                             <input id="avatar-upload" type="file" accept="image/*" className="hidden"
+                                   aria-label={t("profile.uploadAvatar", "Téléverser un avatar")}
+                                   title={t("profile.uploadAvatar", "Téléverser un avatar")}
                                    onChange={handleAvatarUpload}/>
                         </div>
                     </div>

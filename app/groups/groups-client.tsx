@@ -1,6 +1,7 @@
 "use client";
 
 import {Globe, Lock, Plus, Search, TrendingUp, Users} from "lucide-react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {useRouter} from "next/navigation";
 import {useCallback, useEffect, useState} from "react";
 
@@ -33,6 +34,7 @@ interface Group {
 }
 
 export function GroupsClient({userId}: { userId?: string }) {
+  const {t} = useTranslation();
     const [groups, setGroups] = useState<Group[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("discover");
@@ -231,6 +233,8 @@ export function GroupsClient({userId}: { userId?: string }) {
                             <div>
                                 <Label className="text-base">Privacy</Label>
                                 <select
+                                    aria-label={t("groups.privacy", "Confidentialité")}
+                                    title={t("groups.privacy", "Confidentialité")}
                                     className="w-full rounded-md border border-input bg-background px-3 py-2 mt-2"
                                     value={newGroupPrivacy}
                                     onChange={(e) => setNewGroupPrivacy(e.target.value)}

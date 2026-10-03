@@ -132,12 +132,12 @@ export function RelationshipManager({targetUserId, currentUserId}: RelationshipM
                                 <strong>{req.profiles?.display_name || req.profiles?.username}</strong> wants to be your <strong>{req.custom_label || req.relationship_type}</strong>
                             </span>
                             <div className="flex gap-1">
-                                <Button size="sm" variant="outline"
+                                <Button aria-label={t("a11y.confirm", "Confirmer")} title={t("a11y.confirm", "Confirmer")} size="sm" variant="outline"
                                         className="h-7 px-2 bg-royal-green text-white border-none hover:bg-royal-green/90"
                                         onClick={() => acceptRelationship(req.id)}>
                                     <Check className="h-3.5 w-3.5"/>
                                 </Button>
-                                <Button size="sm" variant="outline"
+                                <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")} size="sm" variant="outline"
                                         className="h-7 px-2 bg-destructive text-white border-none hover:bg-destructive/90"
                                         onClick={() => removeRelationship(req.id)}>
                                     <X className="h-3.5 w-3.5"/>
@@ -158,7 +158,7 @@ export function RelationshipManager({targetUserId, currentUserId}: RelationshipM
                             <Icon className="h-3 w-3"/>
                             {getRelationshipLabel(rel)}
                             {rel.status === "pending" && <span className="text-xs opacity-60">(pending)</span>}
-                            <button
+                            <button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                 onClick={() => removeRelationship(rel.id)}
                                 className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
                             >

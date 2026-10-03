@@ -1,6 +1,7 @@
 "use client";
 
 import {Calendar, ChevronLeft, Edit, Globe, Lock, Trash2, Users} from "lucide-react";
+import {useTranslation} from "@/lib/i18n/provider";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import {useCallback, useEffect, useState} from "react";
@@ -25,6 +26,7 @@ interface GroupDetailViewProps {
 }
 
 export function GroupDetailView({group, userId}: GroupDetailViewProps) {
+  const {t} = useTranslation();
     const router = useRouter();
     const supabase = createBrowserClient();
     const [isMember, setIsMember] = useState(false);
@@ -263,6 +265,8 @@ export function GroupDetailView({group, userId}: GroupDetailViewProps) {
                                                         <div>
                                                             <Label>Privacy</Label>
                                                             <select
+                                                                aria-label={t("groups.privacy", "Confidentialité")}
+                                                                title={t("groups.privacy", "Confidentialité")}
                                                                 className="w-full rounded-md border border-input bg-background px-3 py-2 mt-2"
                                                                 value={groupSettings.is_private ? "private" : "public"}
                                                                 onChange={(e) =>

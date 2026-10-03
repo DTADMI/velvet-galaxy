@@ -197,7 +197,7 @@ export function SearchBar() {
                             className="pl-10 pr-10"
                         />
                         {query && (
-                            <Button
+                            <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setQuery("")}

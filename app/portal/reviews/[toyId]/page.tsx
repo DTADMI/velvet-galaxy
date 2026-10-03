@@ -189,7 +189,7 @@ export default function ToyDetailPage() {
                                     <CardContent className="p-4">
                     <textarea
                         className="w-full bg-transparent border-none focus:ring-0 text-sm min-h-[80px] placeholder:text-muted-foreground/50"
-                        placeholder="Share your experience with this toy..."
+                        placeholder="Share your experience with this toy..." title="Share your experience with this toy..."
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                     />

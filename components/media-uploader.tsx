@@ -1,6 +1,7 @@
 "use client";
 
 import React, {useCallback, useState} from "react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {File, Upload, X} from "lucide-react";
 import {useDropzone} from "react-dropzone";
 import {Button} from "@/components/ui/button";
@@ -22,6 +23,7 @@ export function MediaUploader({
                                       'audio/*': ['.mp3', '.wav', '.ogg']
                                   }
                               }: MediaUploaderProps) {
+    const {t} = useTranslation();
     const [files, setFiles] = useState<any[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -97,7 +99,7 @@ export function MediaUploader({
                     isUploading && "pointer-events-none opacity-50"
                 )}
             >
-                <input {...getInputProps()} />
+                <input {...getInputProps()} aria-label={t("media.uploadFiles", "Téléverser des fichiers")} title={t("media.uploadFiles", "Téléverser des fichiers")} />
                 <Upload className="h-10 w-10 mx-auto mb-4 text-royal-purple"/>
                 <p className="font-medium text-lg">Drag & drop files here</p>
                 <p className="text-sm text-muted-foreground">or click to select (max {maxFiles} files)</p>
@@ -115,7 +117,7 @@ export function MediaUploader({
                                     <File className="h-8 w-8 text-muted-foreground"/>
                                 </div>
                             )}
-                            <button
+                            <button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                 onClick={() => removeFile(i)}
                                 className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                             >

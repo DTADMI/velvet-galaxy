@@ -4,6 +4,7 @@ import {Pause, Play, Settings, Volume2, VolumeX} from "lucide-react";
 import {useEffect, useRef, useState} from "react";
 
 import {Button} from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/provider";
 import {Dialog, DialogContent} from "@/components/ui/dialog";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
@@ -17,6 +18,7 @@ interface VideoViewerProps {
 }
 
 export function VideoViewer({open, onOpenChange, videoUrl, title}: VideoViewerProps) {
+  const { t } = useTranslation();
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(1);
@@ -154,7 +156,7 @@ export function VideoViewer({open, onOpenChange, videoUrl, title}: VideoViewerPr
                                 {/* Playback speed */}
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
+                                        <Button aria-label={t("a11y.settings", "Paramètres")} title={t("a11y.settings", "Paramètres")} size="sm" variant="ghost" className="text-white hover:bg-white/20">
                                             <Settings className="h-5 w-5"/>
                                         </Button>
                                     </PopoverTrigger>

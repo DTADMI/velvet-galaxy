@@ -1,6 +1,7 @@
 "use client";
 
 import {useEffect, useState} from "react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {createClient} from "@/lib/supabase/client";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
@@ -52,6 +53,7 @@ interface NodeEditDialogProps {
 }
 
 export function NodeEditDialog({node, userId, isOpen, onClose, onUpdate}: NodeEditDialogProps) {
+  const {t} = useTranslation();
     const [nodeColor, setNodeColor] = useState("#6b7280");
     const [customTypes, setCustomTypes] = useState<CustomRelationshipType[]>([]);
     const [existingRelationships, setExistingRelationships] = useState<ExternalRelationship[]>([]);
@@ -317,7 +319,7 @@ export function NodeEditDialog({node, userId, isOpen, onClose, onUpdate}: NodeEd
                                                                 ? rel.default_type.charAt(0).toUpperCase() + rel.default_type.slice(1)
                                                                 : "Unknown"}
                                                     </span>
-                                                    <Button
+                                                    <Button aria-label={t("a11y.delete", "Supprimer")} title={t("a11y.delete", "Supprimer")}
                                                         size="icon"
                                                         variant="ghost"
                                                         onClick={() => handleDeleteRelationship(rel.id)}

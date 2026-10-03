@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {Download, Filter, Package, Search, ShoppingBag, Star, Zap} from "lucide-react";
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
@@ -9,6 +10,7 @@ import {Badge} from "@/components/ui/badge";
 import {Navigation} from "@/components/navigation";
 
 export default function MarketPage() {
+  const {t} = useTranslation();
     const products = [
         {
             id: "1",
@@ -112,7 +114,7 @@ export default function MarketPage() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm text-muted-foreground">Sort by:</span>
-                                    <select className="bg-background border rounded px-2 py-1 text-sm outline-none">
+                                    <select aria-label={t("market.sortBy", "Trier par")} title={t("market.sortBy", "Trier par")} className="bg-background border rounded px-2 py-1 text-sm outline-none">
                                         <option>Newest</option>
                                         <option>Price: Low to High</option>
                                         <option>Price: High to Low</option>

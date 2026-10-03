@@ -373,6 +373,8 @@ export function ChatRoomsClient({userId}: { userId?: string }) {
                             <div>
                                 <Label>Privacy</Label>
                                 <select name="is_public"
+                                        aria-label={t("chatRooms.privacy", "Confidentialité")}
+                                        title={t("chatRooms.privacy", "Confidentialité")}
                                         className="w-full rounded-md border border-input bg-background px-3 py-2 mt-2">
                                     <option value="public">Public - Anyone can join</option>
                                     <option value="private">Private - Invite only</option>

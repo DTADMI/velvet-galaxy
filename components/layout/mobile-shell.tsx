@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslation } from "@/lib/i18n/provider";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ interface MobileShellProps {
 }
 
 export function MobileShell({ children, sidebar, bottomNav, topBar }: MobileShellProps) {
+  const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -68,7 +70,7 @@ export function MobileShell({ children, sidebar, bottomNav, topBar }: MobileShel
             <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border shadow-lg md:hidden">
               <div className="flex h-14 items-center justify-between border-b border-border px-4">
                 <span className="font-semibold">Menu</span>
-                <button
+                <button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                   onClick={() => setSidebarOpen(false)}
                   className="rounded-md p-1 hover:bg-accent"
                 >

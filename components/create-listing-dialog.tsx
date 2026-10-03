@@ -228,7 +228,7 @@ export function CreateListingDialog({onListingCreated}: CreateListingDialogProps
                                             alt={`Preview ${index + 1}`}
                                             className="w-full h-24 object-cover rounded"
                                         />
-                                        <button
+                                        <button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                             type="button"
                                             onClick={() => removeImage(index)}
                                             className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -267,7 +267,7 @@ export function CreateListingDialog({onListingCreated}: CreateListingDialogProps
                                     <div key={index}
                                          className="flex items-center justify-between bg-secondary/50 px-3 py-2 rounded">
                                         <span className="text-sm truncate">{video.name}</span>
-                                        <button
+                                        <button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                             type="button"
                                             onClick={() => removeVideo(index)}
                                             className="text-destructive hover:text-destructive/80"

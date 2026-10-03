@@ -411,6 +411,8 @@ export function SettingsClient() {
                                     <Globe className="h-5 w-5 text-muted-foreground"/>
                                     <select
                                         value={language}
+                                        aria-label={t("settings.language", "Langue")}
+                                        title={t("settings.language", "Langue")}
                                         onChange={(e) => setLanguage(e.target.value)}
                                         className="flex-1 rounded-md border border-input bg-background px-3 py-2"
                                     >

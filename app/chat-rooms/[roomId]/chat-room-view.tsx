@@ -689,7 +689,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                                     </p>
                                                                 </div>
                                                                 <div className="flex gap-2">
-                                                                    <Button
+                                                                    <Button aria-label={t("a11y.accept", "Accepter")} title={t("a11y.accept", "Accepter")}
                                                                         size="sm"
                                                                         variant="outline"
                                                                         onClick={() => approveParticipant(participant.id, participant.user_id)}
@@ -697,7 +697,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                                                     >
                                                                         <UserCheck className="h-4 w-4"/>
                                                                     </Button>
-                                                                    <Button
+                                                                    <Button aria-label={t("a11y.reject", "Refuser")} title={t("a11y.reject", "Refuser")}
                                                                         size="sm"
                                                                         variant="outline"
                                                                         onClick={() => denyParticipant(participant.id)}
@@ -714,7 +714,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                         )}
                                         <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
                                             <DialogTrigger asChild>
-                                                <Button size="sm" variant="outline"
+                                                <Button aria-label={t("a11y.settings", "Paramètres")} title={t("a11y.settings", "Paramètres")} size="sm" variant="outline"
                                                         className="border-royal-purple/20 bg-transparent">
                                                     <Settings className="h-4 w-4"/>
                                                 </Button>
@@ -922,7 +922,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                             </DialogContent>
                                         </Dialog>
                                         {isCreator && (
-                                            <Button
+                                            <Button aria-label={t("a11y.delete", "Supprimer")} title={t("a11y.delete", "Supprimer")}
                                                 size="sm"
                                                 variant="outline"
                                                 onClick={handleDeleteRoom}
@@ -944,7 +944,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                 </Button>
                                 {roomType !== "text" && (
                                     <>
-                                        <Button
+                                        <Button aria-label={t("a11y.messages", "Messages")} title={t("a11y.messages", "Messages")}
                                             size="sm"
                                             variant="outline"
                                             onClick={() => setShowChat(!showChat)}
@@ -1045,7 +1045,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                 <div className="flex gap-2">
                                     <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
                                         <PopoverTrigger asChild>
-                                            <Button
+                                            <Button aria-label={t("a11y.emoji", "Émojis")} title={t("a11y.emoji", "Émojis")}
                                                 type="button"
                                                 size="sm"
                                                 variant="outline"
@@ -1064,7 +1064,7 @@ export function ChatRoomView({roomId, userId, roomType, roomName}: ChatRoomViewP
                                         placeholder="Type a message..."
                                         className="flex-1 bg-card/50 border-royal-purple/20"
                                     />
-                                    <Button type="submit" className="bg-linear-to-r from-royal-purple to-royal-blue">
+                                    <Button aria-label={t("a11y.send", "Envoyer")} title={t("a11y.send", "Envoyer")} type="submit" className="bg-linear-to-r from-royal-purple to-royal-blue">
                                         <Send className="h-4 w-4"/>
                                     </Button>
                                 </div>

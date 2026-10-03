@@ -1,6 +1,7 @@
 "use client";
 
 import {X} from "lucide-react";
+import {useTranslation} from "@/lib/i18n/provider";
 import type React from "react";
 import {useState} from "react";
 
@@ -14,6 +15,7 @@ interface TagInputProps {
 }
 
 export function TagInput({tags, onTagsChange, placeholder = "Add tags..."}: TagInputProps) {
+  const {t} = useTranslation();
     const [inputValue, setInputValue] = useState("");
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -43,7 +45,7 @@ export function TagInput({tags, onTagsChange, placeholder = "Add tags..."}: TagI
                 {tags.map((tag, index) => (
                     <Badge key={index} variant="secondary" className="gap-1 bg-royal-purple/20 text-royal-purple">
                         #{tag}
-                        <button
+                        <button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                             type="button"
                             onClick={() => removeTag(index)}
                             className="ml-1 hover:bg-royal-purple/30 rounded-full"

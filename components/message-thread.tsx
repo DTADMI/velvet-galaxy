@@ -506,7 +506,7 @@ export function MessageThread({conversationId, currentUserId, conversationType}:
                                     disabled={isLoading}
                                 />
                             </div>
-                            <Button
+                            <Button aria-label={t("a11y.send", "Envoyer")} title={t("a11y.send", "Envoyer")}
                                 type="submit"
                                 disabled={!newMessage.trim() || isLoading}
                                 className={cn(

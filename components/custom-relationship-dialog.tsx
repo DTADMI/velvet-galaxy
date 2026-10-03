@@ -326,7 +326,7 @@ export function CustomRelationshipDialog({
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button size="icon" variant="secondary">
+                <Button aria-label={t("a11y.add", "Ajouter")} title={t("a11y.add", "Ajouter")} size="icon" variant="secondary">
                     <PlusIcon className="h-4 w-4"/>
                 </Button>
             </DialogTrigger>

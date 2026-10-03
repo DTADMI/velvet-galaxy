@@ -1,6 +1,7 @@
 "use client";
 
 import {ArrowLeft, Save} from "lucide-react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
 
@@ -24,6 +25,7 @@ interface MessageSettingsClientProps {
 }
 
 export function MessageSettingsClient({profile}: MessageSettingsClientProps) {
+  const {t} = useTranslation();
     const [settings, setSettings] = useState({
         dating_messages_enabled: profile.dating_messages_enabled ?? true,
         allow_group_messages: profile.allow_group_messages ?? true,
@@ -64,7 +66,7 @@ export function MessageSettingsClient({profile}: MessageSettingsClientProps) {
     return (
         <div className="container mx-auto max-w-4xl p-6">
             <div className="flex items-center gap-4 mb-6">
-                <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                <Button aria-label={t("a11y.back", "Retour")} title={t("a11y.back", "Retour")} variant="ghost" size="icon" onClick={() => router.back()}>
                     <ArrowLeft className="h-5 w-5"/>
                 </Button>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-royal-purple to-royal-blue bg-clip-text text-transparent">

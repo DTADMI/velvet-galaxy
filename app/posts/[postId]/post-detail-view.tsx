@@ -267,7 +267,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                                     {currentUserId === post.profiles.id ? (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                <Button aria-label={t("a11y.moreOptions", "Plus d'options")} title={t("a11y.moreOptions", "Plus d'options")} variant="ghost" size="sm" className="h-8 w-8 p-0">
                                                     <MoreHorizontal className="h-4 w-4"/>
                                                 </Button>
                                             </DropdownMenuTrigger>
@@ -374,7 +374,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                                     {comments.length}
                                 </Button>
                             </div>
-                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                            <Button aria-label={t("a11y.share", "Partager")} title={t("a11y.share", "Partager")} variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                                 <Share2 className="h-5 w-5"/>
                             </Button>
                         </CardFooter>
@@ -438,7 +438,7 @@ export function PostDetailView({post, currentUserId}: PostDetailViewProps) {
                                             }
                                         }}
                                     />
-                                    <Button onClick={submitComment} size="icon" disabled={!newComment.trim()}>
+                                    <Button aria-label={t("a11y.send", "Envoyer")} title={t("a11y.send", "Envoyer")} onClick={submitComment} size="icon" disabled={!newComment.trim()}>
                                         <Send className="h-4 w-4"/>
                                     </Button>
                                 </div>

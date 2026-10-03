@@ -1,6 +1,7 @@
 "use client";
 
 import {Camera, Check, Circle, Mic, RotateCcw, Settings, Square, Video, X} from "lucide-react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {useEffect, useRef, useState} from "react";
 
 import {Alert, AlertDescription} from "@/components/ui/alert";
@@ -29,6 +30,7 @@ interface DeviceInfo {
 }
 
 export function LiveMediaCapture({type, onCapture, onCancel}: LiveMediaCaptureProps) {
+  const {t} = useTranslation();
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [capturedData, setCapturedData] = useState<string | null>(null);
     const [isRecording, setIsRecording] = useState(false);
@@ -358,7 +360,7 @@ export function LiveMediaCapture({type, onCapture, onCancel}: LiveMediaCapturePr
                 <div className="flex items-center gap-2">
                     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
                         <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon" disabled={isRecording || !!capturedData}>
+                            <Button aria-label={t("a11y.settings", "Paramètres")} title={t("a11y.settings", "Paramètres")} variant="ghost" size="icon" disabled={isRecording || !!capturedData}>
                                 <Settings className="h-5 w-5"/>
                             </Button>
                         </DialogTrigger>
@@ -513,7 +515,7 @@ export function LiveMediaCapture({type, onCapture, onCancel}: LiveMediaCapturePr
                             </div>
                         </DialogContent>
                     </Dialog>
-                    <Button variant="ghost" size="icon" onClick={onCancel}>
+                    <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")} variant="ghost" size="icon" onClick={onCancel}>
                         <X className="h-5 w-5"/>
                     </Button>
                 </div>
@@ -558,7 +560,7 @@ export function LiveMediaCapture({type, onCapture, onCancel}: LiveMediaCapturePr
                                     <Camera className="h-5 w-5 mr-2"/>
                                     Take Photo
                                 </Button>
-                                <Button onClick={toggleCamera} disabled={!stream} variant="outline" size="lg">
+                                <Button aria-label={t("a11y.reset", "Réinitialiser")} title={t("a11y.reset", "Réinitialiser")} onClick={toggleCamera} disabled={!stream} variant="outline" size="lg">
                                     <RotateCcw className="h-5 w-5"/>
                                 </Button>
                             </>
@@ -579,7 +581,7 @@ export function LiveMediaCapture({type, onCapture, onCancel}: LiveMediaCapturePr
                         )}
 
                         {type === "video" && (
-                            <Button onClick={toggleCamera} disabled={!stream || isRecording} variant="outline"
+                            <Button aria-label={t("a11y.reset", "Réinitialiser")} title={t("a11y.reset", "Réinitialiser")} onClick={toggleCamera} disabled={!stream || isRecording} variant="outline"
                                     size="lg">
                                 <RotateCcw className="h-5 w-5"/>
                             </Button>

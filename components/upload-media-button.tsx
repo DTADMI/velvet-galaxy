@@ -83,7 +83,7 @@ export function UploadMediaButton() {
 
                         <div>
                             <Label>Album (optional)</Label>
-                            <select className="w-full rounded-md border border-input bg-background px-3 py-2">
+                            <select aria-label={t("media.album", "Album")} title={t("media.album", "Album")} className="w-full rounded-md border border-input bg-background px-3 py-2">
                                 <option value="">No album</option>
                                 <option value="1">Summer Memories</option>
                                 <option value="2">My Artwork</option>

@@ -404,6 +404,8 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
                                     <input
                                         ref={fileInputRef}
                                         type="file"
+                                        aria-label={t("upload.picture", "Image")}
+                                        title={t("upload.picture", "Image")}
                                         accept="image/*"
                                         multiple
                                         className="hidden"
@@ -425,7 +427,7 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
                                                         alt={`Preview ${index + 1}`}
                                                         className="w-full h-full object-cover"
                                                     />
-                                                    <Button
+                                                    <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                                         type="button"
                                                         variant="destructive"
                                                         size="icon"
@@ -487,6 +489,8 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
                                     <input
                                         ref={fileInputRef}
                                         type="file"
+                                        aria-label={t("upload.video", "Vidéo")}
+                                        title={t("upload.video", "Vidéo")}
                                         accept="video/*"
                                         multiple
                                         className="hidden"
@@ -506,7 +510,7 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
                                                         <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                                     </div>
                                                 </div>
-                                                <Button type="button" variant="ghost" size="sm"
+                                                <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")} type="button" variant="ghost" size="sm"
                                                         onClick={() => removeFile(index)}>
                                                     <X className="h-4 w-4"/>
                                                 </Button>
@@ -563,6 +567,8 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
                                     <input
                                         ref={fileInputRef}
                                         type="file"
+                                        aria-label={t("upload.audio", "Audio")}
+                                        title={t("upload.audio", "Audio")}
                                         accept="audio/*"
                                         multiple
                                         className="hidden"
@@ -582,7 +588,7 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
                                                         <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                                     </div>
                                                 </div>
-                                                <Button type="button" variant="ghost" size="sm"
+                                                <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")} type="button" variant="ghost" size="sm"
                                                         onClick={() => removeFile(index)}>
                                                     <X className="h-4 w-4"/>
                                                 </Button>
@@ -686,7 +692,7 @@ export function UploadForm({profile, initialType}: UploadFormProps) {
                                             onChange={(e) => setTagInput(e.target.value)}
                                             onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                                         />
-                                        <Button type="button" variant="outline" onClick={addTag}>
+                                        <Button aria-label={t("a11y.tag", "Étiquette")} title={t("a11y.tag", "Étiquette")} type="button" variant="outline" onClick={addTag}>
                                             <Tag className="h-4 w-4"/>
                                         </Button>
                                     </div>

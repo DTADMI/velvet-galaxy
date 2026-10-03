@@ -1,6 +1,7 @@
 "use client";
 
 import {Loader2, Search, X} from "lucide-react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {useEffect, useState} from "react";
 
 import {RichTextEditor} from "@/components/rich-text-editor";
@@ -35,6 +36,7 @@ export function NewConversationDialog({
                                           messageType,
                                           onConversationCreated,
                                       }: NewConversationDialogProps) {
+    const {t} = useTranslation();
     const [recipients, setRecipients] = useState<Array<{
         id: string;
         username: string;
@@ -234,7 +236,7 @@ export function NewConversationDialog({
                             {recipients.map((recipient) => (
                                 <Badge key={recipient.id} variant="secondary" className="gap-1 py-1 px-2">
                                     {recipient.display_name || recipient.username}
-                                    <button onClick={() => removeRecipient(recipient.id)}
+                                    <button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")} onClick={() => removeRecipient(recipient.id)}
                                             className="ml-1 hover:text-destructive">
                                         <X className="h-3 w-3"/>
                                     </button>

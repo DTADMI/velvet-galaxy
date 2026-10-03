@@ -488,7 +488,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                 <div className="relative rounded-lg overflow-hidden border border-royal-purple/20">
                                     <img src={mediaUrl || "/placeholder.svg"} alt="Preview"
                                          className="w-full h-48 object-cover"/>
-                                    <Button
+                                    <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                         type="button"
                                         size="sm"
                                         variant="destructive"
@@ -508,6 +508,8 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                     <input
                                         ref={statusFileInputRef}
                                         type="file"
+                                        aria-label={t("post.attachImage", "Joindre une image")}
+                                        title={t("post.attachImage", "Joindre une image")}
                                         accept="image/*"
                                         multiple
                                         className="hidden"
@@ -738,7 +740,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                                                                     <Badge
                                                                                         variant="secondary">{uploadProgress}%</Badge>
                                                                                 )}
-                                                                                <Button
+                                                                                <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                                                                     type="button"
                                                                                     size="sm"
                                                                                     variant="ghost"
@@ -792,7 +794,7 @@ export function EnhancedCreatePost({userProfile, onPostCreated, isPremium = fals
                                                                 onChange={(e) => setTagInput(e.target.value)}
                                                                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                                                             />
-                                                            <Button type="button" variant="outline" onClick={addTag}>
+                                                            <Button aria-label={t("a11y.tag", "Étiquette")} title={t("a11y.tag", "Étiquette")} type="button" variant="outline" onClick={addTag}>
                                                                 <Tag className="h-4 w-4"/>
                                                             </Button>
                                                         </div>

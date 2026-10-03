@@ -1,6 +1,7 @@
 "use client";
 
 import {BarChart3, Loader2, Plus, X} from "lucide-react";
+import {useTranslation} from "@/lib/i18n/provider";
 import {useState} from "react";
 import {toast} from "sonner";
 
@@ -18,6 +19,7 @@ interface PollCreatorProps {
 }
 
 export function PollCreator({onPollCreated, contextType = "feed", contextId}: PollCreatorProps) {
+  const {t} = useTranslation();
     const [pollQuestion, setPollQuestion] = useState("");
     const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
     const [multipleChoice, setMultipleChoice] = useState(false);
@@ -130,7 +132,7 @@ export function PollCreator({onPollCreated, contextType = "feed", contextId}: Po
                                 onChange={(e) => updateOption(index, e.target.value)}
                             />
                             {pollOptions.length > 2 && (
-                                <Button
+                                <Button aria-label={t("a11y.close", "Fermer")} title={t("a11y.close", "Fermer")}
                                     type="button"
                                     variant="ghost"
                                     size="icon"

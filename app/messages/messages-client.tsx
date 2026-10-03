@@ -637,7 +637,7 @@ export function MessagesClient({conversations, currentUserId}: MessagesClientPro
                                             className="pl-9"
                                         />
                                     </div>
-                                    <Button
+                                    <Button aria-label={t("a11y.sort", "Trier")} title={t("a11y.sort", "Trier")}
                                         variant="outline"
                                         size="icon"
                                         onClick={() => setSortBy(sortBy === "date" ? "unread" : "date")}
