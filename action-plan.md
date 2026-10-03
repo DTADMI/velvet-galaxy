@@ -160,49 +160,49 @@ recommended) or Docker deploy. Strict linting and type safety.
 
 ## In Progress
 
-- 🔴 **Redis Infrastructure (May 2026)**:
+- 🔴 **Redis Infrastructure (May 2026)** (`docs/gap-analysis-implementation-roadmap.md`):
   - 🔴 Created `lib/redis/` layer with Upstash client, sliding-window rate limiting, and response caching.
   - 🔴 Rate limiting migrated to Redis-first with Supabase fallback.
   - 🔴 Added `@upstash/redis` and `@upstash/ratelimit` dependencies.
   - [ ] Deploy Upstash Redis instance and configure env vars.
 
-- 🟡 **AI Features - Phase 2 (May 2026)**:
+- 🟡 **AI Features - Phase 2 (May 2026)** (`docs/ai-features-implementation-plan.md`):
   - 🟡 Foundation complete: provider-agnostic AI adapter (`lib/ai/`), API routes (10 endpoints), Redis caching, feature flags.
   - 🟡 Admin AI settings page built (`app/admin/ai/page.tsx`).
   - [ ] Deploy AI features behind feature flags.
   - [ ] Implement remaining AI features (recommendations, chat, onboarding, media captioning).
 
-- 🟡 **Error Handling Strategy (May 2026)**:
+- 🟡 **Error Handling Strategy (May 2026)** (`docs/technical/gaps-roadmap.md`):
   - 🟡 Created centralized error types, classification, and user-friendly messages (`lib/errors.ts`).
   - 🟡 Built reusable `ErrorBoundary` component with retry support.
   - [ ] Integrate error boundaries into key page layouts.
 
 ## Next
 
-- 🔜 **Neo4J Integration (Phase 3)**:
+- 🔜 **Neo4J Integration (Phase 3)** (`docs/neo4j-integration-plan.md`):
   - 🔜 Set up Neo4j AuraDB free tier.
   - 🔜 Define graph model (Profile, Group, Event, Artwork nodes + relationships).
   - 🔜 Build sync layer (Supabase webhooks → Neo4j upserts).
   - 🔜 Implement graph-native queries for galaxy visualization and recommendations.
   - 🔜 Gate behind `neo4j_graph_queries` feature flag.
 
-- 🔜 **System Health & Monitoring**:
+- 🔜 **System Health & Monitoring** (`docs/technical/gaps-roadmap.md`):
   - 🔜 Build admin health dashboard with Supabase/Redis/API metrics.
   - 🔜 Add audit logging table and triggers.
   - 🔜 Implement email notifications for security events (MFA, suspicious device).
 
-- 🔜 **AI Features - Phase 2**:
+- 🔜 **AI Features - Phase 2** (`docs/ai-features-implementation-plan.md`):
   - 🔜 AI content recommendations and people discovery.
   - 🔜 AI chat assistant and onboarding assistant.
   - 🔜 AI media captioning and group activity generator.
 
-- 🔜 **TanStack Query Migration** (optional enhancement):
+- 🔜 **TanStack Query Migration** (optional enhancement, `docs/tanstack-migration-guide.md`):
   - 🔜 Install `@tanstack/react-query`.
   - 🔜 Add `QueryClientProvider`.
   - 🔜 Migrate key data-fetching hooks.
   - 🔜 Implement optimistic updates for social actions.
 
-- 🔜 **UI/UX Improvements**:
+- 🔜 **UI/UX Improvements** (`docs/technical/gaps-roadmap.md`):
   - 🔜 Skeleton loaders for all dynamic routes.
   - 🔜 Empty state components with CTAs.
   - 🔜 Optimistic UI updates for likes, follows, bookmarks.
