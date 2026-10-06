@@ -211,7 +211,6 @@ dist/**/*.js.map
 typings/
 !/.idea/
 /package.json.1858806514
-!/test-results/
 
 # TypeScript cache
 *.tsbuildinfo
@@ -219,3 +218,8 @@ next-env.d.ts
 /.output.txt
 i18n-audit-report.json
 dead-code-report.json
+
+# Artefacts Playwright (rapports et traces de test)
+playwright-report/
+blob-report/
+.playwright/
