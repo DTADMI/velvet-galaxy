@@ -223,3 +223,6 @@ dead-code-report.json
 playwright-report/
 blob-report/
 .playwright/
+
+# Artefacts Playwright (rapports et traces de test)
+test-results/
