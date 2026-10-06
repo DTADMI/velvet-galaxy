@@ -23,6 +23,8 @@ interface Notification {
 export function NotificationsDropdown() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    // NF-UX-FEEDBACK : identifie la notification en cours de traitement.
+    const [markingId, setMarkingId] = useState<string | null>(null);
     const supabase = createBrowserClient();
 
     useEffect(() => {
@@ -71,8 +73,14 @@ export function NotificationsDropdown() {
     };
 
     const markAsRead = async (notificationId: string) => {
-        await supabase.from("notifications").update({read: true}).eq("id", notificationId);
-        loadNotifications();
+        if (markingId) return;
+        setMarkingId(notificationId);
+        try {
+            await supabase.from("notifications").update({read: true}).eq("id", notificationId);
+            loadNotifications();
+        } finally {
+            setMarkingId(null);
+        }
     };
 
     const markAllAsRead = async () => {
@@ -138,6 +146,8 @@ export function NotificationsDropdown() {
                                 key={notification.id}
                                 className={`p-4 cursor-pointer ${!notification.read ? "bg-royal-purple/5" : ""}`}
                                 onClick={() => markAsRead(notification.id)}
+                                disabled={markingId === notification.id}
+                                aria-busy={markingId === notification.id}
                                 asChild
                             >
                                 <Link href={notification.link || "#"}>

@@ -56,6 +56,8 @@ export function NodeEditDialog({node, userId, isOpen, onClose, onUpdate}: NodeEd
   const {t} = useTranslation();
     const [nodeColor, setNodeColor] = useState("#6b7280");
     const [customTypes, setCustomTypes] = useState<CustomRelationshipType[]>([]);
+    // NF-UX-FEEDBACK : relation en cours de suppression (appel reseau).
+    const [deletingRelationshipId, setDeletingRelationshipId] = useState<string | null>(null);
     const [existingRelationships, setExistingRelationships] = useState<ExternalRelationship[]>([]);
     const [newRelationship, setNewRelationship] = useState({
         relationship_type_id: "",
@@ -191,27 +193,33 @@ export function NodeEditDialog({node, userId, isOpen, onClose, onUpdate}: NodeEd
     }
 
     async function handleDeleteRelationship(relationshipId: string) {
-        const {error} = await supabase
-            .from("external_relationships")
-            .delete()
-            .eq("id", relationshipId);
+        if (deletingRelationshipId) return;
+        setDeletingRelationshipId(relationshipId);
+        try {
+            const {error} = await supabase
+                .from("external_relationships")
+                .delete()
+                .eq("id", relationshipId);
 
-        if (error) {
+            if (error) {
+                toast({
+                    title: "Error deleting relationship",
+                    description: error.message,
+                    variant: "destructive",
+                });
+                return;
+            }
+
             toast({
-                title: "Error deleting relationship",
-                description: error.message,
-                variant: "destructive",
+                title: "Relationship deleted",
+                description: "The relationship edge has been removed.",
             });
-            return;
+
+            loadNodeData();
+            onUpdate();
+        } finally {
+            setDeletingRelationshipId(null);
         }
-
-        toast({
-            title: "Relationship deleted",
-            description: "The relationship edge has been removed.",
-        });
-
-        loadNodeData();
-        onUpdate();
     }
 
     if (!node) return null;
@@ -323,6 +331,8 @@ export function NodeEditDialog({node, userId, isOpen, onClose, onUpdate}: NodeEd
                                                         size="icon"
                                                         variant="ghost"
                                                         onClick={() => handleDeleteRelationship(rel.id)}
+                                                        disabled={deletingRelationshipId === rel.id}
+                                                        aria-busy={deletingRelationshipId === rel.id}
                                                     >
                                                         <Trash2Icon className="h-4 w-4"/>
                                                     </Button>

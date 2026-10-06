@@ -37,6 +37,9 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
     const [newComment, setNewComment] = useState("");
     const [replyTo, setReplyTo] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState("");
+    // NF-UX-FEEDBACK : identifie le commentaire en cours de traitement (suppression,
+    // reponse ou mention). Les controles concernes sont desactives pendant l'appel.
+    const [pendingComment, setPendingComment] = useState<string | null>(null);
     const supabase = createClient();
 
     const fetchComments = useCallback(async () => {
@@ -108,6 +111,7 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
     };
 
     const handleAddReply = async (parentId: string) => {
+        if (pendingComment) return;
         if (!replyContent.trim()) {
             return;
         }
@@ -146,6 +150,7 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
     };
 
     const handleLikeComment = async (commentId: string, isLiked: boolean) => {
+        if (pendingComment) return;
         setComments((prev) =>
             prev.map((c) => {
                 if (c.id === commentId) {
@@ -161,6 +166,7 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
             })
         );
 
+        setPendingComment(commentId);
         try {
             if (isLiked) {
                 await supabase.from("comment_likes").delete().eq("comment_id", commentId).eq("user_id", currentUserId);
@@ -172,12 +178,20 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
             }
         } catch {
             fetchComments();
+        } finally {
+            setPendingComment(null);
         }
     };
 
     const handleDeleteComment = async (commentId: string) => {
-        await supabase.from("comments").delete().eq("id", commentId);
-        fetchComments();
+        if (pendingComment) return;
+        setPendingComment(commentId);
+        try {
+            await supabase.from("comments").delete().eq("id", commentId);
+            fetchComments();
+        } finally {
+            setPendingComment(null);
+        }
     };
 
     const renderComment = (comment: Comment, isReply = false) => {
@@ -209,6 +223,8 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleLikeComment(comment.id, isLiked)}
+                                disabled={pendingComment === comment.id}
+                                aria-busy={pendingComment === comment.id}
                                 className="text-xs gap-1 hover:text-royal-auburn"
                             >
                                 <Heart className={`h-4 w-4 ${isLiked ? "fill-royal-auburn text-royal-auburn" : ""}`}/>
@@ -230,6 +246,8 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteComment(comment.id)}
+                                disabled={pendingComment === comment.id}
+                                aria-busy={pendingComment === comment.id}
                                     className="text-xs gap-1 hover:text-red-500"
                                 >
                                     <Trash2 className="h-4 w-4"/>
@@ -248,6 +266,8 @@ export function CommentSection({contentType: _contentType, contentId, currentUse
                                 <div className="flex gap-2">
                                     <Button
                                         onClick={() => handleAddReply(comment.id)}
+                                disabled={pendingComment === comment.id}
+                                aria-busy={pendingComment === comment.id}
                                         size="sm"
                                         className="bg-gradient-to-r from-royal-blue to-royal-purple"
                                     >
