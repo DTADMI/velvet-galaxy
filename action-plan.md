@@ -214,7 +214,7 @@ recommended) or Docker deploy. Strict linting and type safety.
 - [ ] Evaluate premium cloud TTS (OpenAI Polly) for ultra-premium tiers.
 - [ ] Advanced community moderation tools for group owners.
 - [ ] Full offline PWA support with service worker caching strategy.
-- [ ] Visual regression testing with Playwright.
+- [x] Visual regression testing with Playwright. (2026-10-06 : `tests/e2e/visual.spec.ts`, 6 pages publiques + controle de defilement a 320 px, references commitees)
 - [ ] Performance benchmarking and optimization.
 - [ ] Accessibility audit v2 with screen reader testing.
 
