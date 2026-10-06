@@ -56,7 +56,7 @@
 
 | # | Item | Priority | Effort | Notes |
 |---|---|---|---|---|
-| 1 | Complete ES/DE dictionaries (433 keys each) | 🟡 Medium | 4-6 h | English fallback is active in the meantime; either complete or drop the locales |
+| 1 | Complete ES/DE dictionaries (433 keys each) - **CONFIRME ET CHIFFRE le 2026-10-06** : `es.json` et `de.json` contiennent **36 cles sur 469** (8 %), contre 469 pour `en` et `fr`. Le repli existant fait tomber les 433 cles manquantes sur l'ANGLAIS, et `es`/`de` sont bien proposes dans le selecteur (`localeNames`) : un utilisateur hispanophone voit donc une interface mixte, sans que rien ne l'indique. **Decision a prendre** : completer les deux dictionnaires (866 chaines), ou ne pas proposer ces langues tant qu'elles sont incompletes - une langue presque vide donne l'illusion d'une traduction. Detecte par `scripts/audit-i18n-coverage.mjs` | 🟡 Medium | 4-6 h | English fallback is active in the meantime; either complete or drop the locales |
 | 3 | Expand E2E coverage beyond 3 specs | 🟡 Medium | 2-3 h | Critical paths: auth, marketplace checkout, social graph |
 | 4 | Mobile web adaptiveness audit | 🟡 Medium | 2-3 h | `scripts/audit-responsive.mjs` exists (Playwright + 320px) |
 | 5 | Vercel preview/prod deploy verification | 🟡 Medium | 1-2 h | Requires account access |
