@@ -6,6 +6,12 @@ import {Suspense} from "react";
 import SubscriptionCheckout from "@/components/subscription-checkout";
 import {Button} from "@/components/ui/button";
 
+export const metadata = {
+    title: "Checkout",
+    description: "Complete your Velvet Galaxy subscription checkout.",
+    robots: {index: false, follow: false},
+};
+
 export default async function CheckoutPage({
                                                searchParams,
                                            }: {

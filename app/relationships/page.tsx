@@ -5,6 +5,12 @@ import {createServerClient} from "@/lib/supabase/server";
 import {RelationshipsClient} from "./relationships-client";
 import { getServerTranslations } from '@/lib/i18n/server';
 
+export const metadata = {
+    title: "Relationships",
+    description: "Manage your connections and relationships on Velvet Galaxy.",
+    robots: {index: false, follow: false},
+};
+
 export default async function RelationshipsPage() {
     const supabase = await createServerClient();
   const { t } = await getServerTranslations();

@@ -5,6 +5,21 @@ import {Navigation} from "@/components/navigation";
 import {createClient} from "@/lib/supabase/server";
 import { getServerTranslations } from '@/lib/i18n/server';
 
+export async function generateMetadata({params}: { params: Promise<{ userId: string }> }) {
+    const {userId} = await params;
+    const supabase = await createClient();
+    const {data} = await supabase.from("profiles").select("*").eq("id", userId).single();
+    const name = data?.display_name ?? data?.username ?? "Gallery";
+    const title = `${name} - Gallery`;
+    const description = `Browse ${name}'s media gallery on Velvet Galaxy.`;
+    return {
+        title,
+        description,
+        alternates: {canonical: `/gallery/${userId}`},
+        openGraph: {title, description, url: `/gallery/${userId}`},
+    };
+}
+
 export default async function GalleryPage({params}: { params: Promise<{ userId: string }> }) {
     const {userId} = await params;
     const supabase = await createClient();

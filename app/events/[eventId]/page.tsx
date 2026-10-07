@@ -4,6 +4,20 @@ import {createServerClient} from "@/lib/supabase/server";
 
 import {EventDetailView} from "./event-detail-view";
 
+export async function generateMetadata({params}: { params: Promise<{ eventId: string }> }) {
+    const {eventId} = await params;
+    const supabase = await createServerClient();
+    const {data} = await supabase.from("events").select("*").eq("id", eventId).single();
+    const title = data?.title ?? "Event";
+    const description = data?.description ?? "Discover and join this community event on Velvet Galaxy.";
+    return {
+        title,
+        description,
+        alternates: {canonical: `/events/${eventId}`},
+        openGraph: {title, description, url: `/events/${eventId}`},
+    };
+}
+
 export default async function EventDetailPage({
                                                   params,
                                               }: {

@@ -4,6 +4,12 @@ import {createClient} from "@/lib/supabase/server";
 
 import {EditPostForm} from "./edit-post-form";
 
+export const metadata = {
+    title: "Edit post",
+    description: "Edit one of your posts on Velvet Galaxy.",
+    robots: {index: false, follow: false},
+};
+
 export default async function EditPostPage({params}: { params: Promise<{ postId: string }> }) {
     const {postId} = await params;
     const supabase = await createClient();

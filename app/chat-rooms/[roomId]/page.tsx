@@ -5,6 +5,20 @@ import {createServerClient} from "@/lib/supabase/server";
 
 import {ChatRoomView} from "./chat-room-view";
 
+export async function generateMetadata({params}: { params: Promise<{ roomId: string }> }) {
+    const {roomId} = await params;
+    const supabase = await createServerClient();
+    const {data} = await supabase.from("conversations").select("*").eq("id", roomId).single();
+    const title = data?.title ?? data?.name ?? "Chat room";
+    const description = "Join this live chat room and community conversation on Velvet Galaxy.";
+    return {
+        title,
+        description,
+        alternates: {canonical: `/chat-rooms/${roomId}`},
+        openGraph: {title, description, url: `/chat-rooms/${roomId}`},
+    };
+}
+
 export default async function ChatRoomPage({
                                                params,
                                            }: {

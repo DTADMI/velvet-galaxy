@@ -1,12 +1,14 @@
-import type {Metadata} from "next";
-
-export const metadata: Metadata = {
-    title: "Browse Artists",
-    description:
-        "Discover artists and creators on Velvet Galaxy by craft, style and community.",
+export const metadata = {
+    title: "Browse artists",
+    description: "Browse artists and their artworks on Velvet Galaxy.",
     alternates: {canonical: "/artists/browse"},
+    openGraph: {
+        title: "Browse artists",
+        description: "Browse artists and their artworks on Velvet Galaxy.",
+        url: "/artists/browse",
+    },
 };
 
-export default function BrowseArtistsLayout({children}: {children: React.ReactNode}) {
-    return <>{children}</>;
+export default function BrowseLayout({children}: { children: React.ReactNode }) {
+    return children;
 }

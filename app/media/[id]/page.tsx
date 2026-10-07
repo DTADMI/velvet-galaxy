@@ -5,6 +5,20 @@ import {createClient} from "@/lib/supabase/server";
 
 import {MediaViewerPage} from "./media-viewer-page";
 
+export async function generateMetadata({params}: { params: Promise<{ id: string }> }) {
+    const {id} = await params;
+    const supabase = await createClient();
+    const {data} = await supabase.from("media_items").select("*").eq("id", id).single();
+    const title = data?.title ?? data?.caption ?? "Media";
+    const description = data?.description ?? "View this media on Velvet Galaxy.";
+    return {
+        title,
+        description,
+        alternates: {canonical: `/media/${id}`},
+        openGraph: {title, description, url: `/media/${id}`},
+    };
+}
+
 export default async function MediaPage({params}: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
     const {id} = await params;
