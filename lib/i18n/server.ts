@@ -18,8 +18,9 @@ async function resolveLocale(): Promise<Locale> {
         const b = l.split("-")[0].toLowerCase();
         if (b === "fr") return "fr";
         if (b === "en") return "en";
-        if (b === "es") return "es";
-        if (b === "de") return "de";
+        // L'espagnol et l'allemand ne sont plus proposes : leurs dictionnaires
+        // sont incomplets (7,7 %), donc un navigateur en espagnol obtient le
+        // defaut francais plutot qu'une interface a 92 % anglaise.
       }
     }
   } catch {}

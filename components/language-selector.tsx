@@ -16,8 +16,6 @@ import { useI18n } from "@/lib/i18n/provider";
 const languageAbbreviations: Record<Locale, string> = {
     en: "EN",
     fr: "FR",
-    es: "ES",
-    de: "DE",
 };
 
 export function LanguageSelector() {

@@ -59,6 +59,23 @@ else
   echo "  ⚠️  scripts/validate-workflows.mjs not found — skipping workflow validation"
 fi
 
+# ── 0bis. Completude i18n ────────────────────
+# Une langue proposee dans le selecteur doit etre complete. Incident 2026-10-08 :
+# l'espagnol et l'allemand etaient offerts avec 36 cles sur 469, donc une interface
+# a 92 % anglaise apres un choix explicite de l'utilisateur, sans aucun message.
+if [ -f "scripts/check-i18n-completeness.mjs" ]; then
+  echo ""
+  echo "  [i18n-completeness] Running…"
+  if node scripts/check-i18n-completeness.mjs --strict 2>&1; then
+    ok "i18n-completeness"
+  else
+    fail "i18n-completeness"
+  fi
+else
+  echo ""
+  echo "  ⚠️  scripts/check-i18n-completeness.mjs not found — skipping i18n check"
+fi
+
 # ── 1. Lint ─
 run_check "lint" "pnpm lint --cache"
 
