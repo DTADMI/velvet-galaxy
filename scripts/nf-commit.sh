@@ -113,7 +113,19 @@ fi
 
 # Stage exactly these paths (covers new files and deletions). `git commit --`
 # then records only them and leaves any other staged work untouched.
-git add -A -- "${PATHS[@]}"
+#
+# Fallback encountered 2026-10-08: `git add -A -- <path>` FAILS on a path that is
+# tracked but sits inside an ignored directory (here quest-hunt-web/
+# tools/asset-generator, ignored by the root .gitignore while its .gitignore file
+# is tracked). Git prints advice and returns non-zero, so the whole commit
+# aborted. `git add -u` stages modifications and deletions of ALREADY TRACKED
+# files only, which is exactly what is needed here and never adds an ignored
+# untracked file.
+if ! git add -A -- "${PATHS[@]}" 2>/dev/null; then
+  echo "  [nf-commit] git add -A refused a path (tracked inside an ignored directory?)"
+  echo "  [nf-commit] retrying with 'git add -u', which touches tracked files only"
+  git add -u -- "${PATHS[@]}"
+fi
 git commit -m "$MESSAGE" -- "${PATHS[@]}"
 
 # `git commit -- <paths>` records the commit through a temporary index and does
