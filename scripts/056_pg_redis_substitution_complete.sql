@@ -44,7 +44,7 @@ CREATE INDEX IF NOT EXISTS idx_account_lockouts_locked_until ON account_lockouts
 --    false => PG path (the desired default).
 CREATE INDEX IF NOT EXISTS idx_feature_flags_enabled ON feature_flags (is_enabled) WHERE is_enabled = true;
 
--- 5. Rate Limit Check Function — new overload matching lib/security/pg-rate-limit.ts.
+-- 5. Rate Limit Check Function - new overload matching lib/security/pg-rate-limit.ts.
 --    Uses the identifier/route columns; blocked requests do NOT insert (no
 --    unbounded growth under flood).
 CREATE OR REPLACE FUNCTION check_rate_limit(

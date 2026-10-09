@@ -101,7 +101,7 @@ if (undeclared.length > 0) {
     const dict = readDictionary(locale);
     const covered = [...referenceKeys].filter((k) => k in (dict ?? {})).length;
     const pct = ((covered / referenceKeys.size) * 100).toFixed(1);
-    console.log(`    - ${locale} : ${pct} % — proposer cette langue exigerait de la completer a ${THRESHOLD} %`);
+    console.log(`    - ${locale} : ${pct} % - proposer cette langue exigerait de la completer a ${THRESHOLD} %`);
   }
 }
 
